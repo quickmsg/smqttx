@@ -3,7 +3,7 @@ package io.github.quickmsg.common.cluster;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.enums.ClusterStatus;
 import io.github.quickmsg.common.message.HeapMqttMessage;
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

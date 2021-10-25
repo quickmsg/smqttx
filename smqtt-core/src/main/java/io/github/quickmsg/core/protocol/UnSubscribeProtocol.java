@@ -2,14 +2,13 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.topic.SubscribeTopic;
-import io.github.quickmsg.common.topic.TopicRegistry;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     static {
         MESSAGE_TYPE_LIST.add(MqttMessageType.UNSUBSCRIBE);
@@ -41,7 +40,7 @@ public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
                     // 随机设置一个MqttQoS 用于删除topic订阅
                     .map(topic -> new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel))
                     .forEach(topicRegistry::removeSubscribeTopic);
-        }).then(mqttChannel.write(MqttMessageBuilder.buildUnsubAck(message.variableHeader().messageId()), false));
+        }).then(mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.variableHeader().messageId()), false));
     }
 
     @Override

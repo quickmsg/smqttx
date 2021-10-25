@@ -1,37 +1,30 @@
 package io.github.quickmsg.core.spi;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.topic.SubscribeTopic;
-import io.github.quickmsg.common.topic.TopicRegistry;
-import io.github.quickmsg.core.topic.FixedTopicFilter;
-import io.github.quickmsg.core.topic.TopicFilter;
-import io.github.quickmsg.core.topic.TreeTopicFilter;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.topic.AbstractTopicAggregate;
+import io.github.quickmsg.common.topic.FixedTopicFilter;
+import io.github.quickmsg.common.topic.TopicFilter;
+import io.github.quickmsg.common.topic.TreeTopicFilter;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 /**
  * @author luxurong
  */
 @Slf4j
-public class DefaultTopicRegistry implements TopicRegistry {
+public class DefaultTopicRegistry extends AbstractTopicAggregate<SubscribeTopic> implements TopicRegistry {
 
-
-    private static final String ONE_SYMBOL = "+";
-
-    private static final String MORE_SYMBOL = "#";
-
-
-    private TopicFilter fixedTopicFilter;
-
-    private TopicFilter treeTopicFilter;
+    private final LongAdder subscribeNumber = new LongAdder();
 
     public DefaultTopicRegistry() {
-        this.fixedTopicFilter = new FixedTopicFilter();
-        this.treeTopicFilter = new TreeTopicFilter();
+        super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
     }
 
 
@@ -42,10 +35,10 @@ public class DefaultTopicRegistry implements TopicRegistry {
 
     @Override
     public void registrySubscribeTopic(SubscribeTopic subscribeTopic) {
-        if (subscribeTopic.getTopicFilter().contains(ONE_SYMBOL) || subscribeTopic.getTopicFilter().contains(MORE_SYMBOL)) {
-            treeTopicFilter.addSubscribeTopic(subscribeTopic);
-        } else {
-            fixedTopicFilter.addSubscribeTopic(subscribeTopic);
+        TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
+        if (filter.addObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
+            subscribeNumber.increment();
+            subscribeTopic.linkSubscribe();
         }
     }
 
@@ -53,8 +46,8 @@ public class DefaultTopicRegistry implements TopicRegistry {
     @Override
     public void clear(MqttChannel mqttChannel) {
         Set<SubscribeTopic> topics = mqttChannel.getTopics();
-        if(log.isDebugEnabled()){
-            log.info("mqttChannel channel {} clear topics {}",mqttChannel,topics);
+        if (log.isDebugEnabled()) {
+            log.info("mqttChannel channel {} clear topics {}", mqttChannel, topics);
         }
         topics.forEach(this::removeSubscribeTopic);
     }
@@ -62,18 +55,18 @@ public class DefaultTopicRegistry implements TopicRegistry {
 
     @Override
     public void removeSubscribeTopic(SubscribeTopic subscribeTopic) {
-        if (subscribeTopic.getTopicFilter().contains(ONE_SYMBOL) || subscribeTopic.getTopicFilter().contains(MORE_SYMBOL)) {
-            treeTopicFilter.removeSubscribeTopic(subscribeTopic);
-        } else {
-            fixedTopicFilter.removeSubscribeTopic(subscribeTopic);
+        TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
+        if (filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
+            subscribeNumber.decrement();
+            subscribeTopic.unLinkSubscribe();
         }
     }
 
 
     @Override
     public Set<SubscribeTopic> getSubscribesByTopic(String topicName, MqttQoS qos) {
-        Set<SubscribeTopic> subscribeTopics = fixedTopicFilter.getSubscribeByTopic(topicName, qos);
-        subscribeTopics.addAll(treeTopicFilter.getSubscribeByTopic(topicName, qos));
+        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getObjectByTopic(topicName);
+        subscribeTopics.addAll(this.getTreeTopicFilter().getObjectByTopic(topicName));
         return subscribeTopics;
     }
 
@@ -85,8 +78,8 @@ public class DefaultTopicRegistry implements TopicRegistry {
 
     @Override
     public Map<String, Set<MqttChannel>> getAllTopics() {
-        Set<SubscribeTopic> subscribeTopics = fixedTopicFilter.getAllSubscribesTopic();
-        subscribeTopics.addAll(treeTopicFilter.getAllSubscribesTopic());
+        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getAllObjectsTopic();
+        subscribeTopics.addAll(this.getTreeTopicFilter().getAllObjectsTopic());
         return subscribeTopics
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -96,7 +89,7 @@ public class DefaultTopicRegistry implements TopicRegistry {
 
     @Override
     public Integer counts() {
-        return fixedTopicFilter.count() + treeTopicFilter.count();
+        return subscribeNumber.intValue();
     }
 
 

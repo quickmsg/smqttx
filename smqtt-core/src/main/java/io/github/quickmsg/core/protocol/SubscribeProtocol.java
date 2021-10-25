@@ -2,14 +2,13 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.MessageRegistry;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.topic.SubscribeTopic;
-import io.github.quickmsg.common.topic.TopicRegistry;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
 import io.netty.handler.codec.mqtt.MqttMessageType;
-import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
 
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     @Override
     public Mono<Void> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
@@ -43,7 +42,7 @@ public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
                             .collect(Collectors.toSet());
             topicRegistry.registrySubscribesTopic(mqttTopicSubscriptions);
         }).then(mqttChannel.write(
-                MqttMessageBuilder.buildSubAck(
+                MqttMessageUtils.buildSubAck(
                         message.variableHeader().messageId(),
                         message.payload()
                                 .topicSubscriptions()

@@ -5,11 +5,12 @@ import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.message.*;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.topic.SubscribeTopic;
-import io.github.quickmsg.common.topic.TopicRegistry;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.utils.MessageUtils;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttMessageType;
-import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PublishProtocol implements Protocol<MqttPublishMessage> {
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     static {
         MESSAGE_TYPE_LIST.add(MqttMessageType.PUBLISH);
@@ -58,14 +59,14 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
                     return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry));
                 case AT_LEAST_ONCE:
                     return send(mqttChannels, message, messageRegistry,
-                            mqttChannel.write(MqttMessageBuilder.buildPublishAck(variableHeader.packetId()), false)
+                            mqttChannel.write(MqttMessageUtils.buildPublishAck(variableHeader.packetId()), false)
                                     .then(filterRetainMessage(message, messageRegistry)));
                 case EXACTLY_ONCE:
                     if (!mqttChannel.existQos2Msg(variableHeader.packetId())) {
                         return mqttChannel
                                 .cacheQos2Msg(variableHeader.packetId(),
                                         MessageUtils.wrapPublishMessage(message, message.fixedHeader().qosLevel(), 0))
-                                .then(mqttChannel.write(MqttMessageBuilder.buildPublishRec(variableHeader.packetId()), true));
+                                .then(mqttChannel.write(MqttMessageUtils.buildPublishRec(variableHeader.packetId()), true));
                     }
                 default:
                     return Mono.empty();

@@ -2,7 +2,7 @@ package io.github.quickmsg.common.channel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.enums.ChannelStatus;
-import io.github.quickmsg.common.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.*;
 import lombok.Builder;

@@ -2,11 +2,11 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.topic.SubscribeTopic;
-import io.github.quickmsg.common.topic.TopicRegistry;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class CommonProtocol implements Protocol<MqttMessage> {
 
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     static {
         MESSAGE_TYPE_LIST.add(MqttMessageType.PINGRESP);
@@ -45,7 +45,7 @@ public class CommonProtocol implements Protocol<MqttMessage> {
         MqttMessage message = smqttMessage.getMessage();
         switch (message.fixedHeader().messageType()) {
             case PINGREQ:
-                return mqttChannel.write(MqttMessageBuilder.buildPongMessage(), false);
+                return mqttChannel.write(MqttMessageUtils.buildPongMessage(), false);
             case DISCONNECT:
                 return Mono.fromRunnable(() -> {
                     mqttChannel.setWill(null);
@@ -58,7 +58,7 @@ public class CommonProtocol implements Protocol<MqttMessage> {
                 MqttMessageIdVariableHeader messageIdVariableHeader = (MqttMessageIdVariableHeader) message.variableHeader();
                 int messageId = messageIdVariableHeader.messageId();
                 return mqttChannel.cancelRetry(MqttMessageType.PUBLISH, messageId)
-                        .then(mqttChannel.write(MqttMessageBuilder.buildPublishRel(messageId), true));
+                        .then(mqttChannel.write(MqttMessageUtils.buildPublishRel(messageId), true));
             case PUBREL:
                 MqttMessageIdVariableHeader relMessageIdVariableHeader = (MqttMessageIdVariableHeader) message.variableHeader();
                 int id = relMessageIdVariableHeader.messageId();
@@ -79,8 +79,8 @@ public class CommonProtocol implements Protocol<MqttMessage> {
                                                             subscribeTopic.getMqttChannel().generateMessageId()), subscribeTopic.getQoS().value() > 0)
                                             ).collect(Collectors.toList()))
                                     .then(mqttChannel.cancelRetry(MqttMessageType.PUBREC, id))
-                                    .then(mqttChannel.write(MqttMessageBuilder.buildPublishComp(id), false));
-                        }).orElseGet(() -> mqttChannel.write(MqttMessageBuilder.buildPublishComp(id), false));
+                                    .then(mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false));
+                        }).orElseGet(() -> mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false));
 
             case PUBCOMP:
                 MqttMessageIdVariableHeader messageIdVariableHeader1 = (MqttMessageIdVariableHeader) message.variableHeader();

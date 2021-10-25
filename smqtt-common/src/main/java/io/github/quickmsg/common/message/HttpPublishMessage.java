@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.message;
 
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -26,7 +27,7 @@ public class HttpPublishMessage {
 
 
     public MqttPublishMessage getPublishMessage() {
-        return MqttMessageBuilder.buildPub(
+        return MqttMessageUtils.buildPub(
                 false,
                 MqttQoS.valueOf(qos),
                 retain,

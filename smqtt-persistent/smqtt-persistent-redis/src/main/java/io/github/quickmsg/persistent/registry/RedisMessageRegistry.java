@@ -2,8 +2,7 @@ package io.github.quickmsg.persistent.registry;
 
 import io.github.quickmsg.common.bootstrap.BootstrapKey;
 import io.github.quickmsg.common.config.BootstrapConfig;
-import io.github.quickmsg.common.environment.EnvContext;
-import io.github.quickmsg.common.message.MessageRegistry;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.utils.TopicRegexUtils;
@@ -17,7 +16,6 @@ import org.redisson.api.RKeys;
 import org.redisson.api.RList;
 import org.redisson.api.RedissonClient;
 
-import java.sql.Connection;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

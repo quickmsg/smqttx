@@ -1,6 +1,6 @@
 package io.github.quickmsg.common.rule.source;
 
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 
 import java.util.List;
 import java.util.Map;

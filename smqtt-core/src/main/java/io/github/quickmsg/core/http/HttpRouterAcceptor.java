@@ -1,9 +1,9 @@
 package io.github.quickmsg.core.http;
 
-import io.github.quickmsg.common.annotation.AllowCors;
-import io.github.quickmsg.common.annotation.Header;
-import io.github.quickmsg.common.annotation.Headers;
-import io.github.quickmsg.common.annotation.Router;
+import io.github.quickmsg.common.http.annotation.AllowCors;
+import io.github.quickmsg.common.http.annotation.Header;
+import io.github.quickmsg.common.http.annotation.Headers;
+import io.github.quickmsg.common.http.annotation.Router;
 import io.github.quickmsg.common.http.HttpActor;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.reactivestreams.Publisher;

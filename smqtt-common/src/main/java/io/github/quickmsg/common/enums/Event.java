@@ -2,7 +2,7 @@ package io.github.quickmsg.common.enums;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.message.system.ChannelStatusMessage;
 import io.github.quickmsg.common.utils.JacksonUtil;
@@ -27,7 +27,7 @@ public enum Event {
         @Override
         public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
             MqttPublishMessage mqttPublishMessage =
-                    MqttMessageBuilder.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CONNECT_TOPIC, writeBody(mqttChannel, body));
+                    MqttMessageUtils.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CONNECT_TOPIC, writeBody(mqttChannel, body));
             write(receiveContext, mqttChannel, mqttPublishMessage);
         }
 
@@ -51,7 +51,7 @@ public enum Event {
         @Override
         public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
             MqttPublishMessage mqttPublishMessage =
-                    MqttMessageBuilder.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CLOSE_TOPIC, writeBody(mqttChannel, body));
+                    MqttMessageUtils.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CLOSE_TOPIC, writeBody(mqttChannel, body));
             write(receiveContext, mqttChannel, mqttPublishMessage);
         }
 

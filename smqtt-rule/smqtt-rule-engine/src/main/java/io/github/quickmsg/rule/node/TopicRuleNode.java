@@ -3,7 +3,7 @@ package io.github.quickmsg.rule.node;
 import io.github.quickmsg.common.channel.MockMqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.HeapMqttMessage;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.rule.RuleNode;
@@ -53,7 +53,7 @@ public class TopicRuleNode implements RuleNode {
 
 
     private MqttPublishMessage getMqttMessage(HeapMqttMessage heapMqttMessage) {
-        return MqttMessageBuilder
+        return MqttMessageUtils
                 .buildPub(false,
                         MqttQoS.valueOf(heapMqttMessage.getQos()),
                         0,

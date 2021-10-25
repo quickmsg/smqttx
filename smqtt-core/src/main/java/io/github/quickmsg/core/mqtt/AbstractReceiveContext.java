@@ -1,38 +1,40 @@
 package io.github.quickmsg.core.mqtt;
 
 import io.github.quickmsg.common.auth.PasswordAuthentication;
-import io.github.quickmsg.common.channel.ChannelRegistry;
-import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.channel.traffic.TrafficHandlerLoader;
 import io.github.quickmsg.common.cluster.ClusterRegistry;
 import io.github.quickmsg.common.config.AbstractConfiguration;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.enums.Event;
-import io.github.quickmsg.common.message.HeapMqttMessage;
-import io.github.quickmsg.common.message.MessageRegistry;
-import io.github.quickmsg.common.message.EventRegistry;
-import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
+import io.github.quickmsg.common.handler.LazyTrafficHandlerLoader;
+import io.github.quickmsg.common.handler.TrafficHandlerLoader;
+import io.github.quickmsg.common.integrate.channel.ChannelRegistry;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.interate1.Integrate;
+import io.github.quickmsg.common.interate1.IntegrateBuilder;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
-import io.github.quickmsg.common.topic.TopicRegistry;
+import io.github.quickmsg.common.spi.registry.EventRegistry;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.cluster.InJvmClusterRegistry;
-import io.github.quickmsg.core.mqtt.traffic.CacheTrafficHandlerLoader;
-import io.github.quickmsg.core.mqtt.traffic.LazyTrafficHandlerLoader;
-import io.github.quickmsg.core.spi.*;
+import io.github.quickmsg.core.spi.DefaultChannelRegistry;
+import io.github.quickmsg.core.spi.DefaultMessageRegistry;
+import io.github.quickmsg.core.spi.DefaultProtocolAdaptor;
+import io.github.quickmsg.core.spi.DefaultTopicRegistry;
 import io.github.quickmsg.dsl.RuleDslParser;
+import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.resources.LoopResources;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -67,6 +69,8 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final TrafficHandlerLoader trafficHandlerLoader;
 
+    private final Integrate integrate;
+
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
@@ -85,6 +89,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.passwordAuthentication = basicAuthentication();
         this.channelRegistry.startUp(abstractConfiguration.getEnvironmentMap());
         this.messageRegistry.startUp(abstractConfiguration.getEnvironmentMap());
+        this.integrate = integrateBuilder().newIntegrate(configuration);
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
     }
@@ -155,5 +160,10 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     private AbstractConfiguration castConfiguration(T configuration) {
         return (AbstractConfiguration) configuration;
     }
+
+    private IntegrateBuilder integrateBuilder() {
+        return IgniteIntegrate::new;
+    }
+
 
 }

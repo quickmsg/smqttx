@@ -1,7 +1,7 @@
 package io.github.quickmsg.common.auth;
 
 import io.github.quickmsg.common.StartUp;
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 
 /**
  * @author luxurong

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class UnSubscribeAckProtocol implements Protocol<MqttUnsubAckMessage> {
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     static {
         MESSAGE_TYPE_LIST.add(MqttMessageType.UNSUBACK);

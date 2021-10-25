@@ -1,12 +1,12 @@
 package io.github.quickmsg.common.protocol;
 
-import io.github.quickmsg.common.annotation.Intercept;
+import io.github.quickmsg.common.interceptor.Intercept;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.interceptor.MessageProxy;
 import io.github.quickmsg.common.message.SmqttMessage;
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 
 /**

@@ -1,7 +1,7 @@
 package io.github.quickmsg.persistent.registry;
 
 import io.github.quickmsg.common.config.BootstrapConfig;
-import io.github.quickmsg.common.message.MessageRegistry;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.utils.TopicRegexUtils;

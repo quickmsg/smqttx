@@ -7,7 +7,7 @@ import io.github.quickmsg.common.message.HeapMqttMessage;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;

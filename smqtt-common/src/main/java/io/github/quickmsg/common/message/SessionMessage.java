@@ -2,6 +2,7 @@ package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.utils.MessageUtils;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
@@ -39,7 +40,7 @@ public class SessionMessage {
     }
 
     public MqttPublishMessage toPublishMessage(MqttChannel mqttChannel) {
-        return MqttMessageBuilder.buildPub(
+        return MqttMessageUtils.buildPub(
                 false,
                 MqttQoS.valueOf(this.qos),
                 qos > 0 ? mqttChannel.generateMessageId() : 0,

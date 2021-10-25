@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class PublishAckProtocol implements Protocol<MqttPubAckMessage> {
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
 
     static {

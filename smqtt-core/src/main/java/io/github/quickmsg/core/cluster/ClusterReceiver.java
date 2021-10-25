@@ -4,7 +4,7 @@ import io.github.quickmsg.common.channel.MockMqttChannel;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.message.HeapMqttMessage;
 import io.github.quickmsg.common.cluster.ClusterRegistry;
-import io.github.quickmsg.common.message.MqttMessageBuilder;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
@@ -51,7 +51,7 @@ public class ClusterReceiver {
     }
 
     private SmqttMessage<MqttMessage> getMqttMessage(HeapMqttMessage heapMqttMessage) {
-        return new SmqttMessage<>(MqttMessageBuilder
+        return new SmqttMessage<>(MqttMessageUtils
                 .buildPub(false,
                         MqttQoS.valueOf(heapMqttMessage.getQos()),
                         0,

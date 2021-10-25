@@ -6,7 +6,7 @@ import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
-import io.github.quickmsg.common.spi.DynamicLoader;
+import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
-    private Map<MqttMessageType, Protocol<MqttMessage>> types = new HashMap<>();
+    private final Map<MqttMessageType, Protocol<MqttMessage>> types = new HashMap<>();
 
 
     private final Scheduler scheduler;

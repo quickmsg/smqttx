@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class SubscribeAckProtocol implements Protocol<MqttSubAckMessage> {
 
-    private static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
 
     static {

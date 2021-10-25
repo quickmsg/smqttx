@@ -1,11 +1,10 @@
 package io.github.quickmsg.core.http.actors.resource;
 
-import io.github.quickmsg.common.annotation.Router;
+import io.github.quickmsg.common.http.annotation.Router;
 import io.github.quickmsg.common.config.Configuration;
-import io.github.quickmsg.common.enums.HttpType;
+import io.github.quickmsg.common.http.enums.HttpType;
 import io.github.quickmsg.common.http.HttpActor;
 import io.github.quickmsg.common.utils.ClassPathLoader;
-import io.github.quickmsg.core.http.HttpConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.netty.http.server.HttpServerRequest;
