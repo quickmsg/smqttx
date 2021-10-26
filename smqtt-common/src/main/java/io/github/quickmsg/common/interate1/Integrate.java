@@ -15,15 +15,19 @@ public interface Integrate {
      */
     Cluster getCluster();
 
+
     /**
+     * @param cacheName cache name
      * @return {@link ShareCache support memory or Persistence }
      */
     <K, V> ShareCache<K, V> getCache(String cacheName);
 
-    <K, V> ShareCache<K, V> getCache(String cacheName, Integer Size);
-
-
-    <K, V> ShareCache<K, V> getCache(String cacheName, Integer Size, Boolean persistence);
+    /**
+     * @param cacheName cache name
+     * @param setDataRegionName  data region name
+     * @return {@link ShareCache support memory or Persistence }
+     */
+    <K, V> ShareCache<K, V> getCache(String cacheName,String setDataRegionName);
 
 
     /**
@@ -35,4 +39,7 @@ public interface Integrate {
      * @return {@link Message manager message }
      */
     Message getMessage();
+
+
+
 }

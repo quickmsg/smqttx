@@ -10,6 +10,7 @@ import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author luxurong
@@ -35,14 +36,22 @@ public class Test1 {
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-        // Create an IgniteCache and put some values in it.
-        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
-        cache.put(1, "Hello");
-        cache.put(2, "World!");
+//        // Create an IgniteCache and put some values in it.
+//        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
+//        cache.put(1, "Hello");
+//        cache.put(2, "World!");
+
+        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
+
 
         long time1 = System.currentTimeMillis();
+
         for (int i = 0; i < 500000; i++) {
-            System.out.println(">> " + cache.get(3));
+            Map<String,Object> mapCache=cache.get(3);
+            if(mapCache!=null){
+                System.out.println(">> " + mapCache.get("1"));
+
+            }
         }
 
         long time2 = System.currentTimeMillis();
@@ -62,15 +71,15 @@ public class Test1 {
      * A compute tasks that prints out a node ID and some details about its OS and JRE.
      * Plus, the code shows how to access data stored in a cache from the compute task.
      */
-    private static class RemoteTask implements IgniteRunnable {
-        @IgniteInstanceResource
-        Ignite ignite;
-
-        @Override
-        public void run() {
-            System.out.println(">> Executing the compute task");
-
-
-        }
-    }
+//    private static class RemoteTask implements IgniteRunnable {
+//        @IgniteInstanceResource
+//        Ignite ignite;
+//
+//        @Override
+//        public void run() {
+//            System.out.println(">> Executing the compute task");
+//
+//
+//        }
+//    }
 }

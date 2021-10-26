@@ -3,6 +3,7 @@ package io.github.quickmsg;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheEntryProcessor;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.lang.IgniteRunnable;
 import org.apache.ignite.resources.IgniteInstanceResource;
@@ -11,7 +12,12 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
+import javax.cache.processor.MutableEntry;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author luxurong
@@ -40,8 +46,13 @@ public class Test2 {
         Ignite ignite = Ignition.start(cfg);
 
         // Create an IgniteCache and put some values in it.
-        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
-        cache.put(3, "dssdsdsdsd");
+        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
+        Map<String,Object> map = new HashMap<>();
+        map.put("1","90090099");
+        cache.put(3,map);
+        Thread.sleep(2000);
+        cache.get(3).put("1","2121");
+
 
         System.out.println(">> Created the cache and add the values.");
 
