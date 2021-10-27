@@ -1,8 +1,5 @@
 package io.github.quickmsg.common.interate1.job;
 
-import org.apache.ignite.lang.IgniteCallable;
-import org.apache.ignite.lang.IgniteRunnable;
-
 import java.util.Collection;
 
 /**
@@ -10,8 +7,10 @@ import java.util.Collection;
  */
 public interface JobExecutor {
 
-    void execute(IgniteRunnable runnable);
+    void execute(Job job);
 
-    <V> Collection<V> execute(IgniteCallable<V> callable);
+    <R> Collection<R> callBroadcast(JobCaller<R> callable);
+
+    <R> R call(JobCaller<R> callable);
 
 }

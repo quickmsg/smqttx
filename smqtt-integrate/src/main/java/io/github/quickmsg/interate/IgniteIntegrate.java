@@ -3,6 +3,7 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.cache.ShareCache;
 import io.github.quickmsg.common.interate1.cluster.Cluster;
+import io.github.quickmsg.common.interate1.job.JobExecutor;
 import io.github.quickmsg.common.interate1.msg.Message;
 import io.github.quickmsg.common.interate1.topic.Topics;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
@@ -54,6 +55,11 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public Message getMessage() {
         return new IgniteMessage(new FixedTopicFilter<>(), new TreeTopicFilter<>());
+    }
+
+    @Override
+    public JobExecutor getJobExecutor() {
+        return new IgniteExecutor(ignite.compute(ignite.cluster()));
     }
 
 }

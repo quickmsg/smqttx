@@ -2,6 +2,7 @@ package io.github.quickmsg.common.interate1;
 
 import io.github.quickmsg.common.interate1.cache.ShareCache;
 import io.github.quickmsg.common.interate1.cluster.Cluster;
+import io.github.quickmsg.common.interate1.job.JobExecutor;
 import io.github.quickmsg.common.interate1.msg.Message;
 import io.github.quickmsg.common.interate1.topic.Topics;
 
@@ -23,11 +24,11 @@ public interface Integrate {
     <K, V> ShareCache<K, V> getCache(String cacheName);
 
     /**
-     * @param cacheName cache name
-     * @param setDataRegionName  data region name
+     * @param cacheName         cache name
+     * @param setDataRegionName data region name
      * @return {@link ShareCache support memory or Persistence }
      */
-    <K, V> ShareCache<K, V> getCache(String cacheName,String setDataRegionName);
+    <K, V> ShareCache<K, V> getCache(String cacheName, String setDataRegionName);
 
 
     /**
@@ -40,6 +41,10 @@ public interface Integrate {
      */
     Message getMessage();
 
+    /**
+     * @return {@link JobExecutor job executor }
+     */
+    JobExecutor getJobExecutor();
 
 
 }
