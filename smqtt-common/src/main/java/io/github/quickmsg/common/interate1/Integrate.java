@@ -1,50 +1,76 @@
 package io.github.quickmsg.common.interate1;
 
-import io.github.quickmsg.common.interate1.cache.ShareCache;
-import io.github.quickmsg.common.interate1.cluster.Cluster;
+import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.interate1.cache.IntegrateCache;
+import io.github.quickmsg.common.interate1.channel.IntegrateChannels;
+import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
 import io.github.quickmsg.common.interate1.job.JobExecutor;
-import io.github.quickmsg.common.interate1.msg.Message;
+import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
 import io.github.quickmsg.common.interate1.topic.Topics;
+import io.github.quickmsg.common.protocol.ProtocolAdaptor;
+import org.apache.ignite.Ignite;
 
 /**
  * @author luxurong
  */
 public interface Integrate {
 
+
     /**
-     * @return {@link Cluster }
+     * @return {@link IntegrateChannels }
      */
-    Cluster getCluster();
+    IntegrateChannels getChannels();
+
+    /**
+     * @return {@link IntegrateCluster }
+     */
+    IntegrateCluster getCluster();
 
 
     /**
      * @param cacheName cache name
-     * @return {@link ShareCache support memory or Persistence }
+     * @return {@link IntegrateCache support memory or Persistence }
      */
-    <K, V> ShareCache<K, V> getCache(String cacheName);
+    <K, V> IntegrateCache<K, V> getCache(String cacheName);
 
     /**
      * @param cacheName         cache name
      * @param setDataRegionName data region name
-     * @return {@link ShareCache support memory or Persistence }
+     * @return {@link IntegrateCache support memory or Persistence }
      */
-    <K, V> ShareCache<K, V> getCache(String cacheName, String setDataRegionName);
+    <K, V> IntegrateCache<K, V> getCache(String cacheName, String setDataRegionName);
 
 
     /**
      * @return {@link Topics manager topic }
      */
-    Topics getTopics();
+    Topics<SubscribeTopic> getTopics();
 
     /**
-     * @return {@link Message manager message }
+     * @return {@link IntegrateMessages manager message }
      */
-    Message getMessage();
+    IntegrateMessages getMessage();
 
     /**
      * @return {@link JobExecutor job executor }
      */
     JobExecutor getJobExecutor();
+
+
+    /**
+     * get protocol adaptor
+     *
+     * @return {@link ProtocolAdaptor protocol adaptor }
+     */
+    ProtocolAdaptor getProtocolAdaptor();
+
+
+    /**
+     * get  Ignite
+     *
+     * @return {@link Ignite Ignite  }
+     */
+    Ignite getIgnite();
 
 
 }

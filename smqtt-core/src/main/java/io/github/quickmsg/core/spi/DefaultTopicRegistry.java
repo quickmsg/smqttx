@@ -39,6 +39,7 @@ public class DefaultTopicRegistry extends AbstractTopicAggregate<SubscribeTopic>
         if (filter.addObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
             subscribeNumber.increment();
             subscribeTopic.linkSubscribe();
+
         }
     }
 

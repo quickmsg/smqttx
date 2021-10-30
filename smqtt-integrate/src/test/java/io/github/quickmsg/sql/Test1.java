@@ -1,16 +1,20 @@
-package io.github.quickmsg;
+package io.github.quickmsg.sql;
 
+import io.github.quickmsg.TestAnnocation;
 import io.github.quickmsg.common.interate1.proxy.IntegrateProxy;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.query.QueryCursor;
+import org.apache.ignite.cache.query.SqlFieldsQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
-import org.apache.ignite.lang.IgniteRunnable;
-import org.apache.ignite.resources.IgniteInstanceResource;
+import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,33 +38,34 @@ public class Test1 {
         ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
         cfg.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(ipFinder));
 
+        SqlConfiguration sqlConfiguration = new SqlConfiguration();
+        sqlConfiguration.setSqlSchemas("test");
+        cfg.setSqlConfiguration(sqlConfiguration);
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-//        // Create an IgniteCache and put some values in it.
-//        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
-//        cache.put(1, "Hello");
-//        cache.put(2, "World!");
+        IgniteCache<Integer,Person>  cache= ignite.getOrCreateCache(new CacheConfiguration<Integer,Person>().setName("myCache").setIndexedTypes(Integer.class,Person.class));
+        cache.put(1,new Person("zhnagsan",1,28));
+        cache.put(2,new Person("lisi",2,38));
 
-        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
-        TestAnnocation proxy=
-                new IntegrateProxy<>(new TestAnnocation(),TestAnnocation.class, ignite.compute()).proxy();
-        proxy.tet();
 
         long time1 = System.currentTimeMillis();
 
-        for (int i = 0; i < 500000; i++) {
-            Map<String,Object> mapCache=cache.get(3);
-            if(mapCache!=null){
-                System.out.println(">> " + mapCache.get("1"));
 
-            }
+        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select * from Person where age > 19").setLocal(true);
+        // Iterate over the result set.
+        try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
+            for (List<?> row : cursor)
+                System.out.println("person=" + row);
         }
+
+
+
 
         long time2 = System.currentTimeMillis();
 
 
-        System.out.println("cost time " + ((time2 - time1) / 1000) + "s");
+        System.out.println("sql query cost time " + ((time2 - time1) / 1000) + "s");
 
         System.out.println(">> Compute task is executed, check for output on the server nodes.");
 

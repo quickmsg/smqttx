@@ -25,16 +25,22 @@ import io.github.quickmsg.core.spi.DefaultProtocolAdaptor;
 import io.github.quickmsg.core.spi.DefaultTopicRegistry;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
+import io.github.quickmsg.common.interate1.IgniteKeys;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Sinks;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
+import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.resources.LoopResources;
 
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -89,10 +95,11 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.passwordAuthentication = basicAuthentication();
         this.channelRegistry.startUp(abstractConfiguration.getEnvironmentMap());
         this.messageRegistry.startUp(abstractConfiguration.getEnvironmentMap());
-        this.integrate = integrateBuilder().newIntegrate(null);
+        this.integrate = integrateBuilder().newIntegrate(initConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
     }
+
 
     private TrafficHandlerLoader trafficHandlerLoader() {
         if (configuration.getGlobalReadWriteSize() == null && configuration.getChannelReadWriteSize() == null) {
@@ -162,7 +169,29 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     }
 
     private IntegrateBuilder integrateBuilder() {
-        return IgniteIntegrate::new;
+        return configuration -> new IgniteIntegrate(configuration, protocolAdaptor);
+    }
+
+    private IgniteConfiguration initConfig() {
+        DataRegionConfiguration connectRegionConfiguration = new DataRegionConfiguration();
+        connectRegionConfiguration.setName(IgniteKeys.CHANNEL_PERSISTENCE_AREA);
+        DataRegionConfiguration topicRegionConfiguration = new DataRegionConfiguration();
+        topicRegionConfiguration.setName(IgniteKeys.TOPIC_PERSISTENCE_AREA);
+
+        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
+        dataStorageConfiguration.setDataRegionConfigurations(connectRegionConfiguration, topicRegionConfiguration);
+
+        IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
+        igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+        igniteConfiguration.setClientMode(false);
+        igniteConfiguration.setLocalHost("127.0.0.1");
+        igniteConfiguration.setPeerClassLoadingEnabled(true);
+
+        // Setting up an IP Finder to ensure the client can locate the servers.
+        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+        ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
+        igniteConfiguration.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(ipFinder));
+        return igniteConfiguration;
     }
 
 

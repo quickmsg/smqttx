@@ -1,93 +1,99 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.interate1.IgniteKeys;
+import io.github.quickmsg.common.interate1.Integrate;
+import io.github.quickmsg.common.interate1.cache.IntegrateCache;
 import io.github.quickmsg.common.interate1.topic.Topics;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
-import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.Lock;
 
 /**
  * @author luxurong
  */
 @Slf4j
-public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> implements Topics {
-
-    protected IgniteTopics() {
-        super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
-    }
+public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> implements Topics<SubscribeTopic> {
 
     private final LongAdder subscribeNumber = new LongAdder();
 
-    @Override
-    public void registrySubscribeTopic(String topicFilter, MqttChannel mqttChannel, MqttQoS qos) {
-        this.registrySubscribeTopic(new SubscribeTopic(topicFilter, qos, mqttChannel));
+    private final IgniteIntegrate integrate;
+
+    private final IntegrateCache<String, Map<String, Integer>> shareCache;
+
+    private final String clusterNode;
+
+    public IgniteTopics(IgniteIntegrate integrate) {
+        super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
+        this.integrate = integrate;
+        this.shareCache = integrate.getCache(IgniteKeys.TOPIC_CACHE_AREA, IgniteKeys.TOPIC_CACHE_AREA);
+        this.clusterNode = integrate.getCluster().getLocalNode();
     }
 
     @Override
-    public void registrySubscribeTopic(SubscribeTopic subscribeTopic) {
+    public void registryTopic(String topic, SubscribeTopic subscribeTopic) {
         TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
         if (filter.addObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
             subscribeNumber.increment();
             subscribeTopic.linkSubscribe();
+            Lock lock = shareCache.lock(topic);
+            try {
+                lock.lock();
+                Map<String, Integer> subscribeCounts =
+                        shareCache.getAndPutIfAbsent(topic, new HashMap<>());
+                Integer number;
+                if ((number = subscribeCounts.get(clusterNode)) != null) {
+                    number += 1;
+                } else {
+                    number = 1;
+                }
+                subscribeCounts.put(clusterNode, number);
+                shareCache.put(topic, subscribeCounts);
+            } finally {
+                lock.lock();
+            }
         }
     }
 
-
     @Override
-    public void clear(MqttChannel mqttChannel) {
-        Set<SubscribeTopic> topics = mqttChannel.getTopics();
-        if (log.isDebugEnabled()) {
-            log.debug("mqttChannel channel {} clear topics {}", mqttChannel, topics);
-        }
-        topics.forEach(this::removeSubscribeTopic);
-    }
-
-
-    @Override
-    public void removeSubscribeTopic(SubscribeTopic subscribeTopic) {
+    public boolean removeTopic(String topic, SubscribeTopic subscribeTopic) {
         TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
-        if (filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
+        boolean success = filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
+        if (success) {
             subscribeNumber.decrement();
-            subscribeTopic.unLinkSubscribe();
         }
+        return success;
+
     }
 
-
     @Override
-    public Set<SubscribeTopic> getSubscribesByTopic(String topicName, MqttQoS qos) {
-        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getObjectByTopic(topicName);
-        subscribeTopics.addAll(this.getTreeTopicFilter().getObjectByTopic(topicName));
+    public Set<SubscribeTopic> getObjectsByTopic(String topicName) {
+        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getAllObjectsTopic();
+        subscribeTopics.addAll(this.getTreeTopicFilter().getAllObjectsTopic());
         return subscribeTopics;
     }
 
     @Override
-    public void registrySubscribesTopic(Set<SubscribeTopic> mqttTopicSubscriptions) {
-        mqttTopicSubscriptions.forEach(this::registrySubscribeTopic);
-    }
-
-
-    @Override
-    public Map<String, Set<MqttChannel>> getAllTopics() {
-        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getAllObjectsTopic();
-        subscribeTopics.addAll(this.getTreeTopicFilter().getAllObjectsTopic());
-        return subscribeTopics
-                .stream()
-                .collect(Collectors.groupingBy(
-                        SubscribeTopic::getTopicFilter,
-                        Collectors.mapping(SubscribeTopic::getMqttChannel, Collectors.toSet())));
+    public Set<String> getRemoteTopicsContext(String topicName) {
+        return new HashSet<>(shareCache.get(topicName).keySet());
     }
 
     @Override
     public Integer counts() {
         return subscribeNumber.intValue();
+    }
+
+    @Override
+    public Integrate getIntegrate() {
+        return this.integrate;
     }
 }

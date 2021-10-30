@@ -1,80 +1,54 @@
 package io.github.quickmsg.common.interate1.topic;
 
-import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.netty.handler.codec.mqtt.MqttQoS;
+import io.github.quickmsg.common.interate1.IntegrateGetter;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
  * @author luxurong
  */
-public interface Topics {
+public interface Topics<T> extends IntegrateGetter {
+
 
     /**
-     * 绑定主题跟channel关系
+     * registry topic object
      *
-     * @param topicFilter 订阅主题
-     * @param mqttChannel {@link MqttChannel}
-     * @param qos         {@link MqttQoS}
+     * @param t     body
+     * @param topic topic
      */
-    void registrySubscribeTopic(String topicFilter, MqttChannel mqttChannel, MqttQoS qos);
+    void registryTopic(String topic, T t);
 
 
     /**
-     * 绑定主题跟channel关系
+     * remove
      *
-     * @param subscribeTopic {@link SubscribeTopic}
+     * @param t     body
+     * @param topic topic
+     * @return result
      */
-    void registrySubscribeTopic(SubscribeTopic subscribeTopic);
+    boolean removeTopic(String topic, T t);
 
 
     /**
-     * 清除订阅消息
-     *
-     * @param mqttChannel {@link MqttChannel}
-     */
-    void clear(MqttChannel mqttChannel);
-
-
-    /**
-     * registryTopicConnection
-     * 取消订阅关系
-     *
-     * @param subscribeTopic {@link SubscribeTopic}
-     */
-    void removeSubscribeTopic(SubscribeTopic subscribeTopic);
-
-
-    /**
-     * 获取topic的channels
+     * get all topic object
      *
      * @param topicName topic name
-     * @param qos       {@link MqttQoS}
      * @return {@link SubscribeTopic}
      */
-    Set<SubscribeTopic> getSubscribesByTopic(String topicName, MqttQoS qos);
+    Set<T> getObjectsByTopic(String topicName);
 
 
     /**
-     * 绑定订阅关系
+     * this get fixed topic remote message
      *
-     * @param subscribeTopics {@link SubscribeTopic}
+     * @param topicName topic name
+     * @return cluster node
      */
-    void registrySubscribesTopic(Set<SubscribeTopic> subscribeTopics);
-
+    Set<String> getRemoteTopicsContext(String topicName);
 
     /**
-     * 获取所有topic信息
-     *
-     * @return {@link MqttChannel}
-     */
-    Map<String, Set<MqttChannel>> getAllTopics();
-
-
-    /**
-     * 获取总数
+     * get all count
      *
      * @return counts
      */

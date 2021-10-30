@@ -2,16 +2,18 @@ package io.github.quickmsg.common.interate1.cluster;
 
 import io.github.quickmsg.common.cluster.ClusterNode;
 import io.github.quickmsg.common.enums.ClusterStatus;
+import io.github.quickmsg.common.interate1.IntegrateGetter;
 import io.github.quickmsg.common.message.HeapMqttMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author luxurong
  */
-public interface Cluster {
+public interface IntegrateCluster extends IntegrateGetter {
 
     /**
      * 开始订阅消息
@@ -34,8 +36,16 @@ public interface Cluster {
      *
      * @return {@link ClusterNode}
      */
-    List<ClusterNode> getClusterNode();
+    Set<String> getCluster();
 
+
+
+    /**
+     * acquire local node id
+     *
+     * @return String
+     */
+    String getLocalNode();
 
     /**
      * 扩散消息
@@ -52,6 +62,7 @@ public interface Cluster {
      * @return {@link Mono}
      */
     Mono<Void> shutdown();
+
 
 
     /**
