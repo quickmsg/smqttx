@@ -4,6 +4,7 @@ import io.github.quickmsg.common.enums.ClusterStatus;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
 import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.pipeline.PipelinePublish;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import reactor.core.publisher.Flux;
@@ -28,6 +29,12 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     private final org.apache.ignite.IgniteCluster igniteCluster;
 
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate, org.apache.ignite.IgniteCluster igniteCluster) {
+        igniteIntegrate
+                .getPipeline()
+                .handle(PipelinePublish.class)
+                .subscribe(pipelinePublish -> {
+
+                });
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteCluster;

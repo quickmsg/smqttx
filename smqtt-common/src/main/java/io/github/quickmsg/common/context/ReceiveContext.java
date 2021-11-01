@@ -1,16 +1,17 @@
 package io.github.quickmsg.common.context;
 
-import io.github.quickmsg.common.integrate.channel.ChannelRegistry;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.cluster.ClusterRegistry;
 import io.github.quickmsg.common.config.Configuration;
-import io.github.quickmsg.common.spi.registry.MessageRegistry;
-import io.github.quickmsg.common.spi.registry.EventRegistry;
+import io.github.quickmsg.common.handler.TrafficHandlerLoader;
+import io.github.quickmsg.common.integrate.channel.ChannelRegistry;
+import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
-import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.spi.registry.EventRegistry;
+import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.netty.handler.codec.mqtt.MqttMessage;
 
 import java.util.function.BiConsumer;
@@ -61,7 +62,6 @@ public interface ReceiveContext<T extends Configuration> extends BiConsumer<Mqtt
     ClusterRegistry getClusterRegistry();
 
 
-
     /**
      * 消息感知/设备感知
      *
@@ -70,13 +70,12 @@ public interface ReceiveContext<T extends Configuration> extends BiConsumer<Mqtt
     EventRegistry getEventRegistry();
 
 
-
     /**
      * 规则引擎注册器
      *
      * @return {@link DslExecutor}
      */
-     DslExecutor getDslExecutor();
+    DslExecutor getDslExecutor();
 
 
     /**
@@ -94,6 +93,13 @@ public interface ReceiveContext<T extends Configuration> extends BiConsumer<Mqtt
      */
     TrafficHandlerLoader getTrafficHandlerLoader();
 
+
+    /**
+     * get Integrate
+     *
+     * @return {@link Integrate }
+     */
+    Integrate getIntegrate();
 
 
 }

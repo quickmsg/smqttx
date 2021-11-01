@@ -23,7 +23,7 @@ public class InterceptorHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
         Intercept intercept = method.getAnnotation(Intercept.class);
         if (intercept == null) {
-            return method.invoke(target, args);
+            return method.invoke(proxy, args);
         } else {
             return interceptor.intercept(new Invocation(method, target, args));
         }

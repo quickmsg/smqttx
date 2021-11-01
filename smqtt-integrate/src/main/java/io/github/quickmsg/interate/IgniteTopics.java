@@ -12,11 +12,11 @@ import io.github.quickmsg.common.topic.TreeTopicFilter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 /**
  * @author luxurong
@@ -70,6 +70,19 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
         boolean success = filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
         if (success) {
             subscribeNumber.decrement();
+            Lock lock = shareCache.lock(topic);
+            try {
+                lock.lock();
+                Map<String, Integer> subscribeCounts =
+                        shareCache.get(topic);
+                Integer number;
+                if ((number = subscribeCounts.get(clusterNode)) != null) {
+                    subscribeCounts.put(clusterNode, number - 1);
+                }
+                shareCache.put(topic, subscribeCounts);
+            } finally {
+                lock.lock();
+            }
         }
         return success;
 
@@ -84,7 +97,12 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
 
     @Override
     public Set<String> getRemoteTopicsContext(String topicName) {
-        return new HashSet<>(shareCache.get(topicName).keySet());
+        return shareCache.get(topicName)
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     @Override

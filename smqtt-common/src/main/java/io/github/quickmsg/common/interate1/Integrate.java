@@ -7,6 +7,7 @@ import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
 import io.github.quickmsg.common.interate1.job.JobExecutor;
 import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
 import io.github.quickmsg.common.interate1.topic.Topics;
+import io.github.quickmsg.common.pipeline.Pipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import org.apache.ignite.Ignite;
 
@@ -71,6 +72,14 @@ public interface Integrate {
      * @return {@link Ignite Ignite  }
      */
     Ignite getIgnite();
+
+
+    /**
+     * get  Pipeline
+     *
+     * @return {@link Pipeline get event pipeline  }
+     */
+    Pipeline getPipeline();
 
 
 }

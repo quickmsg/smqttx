@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class MessageProxy {
 
-    private List<Interceptor> interceptors = DynamicLoader.findAll(Interceptor.class)
+    private final List<Interceptor> interceptors = DynamicLoader.findAll(Interceptor.class)
             .sorted(Comparator.comparing(Interceptor::sort))
             .collect(Collectors.toList());
 

@@ -1,9 +1,17 @@
 package io.github.quickmsg.common.pipeline;
 
+import io.github.quickmsg.common.channel.MqttChannel;
+import lombok.Data;
+
 /**
  * @author luxurong
- * @date 2021/10/25 13:37
- * @description
  */
+
+@Data
 public class PipelineDisconnect {
+
+    private MqttChannel mqttChannel;
+
+    private long timestamp;
+
 }

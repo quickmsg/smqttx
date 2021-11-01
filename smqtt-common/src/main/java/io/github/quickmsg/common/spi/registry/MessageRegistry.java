@@ -12,6 +12,9 @@ import java.util.List;
  */
 public interface MessageRegistry extends StartUp {
 
+
+
+
     MessageRegistry INSTANCE = DynamicLoader.findFirst(MessageRegistry.class).orElse(null);
 
 

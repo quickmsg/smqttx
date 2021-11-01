@@ -59,15 +59,15 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final ProtocolAdaptor protocolAdaptor;
 
-    private final ChannelRegistry channelRegistry;
+//    private final ChannelRegistry channelRegistry;
 
-    private final TopicRegistry topicRegistry;
+//    private final TopicRegistry topicRegistry;
 
-    private final MessageRegistry messageRegistry;
+//    private final MessageRegistry messageRegistry;
 
     private final PasswordAuthentication passwordAuthentication;
 
-    private final ClusterRegistry clusterRegistry;
+//    private final ClusterRegistry clusterRegistry;
 
     private final EventRegistry eventRegistry;
 
@@ -86,15 +86,15 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.dslExecutor = ruleDslParser.parseRule();
         this.eventRegistry = eventRegistry();
         this.protocolAdaptor = protocolAdaptor();
-        this.channelRegistry = channelRegistry();
-        this.topicRegistry = topicRegistry();
+//        this.channelRegistry = channelRegistry();
+//        this.topicRegistry = topicRegistry();
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
-        this.messageRegistry = messageRegistry();
-        this.clusterRegistry = clusterRegistry();
+//        this.messageRegistry = messageRegistry();
+//        this.clusterRegistry = clusterRegistry();
         this.passwordAuthentication = basicAuthentication();
-        this.channelRegistry.startUp(abstractConfiguration.getEnvironmentMap());
-        this.messageRegistry.startUp(abstractConfiguration.getEnvironmentMap());
+//        this.channelRegistry.startUp(abstractConfiguration.getEnvironmentMap());
+//        this.messageRegistry.startUp(abstractConfiguration.getEnvironmentMap());
         this.integrate = integrateBuilder().newIntegrate(initConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
@@ -131,10 +131,10 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         return Event::sender;
     }
 
-    private MessageRegistry messageRegistry() {
-        return Optional.ofNullable(MessageRegistry.INSTANCE)
-                .orElse(new DefaultMessageRegistry());
-    }
+//    private MessageRegistry messageRegistry() {
+//        return Optional.ofNullable(MessageRegistry.INSTANCE)
+//                .orElse(new DefaultMessageRegistry());
+//    }
 
     private PasswordAuthentication basicAuthentication() {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
@@ -142,26 +142,26 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
                 .orElse(abstractConfiguration.getReactivePasswordAuth());
     }
 
-    private ChannelRegistry channelRegistry() {
-        return Optional.ofNullable(ChannelRegistry.INSTANCE)
-                .orElse(new DefaultChannelRegistry());
-    }
-
-    private TopicRegistry topicRegistry() {
-        return Optional.ofNullable(TopicRegistry.INSTANCE)
-                .orElse(new DefaultTopicRegistry());
-    }
+//    private ChannelRegistry channelRegistry() {
+//        return Optional.ofNullable(ChannelRegistry.INSTANCE)
+//                .orElse(new DefaultChannelRegistry());
+//    }
+//
+//    private TopicRegistry topicRegistry() {
+//        return Optional.ofNullable(TopicRegistry.INSTANCE)
+//                .orElse(new DefaultTopicRegistry());
+//    }
 
     private ProtocolAdaptor protocolAdaptor() {
         return Optional.ofNullable(ProtocolAdaptor.INSTANCE)
                 .orElse(new DefaultProtocolAdaptor(Schedulers.newBoundedElastic(configuration.getBusinessThreadSize(), configuration.getBusinessQueueSize(), "business-io")))
                 .proxy();
     }
-
-    private ClusterRegistry clusterRegistry() {
-        return Optional.ofNullable(ClusterRegistry.INSTANCE)
-                .orElse(new InJvmClusterRegistry());
-    }
+//
+//    private ClusterRegistry clusterRegistry() {
+//        return Optional.ofNullable(ClusterRegistry.INSTANCE)
+//                .orElse(new InJvmClusterRegistry());
+//    }
 
 
     private AbstractConfiguration castConfiguration(T configuration) {

@@ -9,6 +9,8 @@ import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
 import io.github.quickmsg.common.interate1.job.JobExecutor;
 import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
 import io.github.quickmsg.common.interate1.topic.Topics;
+import io.github.quickmsg.common.pipeline.Pipeline;
+import io.github.quickmsg.common.pipeline.ReactorPipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
@@ -88,6 +90,11 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public Ignite getIgnite() {
         return this.ignite;
+    }
+
+    @Override
+    public Pipeline getPipeline() {
+        return new ReactorPipeline();
     }
 
 

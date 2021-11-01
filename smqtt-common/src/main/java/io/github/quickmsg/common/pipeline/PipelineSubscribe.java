@@ -1,9 +1,23 @@
 package io.github.quickmsg.common.pipeline;
 
+import io.github.quickmsg.common.channel.MqttChannel;
+import lombok.Data;
+
+import java.util.List;
+
 /**
  * @author luxurong
- * @date 2021/10/25 13:37
- * @description
  */
+
+
+@Data
 public class PipelineSubscribe {
+
+    private MqttChannel channel;
+
+    private List<String> topics;
+
+    private long timestamp;
+
+
 }
