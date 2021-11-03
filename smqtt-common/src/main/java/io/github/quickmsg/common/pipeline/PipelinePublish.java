@@ -10,13 +10,13 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 @Data
 public class PipelinePublish {
 
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private long  id;
 
     @QuerySqlField
     private long timestamp;
 
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private String clientIdentifier;
 
     @QuerySqlField

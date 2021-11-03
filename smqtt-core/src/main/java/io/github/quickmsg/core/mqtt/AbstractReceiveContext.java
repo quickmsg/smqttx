@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.events.EventType;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import reactor.core.scheduler.Schedulers;
@@ -178,14 +179,20 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         DataRegionConfiguration topicRegionConfiguration = new DataRegionConfiguration();
         topicRegionConfiguration.setName(IgniteKeys.TOPIC_PERSISTENCE_AREA);
 
+        DataRegionConfiguration messageRegionConfiguration = new DataRegionConfiguration();
+        messageRegionConfiguration.setName(IgniteKeys.MESSAGE_PERSISTENCE_AREA).setPersistenceEnabled(true);
+
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
-        dataStorageConfiguration.setDataRegionConfigurations(connectRegionConfiguration, topicRegionConfiguration);
+        dataStorageConfiguration.setDataRegionConfigurations(connectRegionConfiguration, topicRegionConfiguration,messageRegionConfiguration);
 
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
         igniteConfiguration.setClientMode(false);
         igniteConfiguration.setLocalHost("127.0.0.1");
         igniteConfiguration.setPeerClassLoadingEnabled(true);
+        // Enable cache events.
+        igniteConfiguration.setIncludeEventTypes(EventType.EVT_NODE_JOINED, EventType.EVT_NODE_LEFT,EventType.EVT_NODE_FAILED);
+
 
         // Setting up an IP Finder to ensure the client can locate the servers.
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();

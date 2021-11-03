@@ -52,5 +52,6 @@ public interface Topics<T> extends IntegrateGetter {
      *
      * @return counts
      */
-    Integer counts();
+    Long counts();
+
 }

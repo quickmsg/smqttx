@@ -41,7 +41,7 @@ smqtt:
     external:
       host: localhost # 用于映射容器ip 请不要随意设置，如果不需要请移除此选项
       port: 7777 # 用于映射容器端口 请不要随意设置，如果不需要请移除此选项
-  db: # 数据库相关设置 请参考 https://doc.smqtt.cc/%E5%85%B6%E4%BB%96/1.store.html 【如果没有引入相关依赖请移除此配置】
+  db: # 数据库相关设置 请参考 https://wiki.smqtt.cc/docs/smqtt/other/1.store.html 【如果没有引入相关依赖请移除此配置】
     driverClassName: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/smqtt?characterEncoding=utf-8&useSSL=false&useInformationSchema=true&serverTimezone=UTC
     username: root
@@ -50,7 +50,7 @@ smqtt:
     maxActive: 300
     maxWait: 60000
     minIdle: 2
-  redis: # redis 请参考 https://doc.smqtt.cc/%E5%85%B6%E4%BB%96/1.store.html 【如果没有引入相关依赖请移除此配置】
+  redis: # redis 请参考 https://wiki.smqtt.cc/docs/smqtt/other/1.store.html【如果没有引入相关依赖请移除此配置】
     mode: single
     database: 0
     password:

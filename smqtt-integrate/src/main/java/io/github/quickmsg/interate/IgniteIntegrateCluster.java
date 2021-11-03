@@ -62,7 +62,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     @Override
     public String getLocalNode() {
-        return null;
+        return igniteIntegrate.getIgnite().cluster().localNode().consistentId().toString();
     }
 
     @Override
