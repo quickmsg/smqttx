@@ -54,4 +54,10 @@ public interface Topics<T> extends IntegrateGetter {
      */
     Long counts();
 
+    /**
+     * clear node all count
+     *
+=     */
+    void clearTopics(String node);
+
 }

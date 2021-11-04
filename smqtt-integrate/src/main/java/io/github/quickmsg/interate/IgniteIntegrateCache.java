@@ -46,5 +46,16 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
         return igniteCache.lock(k);
     }
 
+    @Override
+    public void clear() {
+        this.igniteCache.clear();
+    }
+
+    @Override
+    public void close() {
+        this.igniteCache.close();
+
+    }
+
 
 }

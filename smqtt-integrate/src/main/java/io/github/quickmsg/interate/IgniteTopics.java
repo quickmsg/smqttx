@@ -104,6 +104,15 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
     }
 
     @Override
+    public void clearTopics(String node) {
+        IntegrateCache<String, String> cache = this.shareCache.get(node);
+        if (cache != null) {
+            cache.clear();
+            cache.close();
+        }
+    }
+
+    @Override
     public Integrate getIntegrate() {
         return this.integrate;
     }

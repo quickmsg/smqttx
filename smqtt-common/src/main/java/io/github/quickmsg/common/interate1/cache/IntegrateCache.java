@@ -23,6 +23,13 @@ public interface IntegrateCache<K, V>  {
 
     Lock lock(K k);
 
+    void clear();
+
+    void close();
+
+
+
+
 
 
 }
