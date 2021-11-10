@@ -18,6 +18,11 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.quickmsg</groupId>
             <artifactId>smqtt-common</artifactId>
             <version>1.0.9</version>

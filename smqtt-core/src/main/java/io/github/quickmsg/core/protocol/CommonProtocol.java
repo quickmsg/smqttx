@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class CommonProtocol implements Protocol<MqttMessage> {
+public class CommonProtocol implements Protocol<MqttMessage,Com> {
 
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();

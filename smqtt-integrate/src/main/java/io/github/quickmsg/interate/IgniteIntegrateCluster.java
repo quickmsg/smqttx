@@ -1,10 +1,11 @@
 package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.enums.ClusterStatus;
+import io.github.quickmsg.common.event.message.PublishEvent;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
 import io.github.quickmsg.common.message.HeapMqttMessage;
-import io.github.quickmsg.common.pipeline.PipelinePublish;
+import io.github.quickmsg.common.utils.RetryFailureHandler;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.lang.IgniteBiPredicate;
 import reactor.core.publisher.Flux;
@@ -31,14 +32,14 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate, org.apache.ignite.IgniteCluster igniteCluster) {
         igniteIntegrate
                 .getPipeline()
-                .handle(PipelinePublish.class)
-                .subscribe(pipelinePublish -> {
+                .handle(PublishEvent.class)
+                .subscribe(publishEvent -> {
 
                 });
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteCluster;
-        message.localListen(igniteCluster.localNode().id().toString(), (IgniteBiPredicate<UUID, Object>) this::apply);
+        message.localListen(igniteCluster.localNode().consistentId(), (IgniteBiPredicate<UUID, Object>) this::apply);
     }
 
     @Override
@@ -77,7 +78,8 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     }
 
     private boolean apply(UUID uuid, Object o) {
-        return heapMqttMessageMany.tryEmitNext((HeapMqttMessage) o).isSuccess();
+        heapMqttMessageMany.emitNext((HeapMqttMessage) o, new RetryFailureHandler());
+        return true;
     }
 
     @Override

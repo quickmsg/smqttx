@@ -2,6 +2,7 @@ package io.github.quickmsg.common.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.event.Event;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public interface Protocol<T extends MqttMessage> {
+public interface Protocol<T extends MqttMessage, E extends Event> {
 
 
     /**
@@ -23,7 +24,7 @@ public interface Protocol<T extends MqttMessage> {
      * @return Mono
      * @see MqttMessage
      */
-    default Mono<Void> doParseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel) {
+    default Mono<E> doParseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel) {
         return Mono.deferContextual(contextView -> this.parseProtocol(message, mqttChannel, contextView));
     }
 
@@ -34,10 +35,10 @@ public interface Protocol<T extends MqttMessage> {
      * @param message     {@link SmqttMessage}
      * @param mqttChannel {@link MqttChannel}
      * @param contextView {@link ContextView}
-     * @see MqttMessage
      * @return Mono
+     * @see MqttMessage
      */
-    Mono<Void> parseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel, ContextView contextView);
+    Mono<E> parseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel, ContextView contextView);
 
 
     /**

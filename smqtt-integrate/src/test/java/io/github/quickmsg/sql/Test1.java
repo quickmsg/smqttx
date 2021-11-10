@@ -2,11 +2,17 @@ package io.github.quickmsg.sql;
 
 import io.github.quickmsg.TestAnnocation;
 import io.github.quickmsg.common.interate1.proxy.IntegrateProxy;
+import io.github.quickmsg.common.utils.JacksonUtil;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
+import org.apache.ignite.cache.query.annotations.QuerySqlFunction;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.SqlConfiguration;
@@ -14,6 +20,7 @@ import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,27 +45,39 @@ public class Test1 {
         ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
         cfg.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(ipFinder));
 
+
         SqlConfiguration sqlConfiguration = new SqlConfiguration();
         sqlConfiguration.setSqlSchemas("test");
         cfg.setSqlConfiguration(sqlConfiguration);
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-        IgniteCache<Integer,Person>  cache= ignite.getOrCreateCache(new CacheConfiguration<Integer,Person>().setName("myCache").setIndexedTypes(Integer.class,Person.class));
-        cache.put(1,new Person("zhnagsan",1,28));
-        cache.put(2,new Person("lisi",2,38));
+        IgniteCache<Integer,Person>  cache=
+                ignite.getOrCreateCache(
+                        new CacheConfiguration<Integer,Person>()
+                                .setName("myCache")
+                                .setSqlFunctionClasses(MyFunctions.class)
+                                .setIndexedTypes(Integer.class,Person.class));
+        Map<String,Object> map = new HashMap<>();
+        Map<String,Object> map1 = new HashMap<>();
+        map1.put("haha",2);
+
+        map.put("json",1);
+        map.put("map",map1);
+        cache.put(1,new Person("zhnagsan",1,28,JacksonUtil.map2Json(map)));
+//        cache.put(2,new Person("lisi",2,38));
 
 
         long time1 = System.currentTimeMillis();
 
 
-        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select * from Person where age > 19").setLocal(true);
+
+        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select sqr(params,'$.map.haha') from Person where age > 19").setLocal(true);
         // Iterate over the result set.
         try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
             for (List<?> row : cursor)
                 System.out.println("person=" + row);
         }
-
 
 
 
@@ -73,6 +92,19 @@ public class Test1 {
         Thread.sleep(1000000L);
 
         ignite.close();
+    }
+
+    public static class MyFunctions {
+
+        @QuerySqlFunction
+        public static String sqr(String value,String exp) {
+            JexlEngine J_EXL_ENGINE = new JexlBuilder().create();
+            JexlExpression e = J_EXL_ENGINE.createExpression(exp);
+            Map<String,Object> maps=JacksonUtil.json2Map(value,String.class,Object.class);
+            MapContext context = new MapContext();
+            context.set("$",maps);
+            return String.valueOf(e.evaluate(context)) ;
+        }
     }
 
     /**

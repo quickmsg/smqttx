@@ -1,34 +1,35 @@
-package io.github.quickmsg.common.pipeline;
+package io.github.quickmsg.common.event.message;
 
 import lombok.Data;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
 
 /**
  * @author luxurong
  */
 
 @Data
-public class PipelinePublish {
+public class PublishEvent extends MessageEvent {
 
     @QuerySqlField(index = true)
-    private long  id;
+    private String type;
 
-    @QuerySqlField
+    @QuerySqlField(index = true,descending = true)
     private long timestamp;
 
     @QuerySqlField(index = true)
-    private String clientIdentifier;
+    private String clientId;
 
     @QuerySqlField
     private String topic;
 
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private int qos;
 
-    @QuerySqlField
+    @QuerySqlField(index = true)
     private boolean retain;
 
     @QuerySqlField
-    private byte[] message;
+    private String message;
 
 }

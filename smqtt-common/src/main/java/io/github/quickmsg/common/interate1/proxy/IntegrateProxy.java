@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.interate1.proxy;
 
-import io.github.quickmsg.common.interate1.job.JobFor;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -36,18 +35,7 @@ public class IntegrateProxy<T> implements MethodInterceptor {
     @Override
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        JobFor jobFor = method.getAnnotation(JobFor.class);
-        if (jobFor != null) {
-            return compute.broadcast(() -> {
-                try {
-                   return methodProxy.invoke(source, objects);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            });
-        } else {
-            return methodProxy.invoke(source, objects);
-        }
+
+        return methodProxy.invoke(source, objects);
     }
 }
