@@ -1,13 +1,12 @@
 package io.github.quickmsg.common.interate1.cluster;
 
 import io.github.quickmsg.common.cluster.ClusterNode;
-import io.github.quickmsg.common.enums.ClusterStatus;
+import io.github.quickmsg.common.event.message.PublishEvent;
 import io.github.quickmsg.common.interate1.IntegrateGetter;
 import io.github.quickmsg.common.message.HeapMqttMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,28 +15,19 @@ import java.util.Set;
 public interface IntegrateCluster extends IntegrateGetter {
 
     /**
-     * 开始订阅消息
-     *
-     * @return {@link HeapMqttMessage}
-     */
-    Flux<HeapMqttMessage> handlerClusterMessage();
-
-
-    /**
-     * 开始订阅Node事件
-     *
-     * @return {@link ClusterStatus}
-     */
-    Flux<ClusterStatus> clusterEvent();
-
-
-    /**
      * 获取集群节点信息
      *
      * @return {@link ClusterNode}
      */
-    Set<String> getCluster();
+    Set<String> getClusterNode();
 
+
+    /**
+     * 获取其他集群节点信息
+     *
+     * @return {@link ClusterNode}
+     */
+    Set<String> getOtherClusterNode();
 
 
     /**
@@ -46,14 +36,6 @@ public interface IntegrateCluster extends IntegrateGetter {
      * @return String
      */
     String getLocalNode();
-
-    /**
-     * 扩散消息
-     *
-     * @param heapMqttMessage 集群消息
-     * @return {@link Mono}
-     */
-    Mono<Void> spreadMessage(HeapMqttMessage heapMqttMessage);
 
 
     /**
@@ -64,14 +46,4 @@ public interface IntegrateCluster extends IntegrateGetter {
     Mono<Void> shutdown();
 
 
-
-    /**
-     * 扩散消息
-     *
-     * @param message mqtt Publish消息
-     * @return {@link Mono}
-     */
-    default Mono<Void> spreadPublishMessage(HeapMqttMessage message) {
-        return spreadMessage(message);
-    }
 }

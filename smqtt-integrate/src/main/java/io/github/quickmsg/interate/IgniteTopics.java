@@ -87,13 +87,11 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
 
     @Override
     public Set<String> getRemoteTopicsContext(String topicName) {
-        return integrate.getIgnite()
-                .cluster()
-                .nodes()
+        return integrate.getCluster()
+                .getOtherClusterNode()
                 .stream()
-                .map(cn -> cn.consistentId().toString())
                 .filter(node -> Optional.ofNullable(shareCache.get(node))
-                        .map(cache -> cache.exist(node))
+                        .map(cache -> cache.exist(topicName))
                         .orElse(false))
                 .collect(Collectors.toSet());
     }
