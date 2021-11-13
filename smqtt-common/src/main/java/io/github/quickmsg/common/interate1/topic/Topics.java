@@ -60,4 +60,11 @@ public interface Topics<T> extends IntegrateGetter {
 =     */
     void clearTopics(String node);
 
+
+    /**
+     * clear node all count
+     *
+     =     */
+    boolean isWildcard(String topic);
+
 }

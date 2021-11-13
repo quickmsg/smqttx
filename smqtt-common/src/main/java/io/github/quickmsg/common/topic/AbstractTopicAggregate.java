@@ -9,9 +9,9 @@ import lombok.Getter;
 public abstract class AbstractTopicAggregate<T> {
 
 
-    private static final String ONE_SYMBOL = "+";
+    protected static final String ONE_SYMBOL = "+";
 
-    private static final String MORE_SYMBOL = "#";
+    protected static final String MORE_SYMBOL = "#";
 
 
     private final TopicFilter<T> fixedTopicFilter;

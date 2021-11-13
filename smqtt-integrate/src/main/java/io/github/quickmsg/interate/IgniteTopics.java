@@ -111,6 +111,12 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
     }
 
     @Override
+    public boolean isWildcard(String topic) {
+        return topic.contains(ONE_SYMBOL)
+                || topic.contains(MORE_SYMBOL);
+    }
+
+    @Override
     public Integrate getIntegrate() {
         return this.integrate;
     }
