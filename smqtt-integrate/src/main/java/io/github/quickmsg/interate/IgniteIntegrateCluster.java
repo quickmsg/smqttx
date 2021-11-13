@@ -34,7 +34,7 @@ public class IgniteIntegrateCluster extends EventSubscriber<PublishEvent> implem
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteCluster;
-        message.localListen(igniteCluster.localNode().consistentId(), (IgniteBiPredicate<UUID, Object>) this::doRemote);
+        message.localListen(this.getLocalNode(), (IgniteBiPredicate<UUID, Object>) this::doRemote);
     }
 
 
