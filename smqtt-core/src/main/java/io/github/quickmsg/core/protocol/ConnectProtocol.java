@@ -1,6 +1,7 @@
 package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.auth.PasswordAuthentication;
+import io.github.quickmsg.common.event.message.ConnectEvent;
 import io.github.quickmsg.common.integrate.channel.ChannelRegistry;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class ConnectProtocol implements Protocol<MqttConnectMessage> {
+public class ConnectProtocol implements Protocol<MqttConnectMessage, ConnectEvent> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -48,7 +49,7 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
     }
 
     @Override
-    public Mono<Void> parseProtocol(SmqttMessage<MqttConnectMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<ConnectEvent> parseProtocol(SmqttMessage<MqttConnectMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         try {
             MqttConnectMessage message = smqttMessage.getMessage();
             MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
@@ -63,7 +64,7 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
             if (channelRegistry.exists(clientIdentifier)) {
                 return mqttChannel.write(
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED),
-                        false).then(mqttChannel.close());
+                        false).then(mqttChannel.close()).then(new ConnectEvent());
             }
             /*protocol version support*/
             if (MqttVersion.MQTT_3_1_1.protocolLevel() != (byte) mqttConnectVariableHeader.version()
