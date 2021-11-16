@@ -2,6 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
+public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage, SubscribeEvent> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -29,7 +30,7 @@ public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
 
 
     @Override
-    public Mono<Void> parseProtocol(SmqttMessage<MqttUnsubscribeMessage> smqttMessage , MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<SubscribeEvent> parseProtocol(SmqttMessage<MqttUnsubscribeMessage> smqttMessage , MqttChannel mqttChannel, ContextView contextView) {
         MqttUnsubscribeMessage message = smqttMessage.getMessage();
         return Mono.fromRunnable(() -> {
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
@@ -40,7 +41,7 @@ public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
                     // 随机设置一个MqttQoS 用于删除topic订阅
                     .map(topic -> new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel))
                     .forEach(topicRegistry::removeSubscribeTopic);
-        }).then(mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.variableHeader().messageId()), false));
+        }).then(mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.variableHeader().messageId()), false)).thenReturn(new SubscribeEvent());
     }
 
     @Override

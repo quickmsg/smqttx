@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.event.message;
+package io.github.quickmsg.common.event.acceptor;
 
 import io.github.quickmsg.common.event.Action;
 import io.github.quickmsg.common.event.Event;

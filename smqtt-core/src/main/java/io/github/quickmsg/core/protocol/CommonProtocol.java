@@ -2,9 +2,9 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.event.message.CommonEvent;
+import io.github.quickmsg.common.event.acceptor.CommonEvent;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.MessageUtils;
@@ -73,12 +73,12 @@ public class CommonProtocol implements Protocol<MqttMessage, CommonEvent> {
                 return mqttChannel.removeQos2Msg(id)
                         .map(msg -> {
                             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-                            TopicRegistry topicRegistry = receiveContext.getTopicRegistry();
-                            Set<SubscribeTopic> subscribeTopics = topicRegistry.getSubscribesByTopic(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel());
+                            IntergrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
+                            Set<SubscribeTopic> subscribeTopics = topics.getObjectsByTopic(msg.variableHeader().topicName());
                             return Mono.when(
                                             subscribeTopics.stream()
                                                     .map(subscribeTopic -> subscribeTopic.getMqttChannel()
-                                                            .write(MessageUtils.wrapPublishMessage(msg, subscribeTopic.getQoS(),
+                                                            .write(MessageUtils.wrapPublishMessage(msg, subscribeTopic.minQos(msg.fixedHeader().qosLevel()),
                                                                     subscribeTopic.getMqttChannel().generateMessageId()), subscribeTopic.getQoS().value() > 0)
                                                     ).collect(Collectors.toList()))
                                     .then(mqttChannel.cancelRetry(MqttMessageType.PUBREC, id))
@@ -89,7 +89,8 @@ public class CommonProtocol implements Protocol<MqttMessage, CommonEvent> {
             case PUBCOMP:
                 MqttMessageIdVariableHeader messageIdVariableHeader1 = (MqttMessageIdVariableHeader) message.variableHeader();
                 int compId = messageIdVariableHeader1.messageId();
-                return mqttChannel.cancelRetry(MqttMessageType.PUBREL, compId).thenReturn(new CommonEvent());
+                return mqttChannel.cancelRetry(MqttMessageType.PUBREL, compId)
+                        .thenReturn(new CommonEvent());
             case PINGRESP:
             default:
                 return Mono.empty();

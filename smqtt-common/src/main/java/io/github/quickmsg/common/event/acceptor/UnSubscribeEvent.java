@@ -1,21 +1,23 @@
-package io.github.quickmsg.common.event.message;
+package io.github.quickmsg.common.event.acceptor;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
 /**
  * @author luxurong
  */
-@Getter
-@Setter
-public class PingEvent extends MessageEvent {
+
+@Data
+public class UnSubscribeEvent extends MessageEvent {
 
     @QuerySqlField(index = true)
     private String type;
 
     @QuerySqlField(index = true)
-    private String clientId;
+    private String clientIdentifier;
+
+    @QuerySqlField(index = true)
+    private String topic;
 
     @QuerySqlField(index = true, descending = true)
     private long timestamp;

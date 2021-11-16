@@ -4,7 +4,7 @@ import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import io.github.quickmsg.common.interate1.IgniteKeys;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.cache.IntegrateCache;
-import io.github.quickmsg.common.interate1.topic.Topics;
+import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> implements Topics<SubscribeTopic> {
+public class IgniteIntergrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntergrateTopics<SubscribeTopic> {
 
     private final static String SUBSCRIBE_PREFIX = "subscriber_";
 
@@ -38,7 +38,7 @@ public class IgniteTopics extends AbstractTopicAggregate<SubscribeTopic> impleme
 
     private final String clusterNode;
 
-    public IgniteTopics(IgniteIntegrate integrate) {
+    public IgniteIntergrateTopics(IgniteIntegrate integrate) {
         super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
         this.integrate = integrate;
         this.shareCache = integrate.getCache(IgniteKeys.TOPIC_CACHE_AREA,

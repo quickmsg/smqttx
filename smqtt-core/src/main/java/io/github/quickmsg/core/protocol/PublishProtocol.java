@@ -3,10 +3,13 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
-import io.github.quickmsg.common.message.*;
-import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.message.RetainMessage;
+import io.github.quickmsg.common.message.SessionMessage;
+import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class PublishProtocol implements Protocol<MqttPublishMessage> {
+public class PublishProtocol implements Protocol<MqttPublishMessage, PublishEvent> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -41,7 +44,7 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
 
 
     @Override
-    public Mono<Void> parseProtocol(SmqttMessage<MqttPublishMessage> smqttMessage , MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<PublishEvent> parseProtocol(SmqttMessage<MqttPublishMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         try {
             MqttPublishMessage message = smqttMessage.getMessage();
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
@@ -52,21 +55,25 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
                     message.fixedHeader().qosLevel());
             // http mock
             if (mqttChannel.getIsMock()) {
-                return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry));
+                return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry))
+                        .thenReturn(new PublishEvent());
             }
             switch (message.fixedHeader().qosLevel()) {
                 case AT_MOST_ONCE:
-                    return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry));
+                    return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry))
+                            .thenReturn(new PublishEvent());
                 case AT_LEAST_ONCE:
                     return send(mqttChannels, message, messageRegistry,
                             mqttChannel.write(MqttMessageUtils.buildPublishAck(variableHeader.packetId()), false)
-                                    .then(filterRetainMessage(message, messageRegistry)));
+                                    .then(filterRetainMessage(message, messageRegistry)))
+                            .thenReturn(new PublishEvent());
                 case EXACTLY_ONCE:
                     if (!mqttChannel.existQos2Msg(variableHeader.packetId())) {
                         return mqttChannel
                                 .cacheQos2Msg(variableHeader.packetId(),
                                         MessageUtils.wrapPublishMessage(message, message.fixedHeader().qosLevel(), 0))
-                                .then(mqttChannel.write(MqttMessageUtils.buildPublishRec(variableHeader.packetId()), true));
+                                .then(mqttChannel.write(MqttMessageUtils.buildPublishRec(variableHeader.packetId()), true))
+                                .thenReturn(new PublishEvent());
                     }
                 default:
                     return Mono.empty();
@@ -93,8 +100,8 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
                         .filter(subscribeTopic -> filterOfflineSession(subscribeTopic.getMqttChannel(), messageRegistry, message))
                         .map(subscribeTopic ->
                                 subscribeTopic.getMqttChannel().write(MessageUtils.wrapPublishMessage(message,
-                                        subscribeTopic.getQoS(),
-                                        subscribeTopic.getMqttChannel().generateMessageId()),
+                                                subscribeTopic.getQoS(),
+                                                subscribeTopic.getMqttChannel().generateMessageId()),
                                         subscribeTopic.getQoS().value() > 0)
                         )
                         .collect(Collectors.toList())).then(other);

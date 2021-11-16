@@ -1,10 +1,7 @@
-package io.github.quickmsg.common.event.message;
+package io.github.quickmsg.common.event.acceptor;
 
-import io.github.quickmsg.common.event.Action;
 import lombok.Data;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
-
-import java.util.Map;
 
 /**
  * @author luxurong
@@ -16,7 +13,7 @@ public class ConnectEvent extends MessageEvent {
     @QuerySqlField(index = true)
     private String type;
 
-    @QuerySqlField(index = true,descending = true)
+    @QuerySqlField(index = true, descending = true)
     private long timestamp;
 
     @QuerySqlField(index = true)

@@ -2,6 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
@@ -21,13 +22,13 @@ import java.util.stream.Collectors;
 /**
  * @author luxurong
  */
-public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
+public class SubscribeProtocol implements Protocol<MqttSubscribeMessage, SubscribeEvent> {
 
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     @Override
-    public Mono<Void> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<SubscribeEvent> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttSubscribeMessage message = smqttMessage.getMessage();
         return Mono.fromRunnable(() -> {
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
@@ -50,7 +51,7 @@ public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
                                 .map(mqttTopicSubscription ->
                                         mqttTopicSubscription.qualityOfService()
                                                 .value())
-                                .collect(Collectors.toList())), false));
+                                .collect(Collectors.toList())), false)).thenReturn(new SubscribeEvent());
     }
 
     private void loadRetainMessage(MessageRegistry messageRegistry, MqttChannel mqttChannel, String topicName) {

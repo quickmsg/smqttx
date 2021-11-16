@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * @author luxurong
  */
-public interface Topics<T> extends IntegrateGetter {
+public interface IntergrateTopics<T> extends IntegrateGetter {
 
 
     /**

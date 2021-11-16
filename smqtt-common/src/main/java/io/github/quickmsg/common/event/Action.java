@@ -7,6 +7,7 @@ package io.github.quickmsg.common.event;
 public enum Action {
 
     MESSAGE,
-
+    STATE,
+    WRITE
 
 }

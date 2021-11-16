@@ -3,8 +3,11 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
 import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.TopicFilter;
+
+import java.util.List;
 
 /**
  * @author luxurong
@@ -22,5 +25,10 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
     @Override
     public Integrate getIntegrate() {
         return this.integrate;
+    }
+
+    @Override
+    public List<SessionMessage> getSessionMessage(String clientIdentifier) {
+        return null;
     }
 }

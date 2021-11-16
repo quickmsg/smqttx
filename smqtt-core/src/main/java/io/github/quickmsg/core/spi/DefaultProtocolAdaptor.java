@@ -3,6 +3,7 @@ package io.github.quickmsg.core.spi;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @Slf4j
 public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
-    private final Map<MqttMessageType, Protocol<MqttMessage>> types = new HashMap<>();
+    private final Map<MqttMessageType, Protocol<MqttMessage, Event>> types = new HashMap<>();
 
 
     private final Scheduler scheduler;
@@ -55,8 +56,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                             .doParseProtocol(smqttMessage, mqttChannel)
                             .contextWrite(context -> context.putNonNull(ReceiveContext.class, receiveContext))
                             .subscribeOn(scheduler)
-                            .subscribe(aVoid -> {
-                            }, error -> {
+                            .subscribe(receiveContext::submitEvent, error -> {
                                 log.error("channel {} chooseProtocol: {} error {}", mqttChannel, mqttMessage, error.getMessage());
                                 ReactorNetty.safeRelease(mqttMessage.payload());
                             }, () -> ReactorNetty.safeRelease(mqttMessage.payload())));

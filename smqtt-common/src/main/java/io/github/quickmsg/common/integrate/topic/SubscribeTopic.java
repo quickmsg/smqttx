@@ -43,9 +43,8 @@ public class SubscribeTopic {
         return Objects.hash(topicFilter, mqttChannel);
     }
 
-    public SubscribeTopic compareQos(MqttQoS mqttQoS) {
-        MqttQoS minQos = MqttQoS.valueOf(Math.min(mqttQoS.value(), qoS.value()));
-        return new SubscribeTopic(topicFilter, minQos, mqttChannel);
+    public MqttQoS minQos(MqttQoS mqttQoS) {
+        return MqttQoS.valueOf(Math.min(mqttQoS.value(), qoS.value()));
     }
 
     public void linkSubscribe() {

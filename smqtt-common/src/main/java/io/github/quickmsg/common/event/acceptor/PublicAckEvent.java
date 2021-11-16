@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.event.message;
+package io.github.quickmsg.common.event.acceptor;
 
 import lombok.Data;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;

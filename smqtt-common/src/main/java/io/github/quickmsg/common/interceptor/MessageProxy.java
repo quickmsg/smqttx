@@ -41,21 +41,24 @@ public class MessageProxy {
         @Override
         @SuppressWarnings("unchecked")
         public Object intercept(Invocation invocation) {
-            MqttChannel mqttChannel = (MqttChannel) invocation.getArgs()[0];
-            SmqttMessage<MqttMessage> smqttMessage = (SmqttMessage<MqttMessage>) invocation.getArgs()[1];
-            ReceiveContext<Configuration> mqttReceiveContext = (ReceiveContext<Configuration>) invocation.getArgs()[2];
-            DslExecutor dslExecutor = mqttReceiveContext.getDslExecutor();
-            MqttMessage message = smqttMessage.getMessage();
-            if (!smqttMessage.getIsCluster() && message instanceof MqttPublishMessage) {
-                MqttPublishMessage publishMessage = (MqttPublishMessage) message;
-                HeapMqttMessage heapMqttMessage = this.clusterMessage(publishMessage, mqttChannel, smqttMessage.getTimestamp());
-                if (mqttReceiveContext.getConfiguration().getClusterConfig().isEnable()) {
-                    mqttReceiveContext.getClusterRegistry().spreadPublishMessage(heapMqttMessage).subscribeOn(Schedulers.boundedElastic()).subscribe();
-                }
-                if (dslExecutor.isExecute()) {
-                    dslExecutor.executeRule(mqttChannel, heapMqttMessage, mqttReceiveContext);
-                }
-            }
+//            MqttChannel mqttChannel = (MqttChannel) invocation.getArgs()[0];
+//            SmqttMessage<MqttMessage> smqttMessage = (SmqttMessage<MqttMessage>) invocation.getArgs()[1];
+//            ReceiveContext<Configuration> mqttReceiveContext = (ReceiveContext<Configuration>) invocation.getArgs()[2];
+//            DslExecutor dslExecutor = mqttReceiveContext.getDslExecutor();
+//            MqttMessage message = smqttMessage.getMessage();
+//            if (!smqttMessage.getIsCluster() && message instanceof MqttPublishMessage) {
+//                MqttPublishMessage publishMessage = (MqttPublishMessage) message;
+//                HeapMqttMessage heapMqttMessage = this.clusterMessage(publishMessage, mqttChannel, smqttMessage.getTimestamp());
+//                if (mqttReceiveContext.getConfiguration().getClusterConfig().isEnable()) {
+//                    mqttReceiveContext.getIntegrate()
+//                            .getCluster().spreadPublishMessage(heapMqttMessage)
+//                            .subscribeOn(Schedulers.boundedElastic())
+//                            .subscribe();
+//                }
+//                if (dslExecutor.isExecute()) {
+//                    dslExecutor.executeRule(mqttChannel, heapMqttMessage, mqttReceiveContext);
+//                }
+//            }
             return invocation.proceed();
         }
 
