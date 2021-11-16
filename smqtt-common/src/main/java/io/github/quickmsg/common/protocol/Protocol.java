@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public interface Protocol<T extends MqttMessage, E extends Event> {
+public interface Protocol<T extends MqttMessage> {
 
 
     /**
@@ -24,7 +24,7 @@ public interface Protocol<T extends MqttMessage, E extends Event> {
      * @return Mono
      * @see MqttMessage
      */
-    default Mono<E> doParseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel) {
+    default Mono<Event> doParseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel) {
         return Mono.deferContextual(contextView -> this.parseProtocol(message, mqttChannel, contextView));
     }
 
@@ -38,7 +38,7 @@ public interface Protocol<T extends MqttMessage, E extends Event> {
      * @return Mono
      * @see MqttMessage
      */
-    Mono<E> parseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel, ContextView contextView);
+    Mono<Event> parseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel, ContextView contextView);
 
 
     /**

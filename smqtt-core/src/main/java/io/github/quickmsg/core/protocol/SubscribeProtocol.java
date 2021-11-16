@@ -2,6 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
@@ -22,13 +23,13 @@ import java.util.stream.Collectors;
 /**
  * @author luxurong
  */
-public class SubscribeProtocol implements Protocol<MqttSubscribeMessage, SubscribeEvent> {
+public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
 
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
     @Override
-    public Mono<SubscribeEvent> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttSubscribeMessage message = smqttMessage.getMessage();
         return Mono.fromRunnable(() -> {
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);

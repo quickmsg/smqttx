@@ -1,28 +1,20 @@
 package io.github.quickmsg.core.mqtt;
 
 import io.github.quickmsg.common.auth.PasswordAuthentication;
-import io.github.quickmsg.common.cluster.ClusterRegistry;
 import io.github.quickmsg.common.config.AbstractConfiguration;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.enums.Event;
+import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.LazyTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
-import io.github.quickmsg.common.integrate.channel.ChannelRegistry;
-import io.github.quickmsg.common.integrate.topic.TopicRegistry;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.IntegrateBuilder;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
-import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.transport.Transport;
-import io.github.quickmsg.core.cluster.InJvmClusterRegistry;
-import io.github.quickmsg.core.spi.DefaultChannelRegistry;
-import io.github.quickmsg.core.spi.DefaultMessageRegistry;
 import io.github.quickmsg.core.spi.DefaultProtocolAdaptor;
-import io.github.quickmsg.core.spi.DefaultTopicRegistry;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.common.interate1.IgniteKeys;
@@ -121,7 +113,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
 
     private EventRegistry eventRegistry() {
-        return Event::sender;
+        return ChannelEvent::sender;
     }
 
 

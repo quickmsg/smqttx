@@ -15,7 +15,7 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 /**
  * @author luxurong
  */
-public enum Event {
+public enum ChannelEvent {
 
 
     /**

@@ -2,11 +2,14 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.Event;
+import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.CommonEvent;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class CommonProtocol implements Protocol<MqttMessage, CommonEvent> {
+public class CommonProtocol implements Protocol<MqttMessage> {
 
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
@@ -42,26 +45,29 @@ public class CommonProtocol implements Protocol<MqttMessage, CommonEvent> {
 
 
     @Override
-    public Mono<CommonEvent> parseProtocol(SmqttMessage<MqttMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(SmqttMessage<MqttMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttMessage message = smqttMessage.getMessage();
         switch (message.fixedHeader().messageType()) {
             case PINGREQ:
                 return mqttChannel.write(MqttMessageUtils.buildPongMessage(), false)
-                        .thenReturn(new CommonEvent());
+                        .then(Mono.fromSupplier(() -> build(EventMsg.PING_MESSAGE, mqttChannel.getClientIdentifier(), 0)));
             case DISCONNECT:
-                return Mono.fromRunnable(() -> {
+                return Mono.fromSupplier(() -> {
                     mqttChannel.setWill(null);
                     Connection connection;
                     if (!(connection = mqttChannel.getConnection()).isDisposed()) {
                         connection.dispose();
                     }
+                    return build(EventMsg.DIS_CONNECT_MESSAGE, mqttChannel.getClientIdentifier(), 0);
                 });
             case PUBREC:
                 MqttMessageIdVariableHeader messageIdVariableHeader = (MqttMessageIdVariableHeader) message.variableHeader();
                 int messageId = messageIdVariableHeader.messageId();
                 return mqttChannel.cancelRetry(MqttMessageType.PUBLISH, messageId)
                         .then(mqttChannel.write(MqttMessageUtils.buildPublishRel(messageId), true))
-                        .thenReturn(new CommonEvent());
+                        .thenReturn(build(EventMsg.PUB_REC_MESSAGE,
+                                mqttChannel.getClientIdentifier(),
+                                messageId));
             case PUBREL:
                 MqttMessageIdVariableHeader relMessageIdVariableHeader = (MqttMessageIdVariableHeader) message.variableHeader();
                 int id = relMessageIdVariableHeader.messageId();
@@ -83,19 +89,30 @@ public class CommonProtocol implements Protocol<MqttMessage, CommonEvent> {
                                                     ).collect(Collectors.toList()))
                                     .then(mqttChannel.cancelRetry(MqttMessageType.PUBREC, id))
                                     .then(mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false))
-                                    .thenReturn(new CommonEvent());
-                        }).orElseGet(() -> mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false).thenReturn(new CommonEvent()));
+                                    .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
+                                            mqttChannel.getClientIdentifier(),
+                                            id));
+                        }).orElseGet(() -> mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false)
+                                .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
+                                        mqttChannel.getClientIdentifier(),
+                                        id)));
 
             case PUBCOMP:
                 MqttMessageIdVariableHeader messageIdVariableHeader1 = (MqttMessageIdVariableHeader) message.variableHeader();
                 int compId = messageIdVariableHeader1.messageId();
                 return mqttChannel.cancelRetry(MqttMessageType.PUBREL, compId)
-                        .thenReturn(new CommonEvent());
+                        .thenReturn(build(EventMsg.PUB_COMP_MESSAGE,
+                                mqttChannel.getClientIdentifier(),
+                                compId));
             case PINGRESP:
             default:
-                return Mono.empty();
+                return Mono.just(NoneEvent.INSTANCE);
 
         }
+    }
+
+    private Event build(String type, String clientId, int id) {
+        return new CommonEvent(type, clientId, id, System.currentTimeMillis());
     }
 
     @Override

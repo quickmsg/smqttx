@@ -1,6 +1,7 @@
 package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public class UnSubscribeAckProtocol implements Protocol<MqttUnsubAckMessage, NoneEvent> {
+public class UnSubscribeAckProtocol implements Protocol<MqttUnsubAckMessage> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -24,7 +25,7 @@ public class UnSubscribeAckProtocol implements Protocol<MqttUnsubAckMessage, Non
     }
 
     @Override
-    public Mono<NoneEvent> parseProtocol(SmqttMessage<MqttUnsubAckMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(SmqttMessage<MqttUnsubAckMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttUnsubAckMessage message = smqttMessage.getMessage();
         return mqttChannel.cancelRetry(MqttMessageType.UNSUBSCRIBE, message.variableHeader().messageId())
                 .thenReturn(NoneEvent.INSTANCE);

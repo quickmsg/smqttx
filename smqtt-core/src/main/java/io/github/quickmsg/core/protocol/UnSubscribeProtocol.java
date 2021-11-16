@@ -2,6 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage, SubscribeEvent> {
+public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -30,7 +31,7 @@ public class UnSubscribeProtocol implements Protocol<MqttUnsubscribeMessage, Sub
 
 
     @Override
-    public Mono<SubscribeEvent> parseProtocol(SmqttMessage<MqttUnsubscribeMessage> smqttMessage , MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(SmqttMessage<MqttUnsubscribeMessage> smqttMessage , MqttChannel mqttChannel, ContextView contextView) {
         MqttUnsubscribeMessage message = smqttMessage.getMessage();
         return Mono.fromRunnable(() -> {
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);

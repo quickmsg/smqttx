@@ -3,6 +3,7 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import io.github.quickmsg.common.integrate.topic.TopicRegistry;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class PublishProtocol implements Protocol<MqttPublishMessage, PublishEvent> {
+public class PublishProtocol implements Protocol<MqttPublishMessage> {
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
 
@@ -44,7 +45,7 @@ public class PublishProtocol implements Protocol<MqttPublishMessage, PublishEven
 
 
     @Override
-    public Mono<PublishEvent> parseProtocol(SmqttMessage<MqttPublishMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(SmqttMessage<MqttPublishMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         try {
             MqttPublishMessage message = smqttMessage.getMessage();
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
