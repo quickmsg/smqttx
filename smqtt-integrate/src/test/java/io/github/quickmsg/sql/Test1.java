@@ -19,10 +19,7 @@ import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author luxurong
@@ -64,7 +61,11 @@ public class Test1 {
 
         map.put("json",1);
         map.put("map",map1);
-        cache.put(1,new Person("zhnagsan",1,28,JacksonUtil.map2Json(map)));
+
+
+        List<String> sts = new ArrayList<>();
+        sts.add(JacksonUtil.map2Json(map));
+        cache.put(1,new Person("zhnagsan",1,28,sts));
 //        cache.put(2,new Person("lisi",2,38));
 
 
@@ -72,7 +73,7 @@ public class Test1 {
 
 
 
-        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select sqr(params,'$.map.haha') from Person where age > 19").setLocal(true);
+        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select params from Person where age > 19").setLocal(true);
         // Iterate over the result set.
         try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
             for (List<?> row : cursor)

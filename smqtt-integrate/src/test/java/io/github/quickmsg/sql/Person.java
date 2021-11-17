@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +26,7 @@ public class Person {
     private int age;
 
     @QuerySqlField
-    private String params;
+    private List<String> params;
 
 
 

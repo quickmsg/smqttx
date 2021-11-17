@@ -137,9 +137,8 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
 
                 eventRegistry.registry(ChannelEvent.CONNECT, mqttChannel, message, mqttReceiveContext);
 
-                if (!smqttMessage.getIsCluster()) {
-                    event = buildConnectEvent(mqttChannel);
-                }
+                event = buildConnectEvent(mqttChannel);
+
                 return mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED), false)
                         .then(Mono.fromRunnable(() -> sendOfflineMessage(mqttReceiveContext.getIntegrate().getMessages(), mqttChannel)))
                         .thenReturn(event)

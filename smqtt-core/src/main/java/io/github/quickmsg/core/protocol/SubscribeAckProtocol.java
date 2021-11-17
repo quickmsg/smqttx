@@ -2,8 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.event.Event;
-import io.github.quickmsg.common.event.NoneEvent;
-import io.github.quickmsg.common.event.acceptor.CommonEvent;
+import io.github.quickmsg.common.event.acceptor.SubscribeAckEvent;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
@@ -30,9 +29,9 @@ public class SubscribeAckProtocol implements Protocol<MqttSubAckMessage> {
     @Override
     public Mono<Event> parseProtocol(SmqttMessage<MqttSubAckMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttSubAckMessage message = smqttMessage.getMessage();
-        return mqttChannel.cancelRetry(MqttMessageType.SUBSCRIBE,message.variableHeader().messageId())
-                .thenReturn(new CommonEvent(mqttChannel.getClientIdentifier(),
-                        EventMsg.SUBSCRIBE_ACK_MESSAGE,message.variableHeader().messageId() , System.currentTimeMillis()));
+        return mqttChannel.cancelRetry(MqttMessageType.SUBSCRIBE, message.variableHeader().messageId())
+                .thenReturn(new SubscribeAckEvent(
+                        EventMsg.SUBSCRIBE_ACK_MESSAGE, mqttChannel.getClientIdentifier(), message.variableHeader().messageId(), message.payload().grantedQoSLevels(), System.currentTimeMillis()));
     }
 
     @Override

@@ -11,9 +11,7 @@ public class EventMsg {
 
     public final static String PUB_REC_MESSAGE = "msg.pubrec";
 
-
     public final static String PUB_REL_MESSAGE = "msg.pubrel";
-
 
     public final static String PING_MESSAGE = "msg.ping";
 
@@ -24,6 +22,9 @@ public class EventMsg {
     public final static String PUBLISH_ACK_MESSAGE = "msg.puback";
 
     public final static String SUBSCRIBE_ACK_MESSAGE = "msg.suback";
+
+
+
 
 
 
