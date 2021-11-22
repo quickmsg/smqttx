@@ -4,14 +4,15 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.event.Event;
+import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.integrate.topic.TopicRegistry;
+import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
+import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.spi.registry.MessageRegistry;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttMessageType;
@@ -24,7 +25,6 @@ import reactor.util.context.ContextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author luxurong
@@ -49,24 +49,23 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
         try {
             MqttPublishMessage message = smqttMessage.getMessage();
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-            TopicRegistry topicRegistry = receiveContext.getTopicRegistry();
+            IntergrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             MqttPublishVariableHeader variableHeader = message.variableHeader();
-            MessageRegistry messageRegistry = receiveContext.getMessageRegistry();
-            Set<SubscribeTopic> mqttChannels = topicRegistry.getSubscribesByTopic(variableHeader.topicName(),
-                    message.fixedHeader().qosLevel());
+            IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
+            Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(variableHeader.topicName());
             // http mock
             if (mqttChannel.getIsMock()) {
-                return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry))
-                        .thenReturn(new PublishEvent());
+                return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
+                        .thenReturn(buildEvent(smqttMessage,mqttChannel.getClientIdentifier()));
             }
             switch (message.fixedHeader().qosLevel()) {
                 case AT_MOST_ONCE:
-                    return send(mqttChannels, message, messageRegistry, filterRetainMessage(message, messageRegistry))
+                    return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
                             .thenReturn(new PublishEvent());
                 case AT_LEAST_ONCE:
-                    return send(mqttChannels, message, messageRegistry,
+                    return send(mqttChannels, message, messages,
                             mqttChannel.write(MqttMessageUtils.buildPublishAck(variableHeader.packetId()), false)
-                                    .then(filterRetainMessage(message, messageRegistry)))
+                                    .then(filterRetainMessage(message, messages)))
                             .thenReturn(new PublishEvent());
                 case EXACTLY_ONCE:
                     if (!mqttChannel.existQos2Msg(variableHeader.packetId())) {
@@ -85,27 +84,36 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
         return Mono.empty();
     }
 
+    private Event buildEvent(SmqttMessage<MqttPublishMessage> smqttMessage, String clientIdentifier) {
+        if(smqttMessage.getIsCluster()){
+            return NoneEvent.INSTANCE;
+        }
+
+
+
+    }
+
 
     /**
      * 通用发送消息
      *
      * @param subscribeTopics {@link SubscribeTopic}
      * @param message         {@link MqttPublishMessage}
-     * @param messageRegistry {@link MessageRegistry}
+     * @param messages        {@link IntegrateMessages}
      * @param other           {@link Mono}
      * @return Mono
      */
-    private Mono<Void> send(Set<SubscribeTopic> subscribeTopics, MqttPublishMessage message, MessageRegistry messageRegistry, Mono<Void> other) {
-        return Mono.when(
+    private Mono<Void> send(Set<SubscribeTopic> subscribeTopics, MqttPublishMessage message, IntegrateMessages messages, Mono<Void> other) {
+        return Mono.fromRunnable(() ->
                 subscribeTopics.stream()
-                        .filter(subscribeTopic -> filterOfflineSession(subscribeTopic.getMqttChannel(), messageRegistry, message))
-                        .map(subscribeTopic ->
+                        .filter(subscribeTopic -> filterOfflineSession(subscribeTopic.getMqttChannel(), messages, message))
+                        .forEach(subscribeTopic ->
                                 subscribeTopic.getMqttChannel().write(MessageUtils.wrapPublishMessage(message,
-                                                subscribeTopic.getQoS(),
-                                                subscribeTopic.getMqttChannel().generateMessageId()),
-                                        subscribeTopic.getQoS().value() > 0)
-                        )
-                        .collect(Collectors.toList())).then(other);
+                                                        subscribeTopic.minQos(message.fixedHeader().qosLevel()),
+                                                        subscribeTopic.getMqttChannel().generateMessageId()),
+                                                subscribeTopic.minQos(message.fixedHeader().qosLevel()).value() > 0)
+                                        .subscribe()
+                        )).then(other);
 
     }
 
@@ -113,16 +121,16 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
     /**
      * 过滤离线会话消息
      *
-     * @param mqttChannel     {@link MqttChannel}
-     * @param messageRegistry {@link MessageRegistry}
-     * @param mqttMessage     {@link MqttPublishMessage}
+     * @param mqttChannel {@link MqttChannel}
+     * @param messages    {@link IntegrateMessages}
+     * @param mqttMessage {@link MqttPublishMessage}
      * @return boolean
      */
-    private boolean filterOfflineSession(MqttChannel mqttChannel, MessageRegistry messageRegistry, MqttPublishMessage mqttMessage) {
+    private boolean filterOfflineSession(MqttChannel mqttChannel, IntegrateMessages messages, MqttPublishMessage mqttMessage) {
         if (mqttChannel.getStatus() == ChannelStatus.ONLINE) {
             return true;
         } else {
-            messageRegistry
+            messages
                     .saveSessionMessage(SessionMessage.of(mqttChannel.getClientIdentifier(), mqttMessage));
             return false;
         }
@@ -132,14 +140,14 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
     /**
      * 过滤保留消息
      *
-     * @param message         {@link MqttPublishMessage}
-     * @param messageRegistry {@link MessageRegistry}
+     * @param message  {@link MqttPublishMessage}
+     * @param messages {@link IntegrateMessages}
      * @return Mono
      */
-    private Mono<Void> filterRetainMessage(MqttPublishMessage message, MessageRegistry messageRegistry) {
+    private Mono<Void> filterRetainMessage(MqttPublishMessage message, IntegrateMessages messages) {
         return Mono.fromRunnable(() -> {
             if (message.fixedHeader().isRetain()) {
-                messageRegistry.saveRetainMessage(RetainMessage.of(message));
+                messages.saveRetainMessage(RetainMessage.of(message));
             }
         });
     }

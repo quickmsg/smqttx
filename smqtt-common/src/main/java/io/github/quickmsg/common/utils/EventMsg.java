@@ -23,6 +23,15 @@ public class EventMsg {
 
     public final static String SUBSCRIBE_ACK_MESSAGE = "msg.suback";
 
+    public final static String SUBSCRIBE_MESSAGE = "msg.sub";
+
+    public final static String UN_SUBSCRIBE_MESSAGE = "msg.unsub";
+
+    public final static String UN_SUBSCRIBE_ACK_MESSAGE = "msg.unsuback";
+
+
+
+
 
 
 

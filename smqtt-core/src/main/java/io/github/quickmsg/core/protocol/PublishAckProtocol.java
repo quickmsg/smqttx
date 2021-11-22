@@ -3,6 +3,7 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.CommonEvent;
+import io.github.quickmsg.common.event.acceptor.PublicAckEvent;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
@@ -34,8 +35,9 @@ public class PublishAckProtocol implements Protocol<MqttPubAckMessage> {
         MqttMessageIdVariableHeader idVariableHeader = message.variableHeader();
         int messageId = idVariableHeader.messageId();
         return mqttChannel.cancelRetry(MqttMessageType.PUBLISH, messageId)
-                .thenReturn(new CommonEvent(mqttChannel.getClientIdentifier(),
-                        EventMsg.PUBLISH_ACK_MESSAGE, messageId, System.currentTimeMillis()));
+                .thenReturn(new PublicAckEvent( EventMsg.PUBLISH_ACK_MESSAGE,
+                        System.currentTimeMillis()
+                       , mqttChannel.getClientIdentifier(),messageId));
     }
 
     @Override
