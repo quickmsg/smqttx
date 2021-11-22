@@ -25,7 +25,7 @@ import java.util.Optional;
 @Slf4j
 public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
-    private final Map<MqttMessageType, Protocol<MqttMessage, Event>> types = new HashMap<>();
+    private final Map<MqttMessageType, Protocol<MqttMessage>> types = new HashMap<>();
 
 
     private final Scheduler scheduler;
