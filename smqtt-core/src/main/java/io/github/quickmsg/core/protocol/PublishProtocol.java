@@ -13,6 +13,7 @@ import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttMessageType;
@@ -56,7 +57,7 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
             // http mock
             if (mqttChannel.getIsMock()) {
                 return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
-                        .thenReturn(buildEvent(smqttMessage,mqttChannel.getClientIdentifier()));
+                        .thenReturn(buildEvent(smqttMessage, mqttChannel.getClientIdentifier()));
             }
             switch (message.fixedHeader().qosLevel()) {
                 case AT_MOST_ONCE:
@@ -66,14 +67,14 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
                     return send(mqttChannels, message, messages,
                             mqttChannel.write(MqttMessageUtils.buildPublishAck(variableHeader.packetId()), false)
                                     .then(filterRetainMessage(message, messages)))
-                            .thenReturn(new PublishEvent());
+                            .thenReturn(buildEvent(smqttMessage, mqttChannel.getClientIdentifier()));
                 case EXACTLY_ONCE:
                     if (!mqttChannel.existQos2Msg(variableHeader.packetId())) {
                         return mqttChannel
                                 .cacheQos2Msg(variableHeader.packetId(),
                                         MessageUtils.wrapPublishMessage(message, message.fixedHeader().qosLevel(), 0))
                                 .then(mqttChannel.write(MqttMessageUtils.buildPublishRec(variableHeader.packetId()), true))
-                                .thenReturn(new PublishEvent());
+                                .thenReturn(buildEvent(smqttMessage, mqttChannel.getClientIdentifier()));
                     }
                 default:
                     return Mono.empty();
@@ -85,13 +86,16 @@ public class PublishProtocol implements Protocol<MqttPublishMessage> {
     }
 
     private Event buildEvent(SmqttMessage<MqttPublishMessage> smqttMessage, String clientIdentifier) {
-        if(smqttMessage.getIsCluster()){
+        if (smqttMessage.getIsCluster()) {
             return NoneEvent.INSTANCE;
         }
-
-
-
-
+        return new PublishEvent(EventMsg.PUBLISH_MESSAGE,
+                System.currentTimeMillis(),
+                clientIdentifier,
+                smqttMessage.getMessage().variableHeader().topicName(),
+                smqttMessage.getMessage().fixedHeader().qosLevel().value(),
+                smqttMessage.getMessage().fixedHeader().isRetain(),
+                new String(MessageUtils.copyReleaseByteBuf(smqttMessage.getMessage().payload())));
     }
 
 

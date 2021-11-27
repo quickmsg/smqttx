@@ -3,6 +3,7 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.interate1.Integrate;
 import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
 import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.TopicFilter;
@@ -29,6 +30,21 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
 
     @Override
     public List<SessionMessage> getSessionMessage(String clientIdentifier) {
+        return null;
+    }
+
+    @Override
+    public void saveRetainMessage(RetainMessage of) {
+
+    }
+
+    @Override
+    public void saveSessionMessage(SessionMessage of) {
+
+    }
+
+    @Override
+    public Iterable<RetainMessage> getRetainMessage(String topicName) {
         return null;
     }
 }
