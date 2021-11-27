@@ -35,12 +35,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
     public DefaultProtocolAdaptor(Scheduler scheduler) {
         this.scheduler = Optional.ofNullable(scheduler).orElse(Schedulers.boundedElastic());
         DynamicLoader.findAll(Protocol.class)
-                .forEach(protocol ->
-                        protocol.getMqttMessageTypes().forEach(type -> {
-                            MqttMessageType t = (MqttMessageType) type;
-                            types.put(t, protocol);
-                        }));
-
+                .forEach(protocol -> protocol.getMqttMessageTypes().forEach(type -> types.put((MqttMessageType) type, protocol)));
     }
 
     @Override
