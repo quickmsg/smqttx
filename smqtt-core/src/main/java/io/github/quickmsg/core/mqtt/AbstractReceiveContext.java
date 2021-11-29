@@ -8,8 +8,9 @@ import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.LazyTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
-import io.github.quickmsg.common.interate1.Integrate;
-import io.github.quickmsg.common.interate1.IntegrateBuilder;
+import io.github.quickmsg.common.integrate.IgniteCacheRegion;
+import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.IntegrateBuilder;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
@@ -17,7 +18,6 @@ import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.spi.DefaultProtocolAdaptor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
-import io.github.quickmsg.common.interate1.IgniteKeys;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
@@ -33,6 +33,7 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMultic
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.resources.LoopResources;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -140,16 +141,15 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     }
 
     private IgniteConfiguration initConfig() {
-        DataRegionConfiguration connectRegionConfiguration = new DataRegionConfiguration();
-        connectRegionConfiguration.setName(IgniteKeys.CHANNEL_PERSISTENCE_AREA);
-        DataRegionConfiguration topicRegionConfiguration = new DataRegionConfiguration();
-        topicRegionConfiguration.setName(IgniteKeys.TOPIC_PERSISTENCE_AREA);
-
-        DataRegionConfiguration messageRegionConfiguration = new DataRegionConfiguration();
-        messageRegionConfiguration.setName(IgniteKeys.MESSAGE_PERSISTENCE_AREA).setPersistenceEnabled(true);
+        DataRegionConfiguration[] regionConfigurations =
+                (DataRegionConfiguration[]) Arrays.stream(IgniteCacheRegion.values())
+                        .map(region -> new DataRegionConfiguration()
+                                .setName(region.getRegionName())
+                                .setPersistenceEnabled(region.persistence())).toArray();
 
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
-        dataStorageConfiguration.setDataRegionConfigurations(connectRegionConfiguration, topicRegionConfiguration,messageRegionConfiguration);
+        dataStorageConfiguration.setDataRegionConfigurations(regionConfigurations);
+
 
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
@@ -157,7 +157,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         igniteConfiguration.setLocalHost("127.0.0.1");
         igniteConfiguration.setPeerClassLoadingEnabled(true);
         // Enable cache events.
-        igniteConfiguration.setIncludeEventTypes(EventType.EVT_NODE_JOINED, EventType.EVT_NODE_LEFT,EventType.EVT_NODE_FAILED);
+        igniteConfiguration.setIncludeEventTypes(EventType.EVT_NODE_JOINED, EventType.EVT_NODE_LEFT, EventType.EVT_NODE_FAILED);
 
 
         // Setting up an IP Finder to ensure the client can locate the servers.

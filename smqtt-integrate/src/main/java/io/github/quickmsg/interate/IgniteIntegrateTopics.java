@@ -1,10 +1,10 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.interate1.IgniteKeys;
-import io.github.quickmsg.common.interate1.Integrate;
-import io.github.quickmsg.common.interate1.cache.IntegrateCache;
-import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.IgniteCacheRegion;
+import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
+import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
@@ -14,14 +14,13 @@ import org.apache.ignite.IgniteAtomicLong;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
  * @author luxurong
  */
 @Slf4j
-public class IgniteIntergrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntergrateTopics<SubscribeTopic> {
+public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntergrateTopics<SubscribeTopic> {
 
     private final static String SUBSCRIBE_PREFIX = "subscriber_";
 
@@ -29,7 +28,7 @@ public class IgniteIntergrateTopics extends AbstractTopicAggregate<SubscribeTopi
 
     private final IgniteAtomicLong subscribeNumber;
 
-    private final AtomicInteger count = new AtomicInteger(0);
+    private final IgniteAtomicLong atomicName;
 
     /**
      * clusterNode -> topic -> channelId
@@ -38,16 +37,20 @@ public class IgniteIntergrateTopics extends AbstractTopicAggregate<SubscribeTopi
 
     private final String clusterNode;
 
-    public IgniteIntergrateTopics(IgniteIntegrate integrate) {
+    public IgniteIntegrateTopics(IgniteIntegrate integrate) {
         super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
         this.integrate = integrate;
-        this.shareCache = integrate.getCache(IgniteKeys.TOPIC_CACHE_AREA,
-                IgniteKeys.TOPIC_PERSISTENCE_AREA);
+        this.shareCache = integrate.getCache(IgniteCacheRegion.TOPIC);
         this.clusterNode = integrate.getCluster().getLocalNode();
         this.subscribeNumber = integrate.getIgnite().atomicLong(
                 "subscribers", // Atomic long name.
                 0,            // Initial value.
-                false         // Create if it does not exist.
+                true         // Create if it does not exist.
+        );
+        this.atomicName = integrate.getIgnite().atomicLong(
+                "topics", // Atomic long name.
+                0,            // Initial value.
+                true         // Create if it does not exist.
         );
     }
 
@@ -59,7 +62,7 @@ public class IgniteIntergrateTopics extends AbstractTopicAggregate<SubscribeTopi
             subscribeTopic.linkSubscribe();
             IntegrateCache<String, String> subscribeCache =
                     shareCache.getAndPutIfAbsent(clusterNode,
-                            integrate.getCache(SUBSCRIBE_PREFIX + count.incrementAndGet()));
+                            integrate.getCache(SUBSCRIBE_PREFIX + atomicName.incrementAndGet()));
             subscribeCache.put(topic, subscribeTopic.getMqttChannel().getClientIdentifier());
         }
     }

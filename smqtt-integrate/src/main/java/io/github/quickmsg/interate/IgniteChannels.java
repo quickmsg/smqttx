@@ -2,9 +2,9 @@ package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.enums.ChannelStatus;
-import io.github.quickmsg.common.interate1.Integrate;
-import io.github.quickmsg.common.interate1.cache.IntegrateCache;
-import io.github.quickmsg.common.interate1.channel.IntegrateChannels;
+import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
+import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -18,8 +18,6 @@ public class IgniteChannels implements IntegrateChannels {
 
     private final ConcurrentHashMap<String, MqttChannel> channelMap;
 
-    private final IntegrateCache<String, String> shareCache;
-
     private final IgniteIntegrate integrate;
 
     @Override
@@ -27,10 +25,9 @@ public class IgniteChannels implements IntegrateChannels {
         return this.integrate;
     }
 
-    public IgniteChannels(IgniteIntegrate integrate, ConcurrentHashMap<String, MqttChannel> channelMap, IntegrateCache<String, String> integrateCache) {
+    public IgniteChannels(IgniteIntegrate integrate, ConcurrentHashMap<String, MqttChannel> channelMap) {
         this.integrate = integrate;
         this.channelMap = channelMap;
-        this.shareCache = integrateCache;
     }
 
 

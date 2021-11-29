@@ -4,7 +4,7 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.UnSubscribeEvent;
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;

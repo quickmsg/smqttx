@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
+import org.jetbrains.annotations.PropertyKey;
 
 import java.util.List;
 import java.util.Map;

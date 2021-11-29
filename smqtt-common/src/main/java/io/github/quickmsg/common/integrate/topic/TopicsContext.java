@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.interate1.topic;
+package io.github.quickmsg.common.integrate.topic;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

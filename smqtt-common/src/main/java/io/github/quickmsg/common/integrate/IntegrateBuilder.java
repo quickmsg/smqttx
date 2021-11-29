@@ -1,6 +1,5 @@
-package io.github.quickmsg.common.interate1;
+package io.github.quickmsg.common.integrate;
 
-import io.github.quickmsg.common.config.Configuration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 
 /**

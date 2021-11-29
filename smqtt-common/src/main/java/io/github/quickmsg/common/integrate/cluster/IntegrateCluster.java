@@ -1,7 +1,7 @@
-package io.github.quickmsg.common.interate1.cluster;
+package io.github.quickmsg.common.integrate.cluster;
 
 import io.github.quickmsg.common.cluster.ClusterNode;
-import io.github.quickmsg.common.interate1.IntegrateGetter;
+import io.github.quickmsg.common.integrate.IntegrateGetter;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;

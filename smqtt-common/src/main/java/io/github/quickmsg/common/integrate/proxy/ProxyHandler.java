@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.interate1.proxy;
+package io.github.quickmsg.common.integrate.proxy;
 
 /**
  * @author luxurong

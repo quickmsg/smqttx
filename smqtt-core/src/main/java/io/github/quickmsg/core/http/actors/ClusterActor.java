@@ -28,6 +28,6 @@ public class ClusterActor implements HttpActor {
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
         return request
                 .receive()
-                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(DefaultTransport.receiveContext.getClusterRegistry().getClusterNode()))).then());
+                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(DefaultTransport.receiveContext.getIntegrate().getCluster().getClusterNode()))).then());
     }
 }

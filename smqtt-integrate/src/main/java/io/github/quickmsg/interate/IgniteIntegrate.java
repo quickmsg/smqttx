@@ -1,16 +1,16 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.interate1.IgniteKeys;
-import io.github.quickmsg.common.interate1.Integrate;
-import io.github.quickmsg.common.interate1.cache.IntegrateCache;
-import io.github.quickmsg.common.interate1.channel.IntegrateChannels;
-import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
-import io.github.quickmsg.common.interate1.job.JobExecutor;
-import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
-import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
 import io.github.quickmsg.common.event.Pipeline;
 import io.github.quickmsg.common.event.ReactorPipeline;
+import io.github.quickmsg.common.integrate.IgniteCacheRegion;
+import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
+import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
+import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
+import io.github.quickmsg.common.integrate.job.JobExecutor;
+import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
+import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
@@ -40,8 +40,7 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public IntegrateChannels getChannels() {
-        return new IgniteChannels(this, new ConcurrentHashMap<>(),
-                getCache(IgniteKeys.CHANNEL_CACHE_NAME, IgniteKeys.CHANNEL_PERSISTENCE_AREA));
+        return new IgniteChannels(this, new ConcurrentHashMap<>());
     }
 
     @Override
@@ -52,14 +51,17 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public <K, V> IntegrateCache<K, V> getCache(String cacheName) {
         CacheConfiguration<K, V> configuration =
-                new CacheConfiguration<K, V>().setName(cacheName);
+                new CacheConfiguration<K, V>()
+                        .setName(cacheName);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
 
     @Override
-    public <K, V> IntegrateCache<K, V> getCache(String cacheName, String setDataRegionName) {
+    public <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion) {
         CacheConfiguration<K, V> configuration =
-                new CacheConfiguration<K, V>().setName(cacheName).setDataRegionName(setDataRegionName)
+                new CacheConfiguration<K, V>()
+                        .setName(igniteCacheRegion.getCacheName())
+                        .setDataRegionName(igniteCacheRegion.getRegionName())
                         .setAtomicityMode(CacheConfiguration.DFLT_CACHE_ATOMICITY_MODE)
                         .setCacheMode(CacheMode.PARTITIONED)
                         .setBackups(1)
@@ -67,9 +69,10 @@ public class IgniteIntegrate implements Integrate {
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
 
+
     @Override
     public IntergrateTopics<SubscribeTopic> getTopics() {
-        return new IgniteIntergrateTopics(this);
+        return new IgniteIntegrateTopics(this);
     }
 
     @Override

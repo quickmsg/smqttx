@@ -2,10 +2,10 @@ package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.event.EventSubscriber;
 import io.github.quickmsg.common.event.acceptor.PublishEvent;
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.interate1.Integrate;
-import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
-import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
+import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
 import io.github.quickmsg.common.utils.RetryFailureHandler;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.lang.IgniteBiPredicate;

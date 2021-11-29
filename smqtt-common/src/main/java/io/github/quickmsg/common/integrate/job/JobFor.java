@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.interate1.job;
+package io.github.quickmsg.common.integrate.job;
 
 import java.lang.annotation.*;
 

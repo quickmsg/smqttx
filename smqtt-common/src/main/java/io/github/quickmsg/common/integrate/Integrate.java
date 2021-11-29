@@ -1,12 +1,11 @@
-package io.github.quickmsg.common.interate1;
+package io.github.quickmsg.common.integrate;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.interate1.cache.IntegrateCache;
-import io.github.quickmsg.common.interate1.channel.IntegrateChannels;
-import io.github.quickmsg.common.interate1.cluster.IntegrateCluster;
-import io.github.quickmsg.common.interate1.job.JobExecutor;
-import io.github.quickmsg.common.interate1.msg.IntegrateMessages;
-import io.github.quickmsg.common.interate1.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
+import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
+import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
+import io.github.quickmsg.common.integrate.job.JobExecutor;
+import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
+import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
 import io.github.quickmsg.common.event.Pipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import org.apache.ignite.Ignite;
@@ -34,12 +33,13 @@ public interface Integrate {
      */
     <K, V> IntegrateCache<K, V> getCache(String cacheName);
 
+
     /**
-     * @param cacheName         cache name
-     * @param setDataRegionName data region name
+     * @param igniteCacheRegion  {@link IntegrateCache support memory or Persistence }
      * @return {@link IntegrateCache support memory or Persistence }
      */
-    <K, V> IntegrateCache<K, V> getCache(String cacheName, String setDataRegionName);
+    <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion);
+
 
 
     /**

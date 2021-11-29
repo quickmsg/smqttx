@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.topic;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
 import lombok.Getter;
 import lombok.Setter;
 

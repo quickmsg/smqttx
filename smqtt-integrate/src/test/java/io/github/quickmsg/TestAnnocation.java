@@ -1,6 +1,6 @@
 package io.github.quickmsg;
 
-import io.github.quickmsg.common.interate1.job.JobFor;
+import io.github.quickmsg.common.integrate.job.JobFor;
 
 /**
  * @author luxurong

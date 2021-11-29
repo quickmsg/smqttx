@@ -1,7 +1,5 @@
 package io.github.quickmsg.sql;
 
-import io.github.quickmsg.TestAnnocation;
-import io.github.quickmsg.common.interate1.proxy.IntegrateProxy;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
@@ -10,6 +8,7 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheEntryProcessor;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
 import org.apache.ignite.cache.query.annotations.QuerySqlFunction;
@@ -19,6 +18,7 @@ import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -55,6 +55,8 @@ public class Test1 {
                                 .setName("myCache")
                                 .setSqlFunctionClasses(MyFunctions.class)
                                 .setIndexedTypes(Integer.class,Person.class));
+        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("insert into Person (_key,username,id,age) values (2,'lisi',1,2)").setLocal(true);
+        cache.query(sqlFieldsQuery);
         Map<String,Object> map = new HashMap<>();
         Map<String,Object> map1 = new HashMap<>();
         map1.put("haha",2);
@@ -65,7 +67,7 @@ public class Test1 {
 
         List<String> sts = new ArrayList<>();
         sts.add(JacksonUtil.map2Json(map));
-        cache.put(1,new Person("zhnagsan",1,28,sts));
+        cache.put(1,new Person("zhnagsan",2,28,sts));
 //        cache.put(2,new Person("lisi",2,38));
 
 
@@ -73,12 +75,12 @@ public class Test1 {
 
 
 
-        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select params from Person where age > 19").setLocal(true);
+//        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select * from Person where age > 19").setLocal(true);
         // Iterate over the result set.
-        try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
-            for (List<?> row : cursor)
-                System.out.println("person=" + row);
-        }
+//        try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
+//            for (List<?> row : cursor)
+//                System.out.println("person=" + row);
+//        }
 
 
 

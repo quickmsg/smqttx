@@ -1,6 +1,6 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.interate1.cache.IntegrateCache;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import org.apache.ignite.IgniteCache;
 
 import java.util.concurrent.locks.Lock;

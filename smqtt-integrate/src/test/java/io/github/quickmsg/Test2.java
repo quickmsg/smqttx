@@ -45,7 +45,7 @@ public class Test2 {
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-        // Create an IgniteCache and put some values in it.
+        // Create an IgniteCacheRegion and put some values in it.
         IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
         Map<String,Object> map = new HashMap<>();
         map.put("1","90090099");

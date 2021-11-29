@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.integrate.topic;
+package io.github.quickmsg.common.integrate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;

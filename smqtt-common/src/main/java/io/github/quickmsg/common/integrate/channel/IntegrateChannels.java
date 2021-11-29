@@ -1,7 +1,7 @@
-package io.github.quickmsg.common.interate1.channel;
+package io.github.quickmsg.common.integrate.channel;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.interate1.IntegrateGetter;
+import io.github.quickmsg.common.integrate.IntegrateGetter;
 
 import java.util.Collection;
 

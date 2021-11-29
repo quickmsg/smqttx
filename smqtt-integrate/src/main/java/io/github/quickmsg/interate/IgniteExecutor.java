@@ -1,8 +1,8 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.interate1.job.Job;
-import io.github.quickmsg.common.interate1.job.JobCaller;
-import io.github.quickmsg.common.interate1.job.JobExecutor;
+import io.github.quickmsg.common.integrate.job.Job;
+import io.github.quickmsg.common.integrate.job.JobCaller;
+import io.github.quickmsg.common.integrate.job.JobExecutor;
 import org.apache.ignite.IgniteCompute;
 import org.apache.ignite.lang.IgniteCallable;
 import org.apache.ignite.lang.IgniteRunnable;

@@ -5,7 +5,7 @@ import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
-import io.github.quickmsg.common.interate1.Integrate;
+import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;

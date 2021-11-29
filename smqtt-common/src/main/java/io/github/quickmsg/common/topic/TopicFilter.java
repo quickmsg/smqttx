@@ -1,7 +1,6 @@
 package io.github.quickmsg.common.topic;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.netty.handler.codec.mqtt.MqttQoS;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
 
 import java.util.Set;
 

@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.interate1;
+package io.github.quickmsg.common.integrate;
 
 /**
  * @author luxurong

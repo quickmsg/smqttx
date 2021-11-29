@@ -1,7 +1,7 @@
-package io.github.quickmsg.common.interate1.topic;
+package io.github.quickmsg.common.integrate.topic;
 
-import io.github.quickmsg.common.integrate.topic.SubscribeTopic;
-import io.github.quickmsg.common.interate1.IntegrateGetter;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.IntegrateGetter;
 
 import java.util.Set;
 

@@ -1,12 +1,10 @@
 package io.github.quickmsg;
 
-import io.github.quickmsg.common.interate1.proxy.IntegrateProxy;
+import io.github.quickmsg.common.integrate.proxy.IntegrateProxy;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.configuration.IgniteConfiguration;
-import org.apache.ignite.lang.IgniteRunnable;
-import org.apache.ignite.resources.IgniteInstanceResource;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 
@@ -37,8 +35,8 @@ public class Test1 {
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-//        // Create an IgniteCache and put some values in it.
-//        IgniteCache<Integer, String> cache = ignite.getOrCreateCache("myCache");
+//        // Create an IgniteCacheRegion and put some values in it.
+//        IgniteCacheRegion<Integer, String> cache = ignite.getOrCreateCache("myCache");
 //        cache.put(1, "Hello");
 //        cache.put(2, "World!");
 
