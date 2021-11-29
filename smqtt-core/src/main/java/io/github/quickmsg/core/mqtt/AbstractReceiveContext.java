@@ -15,7 +15,7 @@ import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
-import io.github.quickmsg.core.spi.DefaultProtocolAdaptor;
+import io.github.quickmsg.core.DefaultProtocolAdaptor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.rule.source.SourceManager;
