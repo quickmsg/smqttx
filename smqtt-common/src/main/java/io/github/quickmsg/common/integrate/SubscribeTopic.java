@@ -21,12 +21,23 @@ public class SubscribeTopic {
     private final MqttQoS qoS;
 
     @JsonIgnore
-    private final MqttChannel mqttChannel;
+    private MqttChannel mqttChannel;
+
+    public SubscribeTopic(String topicFilter, MqttQoS qoS) {
+        this.topicFilter = topicFilter;
+        this.qoS = qoS;
+    }
 
     public SubscribeTopic(String topicFilter, MqttQoS qoS, MqttChannel mqttChannel) {
         this.topicFilter = topicFilter;
         this.qoS = qoS;
         this.mqttChannel = mqttChannel;
+    }
+
+
+    public SubscribeTopic setMqttChannel(MqttChannel mqttChannel) {
+        this.mqttChannel = mqttChannel;
+        return this;
     }
 
     @Override

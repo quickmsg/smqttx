@@ -6,7 +6,7 @@ import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.CommonEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class CommonProtocol implements Protocol<MqttMessage> {
+public class CommonProtocol implements Protocol<> {
 
 
     private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
@@ -79,7 +79,7 @@ public class CommonProtocol implements Protocol<MqttMessage> {
                 return mqttChannel.removeQos2Msg(id)
                         .map(msg -> {
                             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-                            IntergrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
+                            IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
                             Set<SubscribeTopic> subscribeTopics = topics.getObjectsByTopic(msg.variableHeader().topicName());
                             return Mono.when(
                                             subscribeTopics.stream()

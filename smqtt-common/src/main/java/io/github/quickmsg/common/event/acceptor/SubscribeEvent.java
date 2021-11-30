@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.event.acceptor;
 
+import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,7 @@ public class SubscribeEvent extends MessageEvent {
     private String clientIdentifier;
 
     @QuerySqlField(index = true)
-    private List<MqttTopicSubscription> topicSubscriptions;
+    private List<SubscribeTopic> subscribeTopics;
 
     @QuerySqlField(index = true, descending = true)
     private long timestamp;

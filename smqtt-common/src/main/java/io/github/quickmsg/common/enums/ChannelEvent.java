@@ -25,6 +25,7 @@ public enum ChannelEvent {
         private static final String CONNECT_TOPIC = "$event/connect";
 
         @Override
+        //todo  body message
         public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
             MqttPublishMessage mqttPublishMessage =
                     MqttMessageUtils.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CONNECT_TOPIC, writeBody(mqttChannel, body));

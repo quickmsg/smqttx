@@ -1,7 +1,7 @@
 package io.github.quickmsg.common.utils;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.mqtt.*;
+import io.netty.handler.codec.mqtt.MqttMessage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,7 +23,7 @@ public class MessageUtils {
         }
     }
 
-    public static void safeRelease(MqttMessage mqttMessage,Integer count) {
+    public static void safeRelease(MqttMessage mqttMessage, Integer count) {
         if (mqttMessage.payload() instanceof ByteBuf) {
             ByteBuf byteBuf = ((ByteBuf) mqttMessage.payload());
             if (count > 0) {
@@ -45,31 +45,13 @@ public class MessageUtils {
         }
     }
 
-    public static void safeRelease(ByteBuf buf,Integer count) {
+    public static void safeRelease(ByteBuf buf, Integer count) {
         if (count > 0) {
             buf.release(count);
             if (log.isDebugEnabled()) {
                 log.info("netty success release byteBuf {} count {} ", buf, count);
             }
         }
-    }
-
-
-    /**
-     * 生成发布消息
-     *
-     * @param messageId 消息id
-     * @param message   {@link MqttPublishMessage}
-     * @param mqttQoS   {@link MqttQoS}
-     * @return {@link MqttPublishMessage}
-     */
-    public static MqttPublishMessage wrapPublishMessage(MqttPublishMessage message, MqttQoS mqttQoS, int messageId) {
-        MqttPublishVariableHeader mqttPublishVariableHeader = message.variableHeader();
-        MqttFixedHeader mqttFixedHeader = message.fixedHeader();
-        MqttFixedHeader newFixedHeader = new MqttFixedHeader(mqttFixedHeader.messageType(), false, mqttQoS, false, mqttFixedHeader.remainingLength());
-        MqttPublishVariableHeader newHeader = new MqttPublishVariableHeader(mqttPublishVariableHeader.topicName(), messageId);
-        return new MqttPublishMessage(newFixedHeader, newHeader, message.payload().copy());
-
     }
 
 
@@ -100,8 +82,6 @@ public class MessageUtils {
         byteBuf.resetReaderIndex();
         return bytes;
     }
-
-
 
 
 }

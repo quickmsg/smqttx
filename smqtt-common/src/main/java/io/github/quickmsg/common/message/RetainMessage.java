@@ -1,11 +1,10 @@
 package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.utils.MessageUtils;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +22,11 @@ public class RetainMessage {
 
     private byte[] body;
 
-    public static RetainMessage of(MqttPublishMessage mqttPublishMessage) {
-        MqttPublishVariableHeader publishVariableHeader = mqttPublishMessage.variableHeader();
+    public static RetainMessage of(PublishMessage message) {
         return RetainMessage.builder()
-                .topic(publishVariableHeader.topicName())
-                .qos(mqttPublishMessage.fixedHeader().qosLevel().value())
-                .body(MessageUtils.copyByteBuf(mqttPublishMessage.payload()))
+                .topic(message.getTopic())
+                .qos(message.getQos())
+                .body(message.getBody())
                 .build();
     }
 

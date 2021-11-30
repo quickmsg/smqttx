@@ -5,7 +5,7 @@ import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.utils.RetryFailureHandler;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.lang.IgniteBiPredicate;
@@ -81,7 +81,7 @@ public class IgniteIntegrateCluster extends EventSubscriber<PublishEvent> implem
 
     @Override
     public void apply(PublishEvent publishEvent) {
-        IntergrateTopics<SubscribeTopic> topics = igniteIntegrate.getTopics();
+        IntegrateTopics<SubscribeTopic> topics = igniteIntegrate.getTopics();
         String topic = publishEvent.getTopic();
         Set<String> otherNodes = topics.isWildcard(topic) ?
                 this.getOtherClusterNode() : topics.getRemoteTopicsContext(topic);

@@ -4,7 +4,7 @@ import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author luxurong
  */
 @Slf4j
-public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntergrateTopics<SubscribeTopic> {
+public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntegrateTopics<SubscribeTopic> {
 
     private final static String SUBSCRIBE_PREFIX = "subscriber_";
 

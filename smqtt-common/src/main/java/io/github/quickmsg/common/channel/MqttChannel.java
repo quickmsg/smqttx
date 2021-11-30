@@ -2,7 +2,9 @@ package io.github.quickmsg.common.channel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.enums.ChannelStatus;
+import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.*;
 import lombok.Builder;
@@ -10,6 +12,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ignite.Ignite;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
@@ -44,6 +47,8 @@ public class MqttChannel {
 
     private boolean sessionPersistent;
 
+    private String version;
+
     private Will will;
 
     private long keepalive;
@@ -51,6 +56,8 @@ public class MqttChannel {
     private String username;
 
     private String address;
+
+    private IntegrateMessages messages;
 
     @JsonIgnore
     private Set<SubscribeTopic> topics;
@@ -81,7 +88,7 @@ public class MqttChannel {
     }
 
 
-    public static MqttChannel init(Connection connection) {
+    public static MqttChannel init(Connection connection,  IntegrateMessages messages) {
         MqttChannel mqttChannel = new MqttChannel();
         mqttChannel.setTopics(new CopyOnWriteArraySet<>());
         mqttChannel.setAtomicInteger(new AtomicInteger(0));
@@ -92,6 +99,7 @@ public class MqttChannel {
         mqttChannel.setConnection(connection);
         mqttChannel.setStatus(ChannelStatus.INIT);
         mqttChannel.setAddress(connection.address().toString());
+        mqttChannel.setMessages(messages);
         return mqttChannel;
     }
 

@@ -10,7 +10,7 @@ import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.job.JobExecutor;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
@@ -71,7 +71,7 @@ public class IgniteIntegrate implements Integrate {
 
 
     @Override
-    public IntergrateTopics<SubscribeTopic> getTopics() {
+    public IntegrateTopics<SubscribeTopic> getTopics() {
         return new IgniteIntegrateTopics(this);
     }
 

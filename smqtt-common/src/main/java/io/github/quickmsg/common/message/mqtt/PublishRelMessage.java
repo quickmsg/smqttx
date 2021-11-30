@@ -7,12 +7,8 @@ import lombok.Data;
  * @author luxurong
  */
 @Data
-public class PublishAckMessage implements Message {
+public class PublishRelMessage implements Message {
 
     private int messageId;
 
-    @Override
-    public boolean isCluster() {
-        return false;
-    }
 }

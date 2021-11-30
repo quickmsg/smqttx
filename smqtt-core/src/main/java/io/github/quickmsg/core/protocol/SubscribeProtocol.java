@@ -6,8 +6,8 @@ import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
-import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.message.mqtt.SubscribeMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
@@ -23,60 +23,45 @@ import java.util.stream.Collectors;
 /**
  * @author luxurong
  */
-public class SubscribeProtocol implements Protocol<MqttSubscribeMessage> {
+public class SubscribeProtocol implements Protocol<SubscribeMessage> {
 
 
-    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
-
-
-    static {
-        MESSAGE_TYPE_LIST.add(MqttMessageType.SUBSCRIBE);
-    }
 
     @Override
-    public Mono<Event> parseProtocol(SmqttMessage<MqttSubscribeMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
-        MqttSubscribeMessage message = smqttMessage.getMessage();
+    public Mono<Event> parseProtocol(SubscribeMessage message, MqttChannel mqttChannel, ContextView contextView) {
         return Mono.fromRunnable(() -> {
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-            IntergrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
+            IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
-            message.payload().topicSubscriptions()
-                    .forEach(mqttTopicSubscription -> {
-                        this.loadRetainMessage(messages, mqttChannel, mqttTopicSubscription.topicName());
-                        topics.registryTopic(mqttTopicSubscription.topicName(),
-                                new SubscribeTopic(mqttTopicSubscription.topicName(),
-                                        mqttTopicSubscription.qualityOfService(), mqttChannel));
+            message.getSubscribeTopics()
+                    .forEach(subscribeTopic-> {
+                        this.loadRetainMessage(messages, mqttChannel, subscribeTopic.getTopicFilter());
+                        topics.registryTopic(subscribeTopic.getTopicFilter(),subscribeTopic.setMqttChannel(mqttChannel));
                     });
         }).then(mqttChannel.write(
                 MqttMessageUtils.buildSubAck(
-                        message.variableHeader().messageId(),
-                        message.payload()
-                                .topicSubscriptions()
+                        message.getMessageId(),
+                        message.getSubscribeTopics()
                                 .stream()
-                                .map(mqttTopicSubscription ->
-                                        mqttTopicSubscription.qualityOfService()
-                                                .value())
-                                .collect(Collectors.toList())), false)).thenReturn(buildEvent(message, mqttChannel));
+                                .map(subscribeTopic -> subscribeTopic.getQoS().value())
+                                .collect(Collectors.toList())), false))
+                .thenReturn(buildEvent(message, mqttChannel));
     }
 
-    private SubscribeEvent buildEvent(MqttSubscribeMessage message, MqttChannel mqttChannel) {
+    private SubscribeEvent buildEvent(SubscribeMessage message, MqttChannel mqttChannel) {
         return new SubscribeEvent(EventMsg.SUBSCRIBE_MESSAGE,
                 mqttChannel.getClientIdentifier(),
-                message.payload().topicSubscriptions(),
+                message.getSubscribeTopics(),
                 System.currentTimeMillis());
     }
 
-    private void loadRetainMessage(IntegrateMessages messages, MqttChannel mqttChannel, String topicName) {
-        messages.getRetainMessage(topicName)
+    private void loadRetainMessage(IntegrateMessages messages, MqttChannel mqttChannel, String topic) {
+        messages.getRetainMessage(topic)
                 .forEach(retainMessage ->
                         mqttChannel.write(retainMessage.toPublishMessage(mqttChannel), retainMessage.getQos() > 0)
                                 .subscribe());
     }
 
-    @Override
-    public List<MqttMessageType> getMqttMessageTypes() {
-        return MESSAGE_TYPE_LIST;
-    }
 
 
 }

@@ -31,8 +31,13 @@ public enum IgniteCacheRegion {
         public boolean persistence() {
             return true;
         }
+    },
+    ACK("ack_message", "ack_data_region") {
+        @Override
+        public boolean persistence() {
+            return false;
+        }
     }
-
     ;
 
 

@@ -13,6 +13,7 @@ import org.apache.ignite.IgniteAtomicLong;
 import org.apache.ignite.IgniteSet;
 import org.apache.ignite.configuration.CollectionConfiguration;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
 
     private final IntegrateCache<String, RetainMessage> retainCache;
 
+    private final IntegrateCache<String, RetainMessage> publishAckCache;
+
     private final IgniteAtomicLong sessionCounter;
 
     private final IgniteAtomicLong retainCounter;
@@ -38,6 +41,7 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
         this.integrate = integrate;
         this.sessionCache = integrate.getCache(IgniteCacheRegion.SESSION);
         this.retainCache = integrate.getCache(IgniteCacheRegion.RETAIN);
+        this.publishAckCache= integrate.getCache(IgniteCacheRegion.ACK);
         this.sessionCounter = integrate.getIgnite().atomicLong(
                 "session-counter", // Atomic long name.
                 0,            // Initial value.
@@ -111,8 +115,10 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
     }
 
     @Override
-    public RetainMessage getRetainMessage(String topicName) {
-        return retainCache.get(topicName);
+    public Set<RetainMessage> getRetainMessage(String topicName) {
+
+         retainCache.get(topicName);
+         return  new HashSet<>();
     }
 
 

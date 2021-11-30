@@ -1,6 +1,8 @@
 package io.github.quickmsg.common.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.event.acceptor.CommonEvent;
+import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.event.Event;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -13,7 +15,7 @@ import java.util.List;
 /**
  * @author luxurong
  */
-public interface Protocol<T extends MqttMessage> {
+public interface Protocol<T extends Message> {
 
 
     /**
@@ -24,7 +26,7 @@ public interface Protocol<T extends MqttMessage> {
      * @return Mono
      * @see MqttMessage
      */
-    default Mono<Event> doParseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel) {
+    default Mono<Event> doParseProtocol(T message, MqttChannel mqttChannel) {
         return Mono.deferContextual(contextView -> this.parseProtocol(message, mqttChannel, contextView));
     }
 
@@ -32,21 +34,19 @@ public interface Protocol<T extends MqttMessage> {
     /**
      * 处理协议
      *
-     * @param message     {@link SmqttMessage}
+     * @param message     {@link T extends Message}
      * @param mqttChannel {@link MqttChannel}
      * @param contextView {@link ContextView}
      * @return Mono
      * @see MqttMessage
      */
-    Mono<Event> parseProtocol(SmqttMessage<T> message, MqttChannel mqttChannel, ContextView contextView);
+    Mono<Event> parseProtocol(T message, MqttChannel mqttChannel, ContextView contextView);
 
 
-    /**
-     * 获取此协议支持的消息类型
-     *
-     * @return {@link MqttMessageType}
-     */
-    List<MqttMessageType> getMqttMessageTypes();
+
+    default Event build(String type, String clientId, int id) {
+        return new CommonEvent(type, clientId, id, System.currentTimeMillis());
+    }
 
 
 }

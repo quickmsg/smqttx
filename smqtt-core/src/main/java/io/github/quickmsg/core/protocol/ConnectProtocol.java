@@ -8,12 +8,12 @@ import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.ConnectEvent;
-import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
-import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.utils.EventMsg;
@@ -22,7 +22,10 @@ import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
 import io.github.quickmsg.metric.counter.WindowMetric;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.mqtt.*;
+import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
+import io.netty.handler.codec.mqtt.MqttMessageType;
+import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -36,34 +39,24 @@ import java.util.Optional;
  * @author luxurong
  */
 @Slf4j
-public class ConnectProtocol implements Protocol<MqttConnectMessage> {
-
-    private final static List<MqttMessageType> MESSAGE_TYPE_LIST = new ArrayList<>();
+public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     private static final int MILLI_SECOND_PERIOD = 1_000;
-
-
-    static {
-        MESSAGE_TYPE_LIST.add(MqttMessageType.CONNECT);
-    }
 
     private static void accept(MqttChannel mqttChannel1) {
         WindowMetric.WINDOW_METRIC_INSTANCE.recordConnect(-1);
     }
 
     @Override
-    public Mono<Event> parseProtocol(SmqttMessage<MqttConnectMessage> smqttMessage, MqttChannel mqttChannel, ContextView contextView) {
+    public Mono<Event> parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
         Event event = NoneEvent.INSTANCE;
         try {
-            MqttConnectMessage message = smqttMessage.getMessage();
             MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
             EventRegistry eventRegistry = mqttReceiveContext.getEventRegistry();
-            MqttConnectVariableHeader mqttConnectVariableHeader = message.variableHeader();
-            MqttConnectPayload mqttConnectPayload = message.payload();
-            String clientIdentifier = mqttConnectPayload.clientIdentifier();
+            String clientIdentifier = connectMessage.getClientId();
             Integrate integrate = mqttReceiveContext.getIntegrate();
             IntegrateChannels channels = integrate.getChannels();
-            IntergrateTopics<SubscribeTopic> topics = integrate.getTopics();
+            IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
             PasswordAuthentication passwordAuthentication = mqttReceiveContext.getPasswordAuthentication();
             /*check clientIdentifier exist*/
             if (channels.exists(clientIdentifier)) {
@@ -72,34 +65,28 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
                         false).then(mqttChannel.close()).thenReturn(event);
             }
             /*protocol version support*/
-            if (MqttVersion.MQTT_3_1_1.protocolLevel() != (byte) mqttConnectVariableHeader.version()
-                    && MqttVersion.MQTT_3_1.protocolLevel() != (byte) mqttConnectVariableHeader.version()) {
+            if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
+                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion()) {
                 return mqttChannel.write(
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION),
                         false).then(mqttChannel.close()).thenReturn(event);
             }
             /*password check*/
-            if (passwordAuthentication.auth(mqttConnectPayload.userName(), mqttConnectPayload.passwordInBytes(), clientIdentifier)) {
+            if (passwordAuthentication.auth(connectMessage.getUsername(), connectMessage.getPassword(), clientIdentifier)) {
                 /*cancel  defer close not authenticate channel */
                 mqttChannel.disposableClose();
-                mqttChannel.setClientIdentifier(mqttConnectPayload.clientIdentifier());
-                if (mqttConnectVariableHeader.isWillFlag()) {
-                    mqttChannel.setWill(MqttChannel.Will.builder()
-                            .isRetain(mqttConnectVariableHeader.isWillRetain())
-                            .willTopic(mqttConnectPayload.willTopic())
-                            .willMessage(mqttConnectPayload.willMessageInBytes())
-                            .mqttQoS(MqttQoS.valueOf(mqttConnectVariableHeader.willQos()))
-                            .build());
-                }
+                mqttChannel.setClientIdentifier(clientIdentifier);
+                Optional.ofNullable(connectMessage.getWill()).ifPresent(mqttChannel::setWill);
                 mqttChannel.setAuthTime(System.currentTimeMillis());
-                mqttChannel.setKeepalive(mqttConnectVariableHeader.keepAliveTimeSeconds());
-                mqttChannel.setSessionPersistent(!mqttConnectVariableHeader.isCleanSession());
+                mqttChannel.setKeepalive(connectMessage.getKeepalive());
+                mqttChannel.setVersion(connectMessage.getVersion().protocolName());
+                mqttChannel.setSessionPersistent(!connectMessage.isCleanSession());
                 mqttChannel.setStatus(ChannelStatus.ONLINE);
-                mqttChannel.setUsername(mqttConnectPayload.userName());
+                mqttChannel.setUsername(connectMessage.getUsername());
                 /*registry unread event close channel */
 
                 mqttChannel.getConnection()
-                        .onReadIdle((long) mqttConnectVariableHeader.keepAliveTimeSeconds() * MILLI_SECOND_PERIOD << 1,
+                        .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
                                 () -> close(mqttChannel, mqttReceiveContext, eventRegistry));
 
                 /*registry will message send */
@@ -133,7 +120,7 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
 
                 mqttChannel.registryClose(ConnectProtocol::accept);
 
-                eventRegistry.registry(ChannelEvent.CONNECT, mqttChannel, message, mqttReceiveContext);
+                eventRegistry.registry(ChannelEvent.CONNECT, mqttChannel, connectMessage, mqttReceiveContext);
 
                 event = buildConnectEvent(mqttChannel);
 
@@ -198,32 +185,25 @@ public class ConnectProtocol implements Protocol<MqttConnectMessage> {
     /**
      * session
      *
-     * @param mqttChannel     new channel      {@link MqttChannel}
-     * @param channelRegistry {@link ChannelRegistry}
-     * @param topicRegistry   {@link TopicRegistry}
+     * @param mqttChannel new channel      {@link MqttChannel}
+     * @param channels    {@link IntegrateChannels}
+     * @param topics      {@link IntegrateTopics}
      */
     private void doSession(MqttChannel mqttChannel,
-                           IntegrateChannels channelRegistry,
-                           IntergrateTopics<SubscribeTopic> topicRegistry) {
-        MqttChannel sessionChannel = channelRegistry.get(mqttChannel.getClientIdentifier());
+                           IntegrateChannels channels,
+                           IntegrateTopics<SubscribeTopic> topics) {
+        MqttChannel sessionChannel = channels.get(mqttChannel.getClientIdentifier());
         if (sessionChannel != null) {
             sessionChannel
                     .getTopics()
                     .forEach(subscribeTopic -> {
-                        topicRegistry.registryTopic(subscribeTopic.getTopicFilter(),
+                        topics.registryTopic(subscribeTopic.getTopicFilter(),
                                 new SubscribeTopic(subscribeTopic.getTopicFilter(),
                                         subscribeTopic.getQoS(), mqttChannel));
-                        topicRegistry.removeTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
+                        topics.removeTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
                     });
-            channelRegistry.close(sessionChannel);
+            channels.close(sessionChannel);
         }
     }
-
-
-    @Override
-    public List<MqttMessageType> getMqttMessageTypes() {
-        return MESSAGE_TYPE_LIST;
-    }
-
 
 }

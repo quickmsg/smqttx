@@ -22,6 +22,6 @@ public interface IntegrateMessages extends IntegrateGetter {
 
     void deleteRetainMessage(String clientIdentifier);
 
-    RetainMessage getRetainMessage(String topicName);
+    Set<RetainMessage> getRetainMessage(String topicName);
 
 }

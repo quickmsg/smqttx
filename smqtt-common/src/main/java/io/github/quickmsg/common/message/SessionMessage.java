@@ -1,11 +1,10 @@
 package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.utils.MessageUtils;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
@@ -28,14 +27,13 @@ public class SessionMessage {
 
     private boolean retain;
 
-    public static SessionMessage of(String clientIdentifier, MqttPublishMessage mqttPublishMessage) {
-        MqttPublishVariableHeader publishVariableHeader = mqttPublishMessage.variableHeader();
+    public static SessionMessage of(String clientIdentifier, PublishMessage message) {
         return SessionMessage.builder()
                 .clientIdentifier(clientIdentifier)
-                .topic(publishVariableHeader.topicName())
-                .qos(mqttPublishMessage.fixedHeader().qosLevel().value())
-                .retain(mqttPublishMessage.fixedHeader().isRetain())
-                .body(MessageUtils.copyByteBuf(mqttPublishMessage.payload()))
+                .topic(message.getTopic())
+                .qos(message.getQos())
+                .retain(message.isRetain())
+                .body(message.getBody())
                 .build();
     }
 

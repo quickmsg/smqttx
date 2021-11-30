@@ -5,7 +5,7 @@ import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.job.JobExecutor;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
-import io.github.quickmsg.common.integrate.topic.IntergrateTopics;
+import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.event.Pipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import org.apache.ignite.Ignite;
@@ -43,9 +43,9 @@ public interface Integrate {
 
 
     /**
-     * @return {@link IntergrateTopics manager topic }
+     * @return {@link IntegrateTopics manager topic }
      */
-    IntergrateTopics<SubscribeTopic> getTopics();
+    IntegrateTopics<SubscribeTopic> getTopics();
 
     /**
      * @return {@link IntegrateMessages manager message }
