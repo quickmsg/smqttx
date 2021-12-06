@@ -3,6 +3,7 @@ package io.github.quickmsg.common.enums;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
@@ -27,13 +28,12 @@ public enum ChannelEvent {
         private static final String CONNECT_TOPIC = "$event/connect";
 
         @Override
-        //todo  body message
-        public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
-            write(receiveContext, mqttChannel, mqttPublishMessage);
+        public void sender(MqttChannel mqttChannel, ConnectMessage message, ReceiveContext<?> receiveContext) {
+            write(receiveContext, mqttChannel, message);
         }
 
         @Override
-        public ByteBuf writeBody(MqttChannel mqttChannel, Object body) {
+        public ByteBuf writeBody(MqttChannel mqttChannel, Message message) {
             return PooledByteBufAllocator.DEFAULT
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
                             mqttChannel.getClientIdentifier(),
@@ -79,10 +79,10 @@ public enum ChannelEvent {
      * body
      *
      * @param mqttChannel    {@link MqttChannel }
-     * @param body           {@link Object }
+     * @param message           {@link Message }
      * @return ByteBuf
      */
-    public abstract ByteBuf writeBody(MqttChannel mqttChannel, Object body);
+    public abstract ByteBuf writeBody(MqttChannel mqttChannel, Message message);
 
 
     public void write(ReceiveContext<?> receiveContext, MqttChannel mqttChannel, Message message) {
