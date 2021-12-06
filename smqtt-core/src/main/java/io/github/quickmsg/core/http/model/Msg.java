@@ -8,8 +8,7 @@ import lombok.ToString;
  * 消息
  *
  * @author zhaopeng
- * @date 2021/10/20
- */
+、 */
 @Data
 @Builder
 @ToString
