@@ -32,6 +32,10 @@ public class HttpConfiguration implements Configuration {
 
     private String password;
 
+    private Integer messageMaxSize;
+
+    private BootstrapConfig.MeterConfig meterConfig;
+
 
     @Override
     public Integer getBusinessThreadSize() {

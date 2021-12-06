@@ -14,7 +14,6 @@ import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
-import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     @Override
     public Mono<Event> parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
         try {
+
             ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
             IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
@@ -55,7 +55,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 case EXACTLY_ONCE:
                     if (!mqttChannel.existQos2Msg(message.getMessageId())) {
                         return mqttChannel
-                                .cacheQos2Msg(message.getMessageId(),message)
+                                .cacheQos2Msg(message.getMessageId(), message)
                                 .then(mqttChannel.write(MqttMessageUtils.buildPublishRec(message.getMessageId()), true))
                                 .thenReturn(buildEvent(message, mqttChannel.getClientIdentifier()));
                     }

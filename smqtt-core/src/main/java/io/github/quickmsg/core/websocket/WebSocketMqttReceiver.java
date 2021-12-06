@@ -2,7 +2,6 @@ package io.github.quickmsg.core.websocket;
 
 import io.github.quickmsg.common.Receiver;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.core.mqtt.MetricChannelHandler;
 import io.github.quickmsg.core.mqtt.MqttConfiguration;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
 import io.github.quickmsg.core.ssl.AbstractSslHandler;
@@ -44,15 +43,15 @@ public class WebSocketMqttReceiver extends AbstractSslHandler implements Receive
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .metrics(mqttConfiguration.getMeterConfig() != null)
                 .runOn(receiveContext.getLoopResources())
                 .doOnConnection(connection -> {
-                    connection.addHandlerLast(new MetricChannelHandler())
-                            .addHandlerLast(new HttpServerCodec())
+                    connection.addHandlerLast(new HttpServerCodec())
                             .addHandlerLast(new HttpObjectAggregator(65536))
                             .addHandlerLast(new WebSocketServerProtocolHandler(mqttConfiguration.getWebSocketPath(), "mqtt, mqttv3.1, mqttv3.1.1"))
                             .addHandlerLast(new WebSocketFrameToByteBufDecoder())
                             .addHandlerLast(new ByteBufToWebSocketFrameEncoder())
-                            .addHandlerLast(new MqttDecoder())
+                            .addHandlerLast(new MqttDecoder(mqttConfiguration.getMessageMaxSize()))
                             .addHandlerLast(MqttEncoder.INSTANCE);
                     receiveContext.apply(MqttChannel.init(connection,receiveContext.getIntegrate().getMessages()));
                 });

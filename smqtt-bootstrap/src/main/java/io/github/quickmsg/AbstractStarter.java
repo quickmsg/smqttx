@@ -55,6 +55,7 @@ public abstract class AbstractStarter {
                 .clusterConfig(config.getSmqttConfig().getClusterConfig())
                 .redisConfig(config.getSmqttConfig().getRedisConfig())
                 .databaseConfig(config.getSmqttConfig().getDatabaseConfig())
+                .meterConfig(config.getSmqttConfig().getMeterConfig())
                 .ruleChainDefinitions(config.getSmqttConfig().getRuleChainDefinitions())
                 .sourceDefinitions(config.getSmqttConfig().getRuleSources())
                 .build()

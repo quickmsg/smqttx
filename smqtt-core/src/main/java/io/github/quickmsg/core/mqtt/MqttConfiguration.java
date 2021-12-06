@@ -54,11 +54,14 @@ public class MqttConfiguration extends AbstractSslHandler implements AbstractCon
 
     private BootstrapConfig.ClusterConfig clusterConfig;
 
+    private BootstrapConfig.MeterConfig meterConfig ;
+
     private List<RuleChainDefinition> ruleChainDefinitions;
 
     private List<SourceDefinition> sourceDefinitions;
 
     private Map<Object, Object> environmentMap;
 
+    private Integer messageMaxSize = 4194304;
 
 }

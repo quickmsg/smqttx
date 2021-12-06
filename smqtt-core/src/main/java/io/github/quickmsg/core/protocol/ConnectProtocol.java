@@ -20,10 +20,8 @@ import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
-import io.github.quickmsg.metric.counter.WindowMetric;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
-import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +29,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.ContextView;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,9 +39,6 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     private static final int MILLI_SECOND_PERIOD = 1_000;
 
-    private static void accept(MqttChannel mqttChannel1) {
-        WindowMetric.WINDOW_METRIC_INSTANCE.recordConnect(-1);
-    }
 
     @Override
     public Mono<Event> parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
@@ -116,9 +109,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
                 /* registry close mqtt channel event*/
                 mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext, eventRegistry));
 
-                WindowMetric.WINDOW_METRIC_INSTANCE.recordConnect(1);
-
-                mqttChannel.registryClose(ConnectProtocol::accept);
+//                mqttChannel.registryClose(ConnectProtocol::accept);
 
                 eventRegistry.registry(ChannelEvent.CONNECT, mqttChannel, connectMessage, mqttReceiveContext);
 

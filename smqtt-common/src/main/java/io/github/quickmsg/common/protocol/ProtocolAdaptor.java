@@ -1,16 +1,12 @@
 package io.github.quickmsg.common.protocol;
 
-import io.github.quickmsg.common.event.Event;
-import io.github.quickmsg.common.event.NoneEvent;
-import io.github.quickmsg.common.event.acceptor.PublishEvent;
-import io.github.quickmsg.common.interceptor.Intercept;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.interceptor.Intercept;
 import io.github.quickmsg.common.interceptor.MessageProxy;
-import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
-import io.netty.handler.codec.mqtt.MqttMessage;
 
 /**
  * @author luxurong
@@ -27,13 +23,12 @@ public interface ProtocolAdaptor {
      * 分发某种协议下  消息类型
      *
      * @param mqttChannel    {@link MqttChannel}
-     * @param mqttMessage    {@link SmqttMessage}
+     * @param message        {@link mqttChannel}
      * @param receiveContext {@link ReceiveContext}
      * @param <C>            {@link Configuration}
      */
     @Intercept
-    <C extends Configuration> void chooseProtocol(MqttChannel mqttChannel, SmqttMessage<MqttMessage> mqttMessage, ReceiveContext<C> receiveContext);
-
+    <C extends Configuration> void chooseProtocol(MqttChannel mqttChannel, Message message, ReceiveContext<C> receiveContext);
 
 
     /**

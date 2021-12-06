@@ -11,8 +11,4 @@ public class PublishAckMessage implements Message {
 
     private int messageId;
 
-    @Override
-    public boolean isCluster() {
-        return false;
-    }
 }

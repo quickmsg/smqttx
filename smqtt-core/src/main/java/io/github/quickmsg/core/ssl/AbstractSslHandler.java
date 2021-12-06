@@ -60,6 +60,7 @@ public class AbstractSslHandler {
                 server = server.childOption(ChannelOption.valueOf(entry.getKey()), entry.getValue());
             }
         }
+        server = server.metrics(true);
         return server;
     }
 

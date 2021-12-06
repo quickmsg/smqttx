@@ -81,18 +81,18 @@
                     </a-col>
                 </a-row>
                 <a-row v-if="Object.keys(cpuInfo).length>0">
-                    <a-col :span="12" >
-                        <p >
-                            <img width="40" src="@/assets/img/idle.png" />
-                            当前使用率： {{ cpuInfo["idle"] }}
-                        </p>
-                    </a-col>
-                    <a-col :span="12">
-                        <p >
-                            <img width="40" src="@/assets/img/iowait.png" />
-                            当前等待率： {{ cpuInfo["iowait"] }}
-                        </p>
-                    </a-col>
+                  <a-col :span="12" >
+                    <p >
+                      <img width="40" src="@/assets/img/idle.png" />
+                      当前使用率： {{ cpuInfo["idle"] }}
+                    </p>
+                  </a-col>
+                  <a-col :span="12">
+                    <p >
+                      <img width="40" src="@/assets/img/iowait.png" />
+                      当前等待率： {{ cpuInfo["iowait"] }}
+                    </p>
+                  </a-col>
                 </a-row>
             </a-card>
         </div>
@@ -127,11 +127,11 @@
 </template>
 
 <script>
-import {clusters,isCluster} from '@/services/smqtt'
-import StandardTable from '@/components/table/StandardTable'
-import axios from "axios";
+    import {clusters, isCluster} from '@/services/smqtt'
+    import StandardTable from '@/components/table/StandardTable'
+    import axios from "axios";
 
-const columns = [
+    const columns = [
     {
         title: 'Node名称',
         dataIndex: 'alias',
@@ -163,16 +163,16 @@ const counterColumns = [
         dataIndex: 'write_size',
     },
     {
-        title: '写字节数/时',
-        dataIndex: 'write_hour_size',
+        title: '写字节数/秒',
+        dataIndex: 'write_second_size',
     },
     {
         title: '读字节数',
         dataIndex: 'read_size',
     },
     {
-        title: '读字节数/时',
-        dataIndex: 'read_hour_size',
+        title: '读字节数/秒',
+        dataIndex: 'read_second_size',
     }
 
 ]

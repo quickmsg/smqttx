@@ -2,6 +2,8 @@ package io.github.quickmsg.common.enums;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.message.system.ChannelStatusMessage;
@@ -27,8 +29,6 @@ public enum ChannelEvent {
         @Override
         //todo  body message
         public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
-            MqttPublishMessage mqttPublishMessage =
-                    MqttMessageUtils.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CONNECT_TOPIC, writeBody(mqttChannel, body));
             write(receiveContext, mqttChannel, mqttPublishMessage);
         }
 
@@ -50,10 +50,8 @@ public enum ChannelEvent {
         private static final String CLOSE_TOPIC = "$event/close";
 
         @Override
-        public void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext) {
-            MqttPublishMessage mqttPublishMessage =
-                    MqttMessageUtils.buildPub(false, MqttQoS.AT_MOST_ONCE, 0, CLOSE_TOPIC, writeBody(mqttChannel, body));
-            write(receiveContext, mqttChannel, mqttPublishMessage);
+        public void sender(MqttChannel mqttChannel, Message message, ReceiveContext<?> receiveContext) {
+            write(receiveContext, mqttChannel, message);
         }
 
         @Override
@@ -71,10 +69,10 @@ public enum ChannelEvent {
      * write event
      *
      * @param mqttChannel    {@link MqttChannel }
-     * @param body           {@link Object }
+     * @param message           {@link Message }
      * @param receiveContext {@link ReceiveContext }
      */
-    public abstract void sender(MqttChannel mqttChannel, Object body, ReceiveContext<?> receiveContext);
+    public  abstract void sender(MqttChannel mqttChannel, Message message, ReceiveContext<?> receiveContext);
 
 
     /**
@@ -87,12 +85,9 @@ public enum ChannelEvent {
     public abstract ByteBuf writeBody(MqttChannel mqttChannel, Object body);
 
 
-    public void write(ReceiveContext<?> receiveContext, MqttChannel mqttChannel, MqttMessage message) {
+    public void write(ReceiveContext<?> receiveContext, MqttChannel mqttChannel, Message message) {
         receiveContext.getProtocolAdaptor()
-                .chooseProtocol(mqttChannel, new SmqttMessage<>(
-                                message
-                                , System.currentTimeMillis(), Boolean.FALSE),
-                        receiveContext);
+                .chooseProtocol(mqttChannel, message, receiveContext);
     }
 
 }

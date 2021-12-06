@@ -2,6 +2,8 @@ package io.github.quickmsg.core.mqtt;
 
 import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.config.AbstractConfiguration;
+import io.github.quickmsg.common.config.BootstrapConfig;
+import io.github.quickmsg.common.config.ConfigCheck;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelEvent;
@@ -11,6 +13,9 @@ import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.IntegrateBuilder;
+import io.github.quickmsg.common.metric.LocalMetricManager;
+import io.github.quickmsg.common.metric.MetricManager;
+import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
@@ -18,6 +23,8 @@ import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
+import io.github.quickmsg.metric.InfluxDbMetricFactory;
+import io.github.quickmsg.metric.PrometheusMetricFactory;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
@@ -59,6 +66,8 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final DslExecutor dslExecutor;
 
+    private final MetricManager metricManager;
+
     private final TrafficHandlerLoader trafficHandlerLoader;
 
     private final Integrate integrate;
@@ -72,43 +81,31 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.dslExecutor = ruleDslParser.parseRule();
         this.eventRegistry = eventRegistry();
         this.protocolAdaptor = protocolAdaptor();
-//        this.channelRegistry = channelRegistry();
-//        this.topicRegistry = topicRegistry();
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
-//        this.messageRegistry = messageRegistry();
-//        this.clusterRegistry = clusterRegistry();
         this.passwordAuthentication = basicAuthentication();
-//        this.channelRegistry.startUp(abstractConfiguration.getEnvironmentMap());
-//        this.messageRegistry.startUp(abstractConfiguration.getEnvironmentMap());
+
         this.integrate = integrateBuilder().newIntegrate(initConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
+        this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
+        Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
     }
 
 
     private TrafficHandlerLoader trafficHandlerLoader() {
         if (configuration.getGlobalReadWriteSize() == null && configuration.getChannelReadWriteSize() == null) {
-            return new CacheTrafficHandlerLoader(new GlobalTrafficShapingHandler(this.loopResources.onServer(true).next()));
+            return new CacheTrafficHandlerLoader(new GlobalTrafficShapingHandler(this.loopResources.onServer(true).next(), 60 * 1000));
         } else if (configuration.getChannelReadWriteSize() == null) {
             String[] limits = configuration.getGlobalReadWriteSize().split(",");
-            return new CacheTrafficHandlerLoader(new GlobalTrafficShapingHandler(this.loopResources.onServer(true),
-                    Long.parseLong(limits[1]),
-                    Long.parseLong(limits[0])));
+            return new CacheTrafficHandlerLoader(new GlobalTrafficShapingHandler(this.loopResources.onServer(true), Long.parseLong(limits[1]), Long.parseLong(limits[0]), 60 * 1000));
         } else if (configuration.getGlobalReadWriteSize() == null) {
             String[] limits = configuration.getChannelReadWriteSize().split(",");
-            return new LazyTrafficHandlerLoader(() -> new GlobalTrafficShapingHandler(this.loopResources.onServer(true),
-                    Long.parseLong(limits[1]),
-                    Long.parseLong(limits[0])));
+            return new LazyTrafficHandlerLoader(() -> new GlobalTrafficShapingHandler(this.loopResources.onServer(true), Long.parseLong(limits[1]), Long.parseLong(limits[0]), 60 * 1000));
         } else {
             String[] globalLimits = configuration.getGlobalReadWriteSize().split(",");
             String[] channelLimits = configuration.getChannelReadWriteSize().split(",");
-            return new CacheTrafficHandlerLoader(new GlobalChannelTrafficShapingHandler(
-                    this.loopResources.onServer(true),
-                    Long.parseLong(globalLimits[1]),
-                    Long.parseLong(globalLimits[0]),
-                    Long.parseLong(channelLimits[1]),
-                    Long.parseLong(channelLimits[0])));
+            return new CacheTrafficHandlerLoader(new GlobalChannelTrafficShapingHandler(this.loopResources.onServer(true), Long.parseLong(globalLimits[1]), Long.parseLong(globalLimits[0]), Long.parseLong(channelLimits[1]), Long.parseLong(channelLimits[0]), 60 * 1000));
         }
     }
 
@@ -120,17 +117,28 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private PasswordAuthentication basicAuthentication() {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
-        return Optional.ofNullable(PasswordAuthentication.INSTANCE)
-                .orElse(abstractConfiguration.getReactivePasswordAuth());
+        return Optional.ofNullable(PasswordAuthentication.INSTANCE).orElseGet(abstractConfiguration::getReactivePasswordAuth);
     }
 
 
     private ProtocolAdaptor protocolAdaptor() {
         return Optional.ofNullable(ProtocolAdaptor.INSTANCE)
-                .orElse(new DefaultProtocolAdaptor(Schedulers.newBoundedElastic(configuration.getBusinessThreadSize(), configuration.getBusinessQueueSize(), "business-io")))
-                .proxy();
+                .orElse(new DefaultProtocolAdaptor(Schedulers.newBoundedElastic(configuration.getBusinessThreadSize(), configuration.getBusinessQueueSize(), "business-io"))).proxy();
     }
 
+    private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {
+        ConfigCheck.checkMeterConfig(meterConfig);
+        return MetricManagerHolder.setMetricManager(Optional.ofNullable(meterConfig).map(config -> {
+            switch (config.getMeterType()) {
+                case INFLUXDB:
+                    return new InfluxDbMetricFactory(config).getMetricManager();
+                case PROMETHEUS:
+                    return new PrometheusMetricFactory(config).getMetricManager();
+                default:
+                    return new LocalMetricManager();
+            }
+        }).orElseGet(LocalMetricManager::new));
+    }
 
     private AbstractConfiguration castConfiguration(T configuration) {
         return (AbstractConfiguration) configuration;

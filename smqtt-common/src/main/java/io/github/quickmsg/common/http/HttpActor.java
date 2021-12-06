@@ -44,5 +44,16 @@ public interface HttpActor {
         return message -> JacksonUtil.json2Bean(message, tClass);
     }
 
+    /**
+     * json转换器
+     *
+     * @param tClass class
+     * @param <T>    返回类型
+     * @return {{@link Function}
+     */
+    default <T> Function<String, List<T>> toList(Class<T> tClass) {
+        return message -> JacksonUtil.json2List(message, tClass);
+    }
+
 
 }

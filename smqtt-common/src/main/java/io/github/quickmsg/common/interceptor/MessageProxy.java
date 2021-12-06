@@ -1,19 +1,13 @@
 package io.github.quickmsg.common.interceptor;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.config.Configuration;
-import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.HeapMqttMessage;
-import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
-import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
-import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.Comparator;
 import java.util.List;
@@ -94,13 +88,19 @@ public class MessageProxy {
         @Override
         @SuppressWarnings("unchecked")
         public Object intercept(Invocation invocation) {
-            SmqttMessage<MqttMessage> smqttMessage = (SmqttMessage<MqttMessage>) invocation.getArgs()[1];
-            MqttMessage message = smqttMessage.getMessage();
-            if (message instanceof MqttPublishMessage) {
-                MqttPublishMessage publishMessage = (MqttPublishMessage) message;
-                publishMessage.retain();
-            }
+//            Message message = (Message) invocation.getArgs()[1];
+//            try {
+//                if (message instanceof PublishMessage) {
+//                    PublishMessage publishMessage = (PublishMessage) message;
+//                }
+//
+//            } finally {
+//                if (smqttMessage.getIsCluster()) {
+//                    ReactorNetty.safeRelease(message.payload());
+//                }
+//            }
             return invocation.proceed();
+
         }
 
         @Override

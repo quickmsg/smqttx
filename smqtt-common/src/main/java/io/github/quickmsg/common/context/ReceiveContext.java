@@ -6,11 +6,11 @@ import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.integrate.Integrate;
-import io.github.quickmsg.common.message.SmqttMessage;
+import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
-import io.netty.handler.codec.mqtt.MqttMessage;
 
 import java.util.function.BiConsumer;
 
@@ -18,7 +18,7 @@ import java.util.function.BiConsumer;
  * @author luxurong
  */
 
-public interface ReceiveContext<T extends Configuration> extends BiConsumer<MqttChannel, SmqttMessage<MqttMessage>> {
+public interface ReceiveContext<T extends Configuration> extends BiConsumer<MqttChannel, Message> {
 
 
     /**
@@ -51,6 +51,9 @@ public interface ReceiveContext<T extends Configuration> extends BiConsumer<Mqtt
      * @return {@link Configuration}
      */
     T getConfiguration();
+
+
+    MetricManager getMetricManager();
 
 
     /**

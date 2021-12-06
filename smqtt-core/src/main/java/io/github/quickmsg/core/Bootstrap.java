@@ -47,6 +47,8 @@ public class Bootstrap {
 
     private BootstrapConfig.DatabaseConfig databaseConfig;
 
+    private BootstrapConfig.MeterConfig meterConfig;
+
     private List<RuleChainDefinition> ruleChainDefinitions;
 
     private List<SourceDefinition> sourceDefinitions;
@@ -81,7 +83,10 @@ public class Bootstrap {
         Optional.ofNullable(tcpConfig.getSsl()).map(SslContext::getEnable).ifPresent(mqttConfiguration::setSsl);
         Optional.ofNullable(tcpConfig.getSsl()).ifPresent(mqttConfiguration::setSslContext);
         Optional.ofNullable(tcpConfig.getSsl()).ifPresent(mqttConfiguration::setSslContext);
+        Optional.ofNullable(tcpConfig.getMessageMaxSize()).ifPresent(mqttConfiguration::setMessageMaxSize);
         Optional.ofNullable(clusterConfig).ifPresent(mqttConfiguration::setClusterConfig);
+        Optional.ofNullable(meterConfig).ifPresent(mqttConfiguration::setMeterConfig);
+
         if (websocketConfig != null && websocketConfig.isEnable()) {
             mqttConfiguration.setWebSocketPort(websocketConfig.getPort());
             mqttConfiguration.setWebSocketPath(websocketConfig.getPath());
@@ -113,12 +118,10 @@ public class Bootstrap {
      * 阻塞启动 生产环境慎用
      */
     public void startAwait() {
-        this.start()
-                .doOnError(err -> {
-                    log.info("bootstrap server start error", err);
-                    START_ONLY_MQTT.tryEmitEmpty();
-                })
-                .subscribe();
+        this.start().doOnError(err -> {
+            log.info("bootstrap server start error", err);
+            START_ONLY_MQTT.tryEmitEmpty();
+        }).subscribe();
         START_ONLY_MQTT.asMono().block();
     }
 
@@ -133,30 +136,19 @@ public class Bootstrap {
         MqttConfiguration mqttConfiguration = initMqttConfiguration();
         MqttTransportFactory mqttTransportFactory = new MqttTransportFactory();
         LoggerLevel.root(rootLevel);
-        return mqttTransportFactory.createTransport(mqttConfiguration)
-                .start()
-                .doOnError(Throwable::printStackTrace)
-                .doOnSuccess(transports::add)
-                .then(startWs(mqttConfiguration))
-                .then(startHttp())
-                .thenReturn(this)
-                .doOnSuccess(started);
+
+        return mqttTransportFactory.createTransport(mqttConfiguration).start().doOnError(Throwable::printStackTrace).doOnSuccess(transports::add).then(startWs(mqttConfiguration)).then(startHttp()).thenReturn(this).doOnSuccess(started);
     }
 
 
     private Mono<Void> startWs(MqttConfiguration mqttConfiguration) {
-        return this.websocketConfig != null && websocketConfig.isEnable() ? new WebSocketMqttTransportFactory().createTransport(mqttConfiguration)
-                .start()
-                .doOnSuccess(transports::add).doOnError(throwable -> log.error("start websocket error", throwable)).then() : Mono.empty();
+        return this.websocketConfig != null && websocketConfig.isEnable() ? new WebSocketMqttTransportFactory().createTransport(mqttConfiguration).start().doOnSuccess(transports::add).doOnError(throwable -> log.error("start websocket error", throwable)).then() : Mono.empty();
     }
 
 
     private Mono<Void> startHttp() {
-        return httpConfig != null && httpConfig.isEnable() ? new HttpTransportFactory().createTransport(this.buildHttpConfiguration())
-                .start()
-                .doOnSuccess(transports::add).doOnError(throwable -> log.error("start http error", throwable)).then() : Mono.empty();
+        return httpConfig != null && httpConfig.isEnable() ? new HttpTransportFactory().createTransport(this.buildHttpConfiguration()).start().doOnSuccess(transports::add).doOnError(throwable -> log.error("start http error", throwable)).then() : Mono.empty();
     }
-
 
     private HttpConfiguration buildHttpConfiguration() {
         HttpConfiguration httpConfiguration = new HttpConfiguration();

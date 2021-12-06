@@ -1,13 +1,13 @@
 package io.github.quickmsg.core.http.actors;
 
+import io.github.quickmsg.common.config.Configuration;
+import io.github.quickmsg.common.context.ContextHolder;
+import io.github.quickmsg.common.http.HttpActor;
 import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Router;
-import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.http.enums.HttpType;
-import io.github.quickmsg.common.http.HttpActor;
 import io.github.quickmsg.common.utils.JacksonUtil;
-import io.github.quickmsg.core.DefaultTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -28,6 +28,6 @@ public class ClusterActor implements HttpActor {
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
         return request
                 .receive()
-                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(DefaultTransport.receiveContext.getIntegrate().getCluster().getClusterNode()))).then());
+                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(ContextHolder.getReceiveContext().getIntegrate().getCluster().getClusterNode()))).then());
     }
 }

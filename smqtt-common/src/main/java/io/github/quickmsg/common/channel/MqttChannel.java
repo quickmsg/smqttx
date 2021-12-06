@@ -5,6 +5,7 @@ import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.netty.handler.codec.mqtt.*;
 import lombok.Builder;
@@ -72,13 +73,18 @@ public class MqttChannel {
     private transient MqttMessageSink mqttMessageSink;
 
     @JsonIgnore
-    private transient Map<Integer, MqttPublishMessage> qos2MsgCache;
+    private transient Map<Integer, PublishMessage> qos2MsgCache;
 
     @JsonIgnore
     private Map<MqttMessageType, Map<Integer, Disposable>> replyMqttMessageMap;
 
     @JsonIgnore
     private Disposable closeDisposable;
+
+
+    public boolean isActive(){
+        return !connection.isDisposed();
+    }
 
 
     public void disposableClose() {
@@ -104,7 +110,7 @@ public class MqttChannel {
     }
 
 
-    public Mono<Void> cacheQos2Msg(int messageId, MqttPublishMessage publishMessage) {
+    public Mono<Void> cacheQos2Msg(int messageId, PublishMessage publishMessage) {
         return Mono.fromRunnable(() -> qos2MsgCache.put(messageId, publishMessage));
     }
 
@@ -112,7 +118,7 @@ public class MqttChannel {
         return qos2MsgCache.containsKey(messageId);
     }
 
-    public Optional<MqttPublishMessage> removeQos2Msg(int messageId) {
+    public Optional<PublishMessage> removeQos2Msg(int messageId) {
         return Optional.ofNullable(qos2MsgCache.remove(messageId));
     }
 
@@ -335,7 +341,7 @@ public class MqttChannel {
                     replyMqttMessageMap.computeIfAbsent(message.fixedHeader().messageType(), mqttMessageType -> new ConcurrentHashMap<>(8)).put(messageId,
                             mqttChannel.write(Mono.fromCallable(() -> getDupMessage(message)))
                                     .delaySubscription(Duration.ofSeconds(5))
-                                    .repeat(10)
+                                    .repeat(10, mqttChannel::isActive)
                                     .doOnError(error -> {
                                         MessageUtils.safeRelease(message);
                                         log.error("offerReply", error);

@@ -22,8 +22,4 @@ public class PingMessage implements Message {
         return 0;
     }
 
-    @Override
-    public boolean isCluster() {
-        return false;
-    }
 }

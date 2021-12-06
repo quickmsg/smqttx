@@ -11,8 +11,6 @@ import reactor.util.context.ContextView;
 
 /**
  * @author luxurong
- * @date 2021/11/30 19:09
- * @description
  */
 public class PublishCompProtocol implements Protocol<PublishCompMessage> {
 
