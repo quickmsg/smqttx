@@ -37,7 +37,7 @@ SMQTT基于reactor-netty(spring-webflux底层依赖)开发，底层采用Reactor
 12. 容器化支持 
     > 默认镜像最新tag: 1ssqq1lxr/smqtt
 13. 持久化支持（session 保留消息）
-14. 规则引擎支持(文档需要赞助提供)
+14. 规则引擎支持
 15. 支持springboot starter启动
 16. 管理后台
     > 请参考smqtt文档如何启动管理后台
@@ -160,7 +160,7 @@ SMQTT基于reactor-netty(spring-webflux底层依赖)开发，底层采用Reactor
 
 2. 准备配置文件 config.yaml
 
-   [config.yaml](config.yaml)
+   [config.yaml](config/config.yaml)
 
 3. 启动服务
 
@@ -250,12 +250,17 @@ docker run -it  -v <配置文件路径目录>:/conf -p 1883:1883  -p 1999:1999 1
 [Apache License, Version 2.0](LICENSE)
 
 
+## 友情链接
+[一款非常好用的IOT平台：thinglinks](https://github.com/mqttsnet/thinglinks)
+
+
 ## 相关技术文档
 - [reactor3](https://projectreactor.io/docs/core/release/reference/)
 - [reactor-netty](https://projectreactor.io/docs/netty/1.0.12/reference/index.html)
 
 ## 麻烦关注下公众号！
 ![image](icon/icon.jpg)
+
 
 - 添加微信号`Lemon877164954`，拉入smqtt官方交流群
 - 加入qq群 `700152283` 
