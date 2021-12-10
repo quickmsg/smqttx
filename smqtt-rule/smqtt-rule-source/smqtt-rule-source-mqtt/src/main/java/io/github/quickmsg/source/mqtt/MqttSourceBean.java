@@ -10,6 +10,7 @@ import io.github.quickmsg.common.rule.source.SourceBean;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,12 +92,16 @@ public class MqttSourceBean implements SourceBean {
     @Override
     public void transmit(Map<String, Object> object) {
         String topic = (String) object.get("topic");
-        String msg = (String) object.get("msg");
-        Boolean retain = (Boolean) object.get("retain");
-        Integer qos = Optional.ofNullable((Integer)object.get("qos")).orElse(0);
+        if (topic == null) {
+            log.error("MqttSourceBean transmit topic is not null");
+            return;
+        }
+        byte[] bytes = Optional.ofNullable(object.get("msg")).map(msg -> msg.toString().getBytes(StandardCharsets.UTF_8)).orElseGet(() -> new byte[0]);
+        boolean retain = Optional.ofNullable(object.get("retain")).map(r -> Boolean.getBoolean(r.toString())).orElse(false);
+        Integer qos = Optional.ofNullable((Integer) object.get("qos")).orElse(0);
         client.publishWith()
                 .topic(topic)
-                .payload(msg.getBytes())
+                .payload(bytes)
                 .qos(Objects.requireNonNull(MqttQos.fromCode(qos)))
                 .retain(retain)
                 .send()

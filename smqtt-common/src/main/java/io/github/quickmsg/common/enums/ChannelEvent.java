@@ -55,7 +55,7 @@ public enum ChannelEvent {
         }
 
         @Override
-        public ByteBuf writeBody(MqttChannel mqttChannel, Object body) {
+        public ByteBuf writeBody(MqttChannel mqttChannel, Message message) {
             return PooledByteBufAllocator.DEFAULT
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
                             mqttChannel.getClientIdentifier(),
