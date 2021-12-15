@@ -19,4 +19,9 @@ public class PingProtocol implements Protocol<PingMessage> {
         return mqttChannel.write(MqttMessageUtils.buildPongMessage(), false)
                 .then(Mono.fromSupplier(() -> build(EventMsg.PING_MESSAGE, mqttChannel.getClientIdentifier(), 0)));
     }
+
+    @Override
+    public Class<PingMessage> getClassType() {
+        return PingMessage.class;
+    }
 }

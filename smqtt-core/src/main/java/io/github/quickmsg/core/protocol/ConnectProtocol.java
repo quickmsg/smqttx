@@ -130,6 +130,11 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         return Mono.just(event);
     }
 
+    @Override
+    public Class<ConnectMessage> getClassType() {
+        return ConnectMessage.class;
+    }
+
     private Event buildConnectEvent(MqttChannel mqttChannel) {
         ConnectEvent connectEvent = new ConnectEvent();
         connectEvent.setAddress(mqttChannel.getAddress());

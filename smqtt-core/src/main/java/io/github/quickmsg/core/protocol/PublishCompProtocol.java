@@ -22,4 +22,9 @@ public class PublishCompProtocol implements Protocol<PublishCompMessage> {
                         mqttChannel.getClientIdentifier(),
                         compId));
     }
+
+    @Override
+    public Class<PublishCompMessage> getClassType() {
+        return PublishCompMessage.class;
+    }
 }

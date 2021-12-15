@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.context;
 
-import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
@@ -12,13 +11,13 @@ import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author luxurong
  */
 
-public interface ReceiveContext<T extends Configuration> extends BiConsumer<MqttChannel, Message> {
+public interface ReceiveContext<T extends Configuration> extends Consumer<Message> {
 
 
     /**

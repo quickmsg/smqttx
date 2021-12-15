@@ -2,7 +2,6 @@ package io.github.quickmsg.core.mqtt;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.Message;
-import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.message.mqtt.PublishAckMessage;
 import io.github.quickmsg.common.transport.Transport;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
@@ -28,18 +27,13 @@ public class MqttReceiveContext extends AbstractReceiveContext<MqttConfiguration
                 .receiveObject()
                 .cast(MqttMessage.class)
                 .doOnError(throwable -> log.error("on connect error", throwable))
-                .subscribe(mqttMessage -> this.accept(mqttChannel, parseMessage(mqttMessage)));
+                .subscribe(mqttMessage -> this.accept(parseMessage(mqttMessage)));
 
-    }
-
-    @Override
-    public void accept(MqttChannel channel, Message message) {
-        this.getProtocolAdaptor().chooseProtocol(channel, message, this);
     }
 
     private Message parseMessage(MqttMessage mqttMessage) {
-        MqttFixedHeader fixedHeader =mqttMessage.fixedHeader();
-        switch (fixedHeader.messageType()){
+        MqttFixedHeader fixedHeader = mqttMessage.fixedHeader();
+        switch (fixedHeader.messageType()) {
             case PUBACK:
                 return new PublishAckMessage();
             case PUBREC:
@@ -59,5 +53,10 @@ public class MqttReceiveContext extends AbstractReceiveContext<MqttConfiguration
                 return Message.EMPTY_MESSAGE;
         }
 
+    }
+
+    @Override
+    public void accept(Message message) {
+        this.getProtocolAdaptor().chooseProtocol(message);
     }
 }

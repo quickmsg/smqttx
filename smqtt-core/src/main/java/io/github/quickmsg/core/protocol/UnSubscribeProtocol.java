@@ -35,5 +35,10 @@ public class UnSubscribeProtocol implements Protocol<UnSubscribeMessage> {
                         System.currentTimeMillis()));
     }
 
+    @Override
+    public Class<UnSubscribeMessage> getClassType() {
+        return UnSubscribeMessage.class;
+    }
+
 
 }

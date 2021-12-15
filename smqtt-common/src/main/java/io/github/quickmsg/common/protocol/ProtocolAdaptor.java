@@ -1,12 +1,10 @@
 package io.github.quickmsg.common.protocol;
 
-import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.config.Configuration;
-import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.interceptor.Intercept;
 import io.github.quickmsg.common.interceptor.MessageProxy;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
+import reactor.core.publisher.Sinks;
 
 /**
  * @author luxurong
@@ -16,23 +14,22 @@ public interface ProtocolAdaptor {
     ProtocolAdaptor INSTANCE = DynamicLoader.findFirst(ProtocolAdaptor.class).orElse(null);
 
 
+     Sinks.Many<Message> acceptor = Sinks.many().multicast().onBackpressureBuffer();
+
+
     MessageProxy MESSAGE_PROXY = new MessageProxy();
 
-
     /**
-     * 分发某种协议下  消息类型
+     * choose protocol
      *
-     * @param mqttChannel    {@link MqttChannel}
-     * @param message        {@link mqttChannel}
-     * @param receiveContext {@link ReceiveContext}
-     * @param <C>            {@link Configuration}
+     * @param message {@link Message}
      */
     @Intercept
-    <C extends Configuration> void chooseProtocol(MqttChannel mqttChannel, Message message, ReceiveContext<C> receiveContext);
+    void chooseProtocol(Message message);
 
 
     /**
-     * 代理类  用来注入 filter monitor
+     * proxy
      *
      * @return {@link ProtocolAdaptor}
      */

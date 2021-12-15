@@ -27,5 +27,10 @@ public class DisConnectProtocol implements Protocol<DisConnectMessage> {
         });
     }
 
+    @Override
+    public Class<DisConnectMessage> getClassType() {
+        return DisConnectMessage.class;
+    }
+
 
 }

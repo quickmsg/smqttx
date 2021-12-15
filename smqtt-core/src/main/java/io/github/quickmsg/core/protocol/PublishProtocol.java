@@ -68,6 +68,11 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         return Mono.empty();
     }
 
+    @Override
+    public Class<PublishMessage> getClassType() {
+        return PublishMessage.class;
+    }
+
     private Event buildEvent(PublishMessage message, String clientIdentifier) {
         if (message.isCluster()) {
             return NoneEvent.INSTANCE;

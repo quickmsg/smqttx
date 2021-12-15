@@ -46,6 +46,11 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
                 .thenReturn(buildEvent(message, mqttChannel));
     }
 
+    @Override
+    public Class<SubscribeMessage> getClassType() {
+        return SubscribeMessage.class;
+    }
+
     private SubscribeEvent buildEvent(SubscribeMessage message, MqttChannel mqttChannel) {
         return new SubscribeEvent(EventMsg.SUBSCRIBE_MESSAGE,
                 mqttChannel.getClientIdentifier(),

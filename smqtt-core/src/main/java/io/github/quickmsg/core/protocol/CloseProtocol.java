@@ -12,9 +12,13 @@ import reactor.util.context.ContextView;
  */
 public class CloseProtocol implements Protocol<CLoseMessage> {
 
-
     @Override
     public Mono<Event> parseProtocol(CLoseMessage message, MqttChannel mqttChannel, ContextView contextView) {
         return null;
+    }
+
+    @Override
+    public Class<CLoseMessage> getClassType() {
+        return CLoseMessage.class;
     }
 }

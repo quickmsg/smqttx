@@ -54,4 +54,9 @@ public class PublishRelProtocol implements Protocol<PublishRelMessage> {
                                 mqttChannel.getClientIdentifier(),
                                 id)));
     }
+
+    @Override
+    public Class<PublishRelMessage> getClassType() {
+        return PublishRelMessage.class;
+    }
 }

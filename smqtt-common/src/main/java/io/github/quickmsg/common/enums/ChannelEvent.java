@@ -28,7 +28,7 @@ public enum ChannelEvent {
         private static final String CONNECT_TOPIC = "$event/connect";
 
         @Override
-        public void sender(MqttChannel mqttChannel, ConnectMessage message, ReceiveContext<?> receiveContext) {
+        public void sender(MqttChannel mqttChannel, Message message, ReceiveContext<?> receiveContext) {
             write(receiveContext, mqttChannel, message);
         }
 
@@ -86,8 +86,8 @@ public enum ChannelEvent {
 
 
     public void write(ReceiveContext<?> receiveContext, MqttChannel mqttChannel, Message message) {
-        receiveContext.getProtocolAdaptor()
-                .chooseProtocol(mqttChannel, message, receiveContext);
+//        receiveContext.getProtocolAdaptor()
+//                .chooseProtocol(mqttChannel, message, receiveContext);
     }
 
 }

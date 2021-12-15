@@ -23,5 +23,10 @@ public class PublishAckProtocol implements Protocol<PublishAckMessage> {
                         , mqttChannel.getClientIdentifier(), message.getMessageId()));
     }
 
+    @Override
+    public Class<PublishAckMessage> getClassType() {
+        return PublishAckMessage.class;
+    }
+
 
 }
