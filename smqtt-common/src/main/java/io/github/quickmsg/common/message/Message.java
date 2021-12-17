@@ -2,6 +2,7 @@ package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.netty.handler.codec.mqtt.MqttMessage;
 
 /**
  * @author luxurong
@@ -13,11 +14,6 @@ public interface Message {
         @Override
         public int getMessageId() {
             return 0;
-        }
-
-        @Override
-        public Message fromMqttMessage(Object message) {
-            return null;
         }
 
         @Override
@@ -33,8 +29,6 @@ public interface Message {
     };
 
     int getMessageId();
-
-    Message fromMqttMessage(Object message);
 
     MqttChannel getMqttChannel();
 
