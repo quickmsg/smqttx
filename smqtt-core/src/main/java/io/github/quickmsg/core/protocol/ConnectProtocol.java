@@ -160,10 +160,6 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     }
 
     private void close(MqttChannel mqttChannel, MqttReceiveContext mqttReceiveContext, EventRegistry eventRegistry) {
-        log.info(" 【{}】【{}】 【{}】",
-                Thread.currentThread().getName(),
-                "CLOSE",
-                mqttChannel);
         mqttChannel.setStatus(ChannelStatus.OFFLINE);
         if (!mqttChannel.isSessionPersistent()) {
             mqttChannel.getTopics()

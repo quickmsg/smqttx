@@ -10,10 +10,16 @@ import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteAtomicLong;
+import org.apache.ignite.IgniteCompute;
+import org.apache.ignite.IgniteSet;
+import org.apache.ignite.configuration.CollectionConfiguration;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -22,48 +28,46 @@ import java.util.stream.Collectors;
 @Slf4j
 public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntegrateTopics<SubscribeTopic> {
 
-    private final static String SUBSCRIBE_PREFIX = "subscriber_";
-
     private final IgniteIntegrate integrate;
 
-    private final IgniteAtomicLong subscribeNumber;
-
-    private final IgniteAtomicLong atomicName;
+    private final AtomicLong subscribeNumber = new AtomicLong(0);
 
     /**
-     * clusterNode -> topic -> channelId
+     * clientId -> topic
      */
-    private final IntegrateCache<String, IntegrateCache<String, String>> shareCache;
+    private final IntegrateCache<String, IgniteSet<String>> shareCache;
 
     private final String clusterNode;
+
+
+    private final IgniteCompute igniteCompute;
+
+    private final String PREFIX_SET = "client_sets:";
+
+
 
     public IgniteIntegrateTopics(IgniteIntegrate integrate) {
         super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
         this.integrate = integrate;
         this.shareCache = integrate.getCache(IgniteCacheRegion.TOPIC);
         this.clusterNode = integrate.getCluster().getLocalNode();
-        this.subscribeNumber = integrate.getIgnite().atomicLong(
-                "subscribers", // Atomic long name.
-                0,            // Initial value.
-                true         // Create if it does not exist.
-        );
-        this.atomicName = integrate.getIgnite().atomicLong(
-                "topics", // Atomic long name.
-                0,            // Initial value.
-                true         // Create if it does not exist.
-        );
+        this.igniteCompute=integrate.getIgnite().compute();
     }
 
     @Override
     public void registryTopic(String topic, SubscribeTopic subscribeTopic) {
         TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
         if (filter.addObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
+            IgniteSet<String> topics=  shareCache.getAndPutIfAbsent(clusterNode,
+                    integrate
+                            .getIgnite()
+                            .set(PREFIX_SET+clusterNode, new CollectionConfiguration().setBackups(1)));
+            if(topics == null){
+                topics =  shareCache.get(clusterNode);
+            }
+            topics.add(topic);
             subscribeNumber.incrementAndGet();
             subscribeTopic.linkSubscribe();
-            IntegrateCache<String, String> subscribeCache =
-                    shareCache.getAndPutIfAbsent(clusterNode,
-                            integrate.getCache(SUBSCRIBE_PREFIX + atomicName.incrementAndGet()));
-            subscribeCache.put(topic, subscribeTopic.getMqttChannel().getClientIdentifier());
         }
     }
 
@@ -72,10 +76,13 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
         TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
         boolean success = filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
         if (success) {
+            filter.removeObjectTopic(topic,subscribeTopic);
+            IgniteSet<String> topics = shareCache.get(clusterNode);
+            if(topics!=null){
+                topics.remove(topic);
+            }
             subscribeNumber.decrementAndGet();
-            subscribeTopic.linkSubscribe();
-            Optional.ofNullable(shareCache.get(clusterNode))
-                    .ifPresent(cache -> cache.remove(topic));
+            subscribeTopic.unLinkSubscribe();
         }
         return success;
 
@@ -94,7 +101,7 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
                 .getOtherClusterNode()
                 .stream()
                 .filter(node -> Optional.ofNullable(shareCache.get(node))
-                        .map(cache -> cache.exist(topicName))
+                        .map(cache -> cache.contains(topicName))
                         .orElse(false))
                 .collect(Collectors.toSet());
     }
@@ -106,10 +113,11 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
 
     @Override
     public void clearTopics(String node) {
-        IntegrateCache<String, String> cache = this.shareCache.get(node);
+        IgniteSet<String> cache = this.shareCache.get(node);
         if (cache != null) {
             cache.clear();
             cache.close();
+            this.shareCache.remove(node);
         }
     }
 

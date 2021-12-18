@@ -3,6 +3,7 @@ package io.github.quickmsg.rule.node;
 import io.github.quickmsg.common.channel.MockMqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
@@ -45,9 +46,11 @@ public class TopicRuleNode implements RuleNode {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
         HeapMqttMessage heapMqttMessage = contextView.get(HeapMqttMessage.class);
         log.info("rule engine TopicRuleNode  request {}", heapMqttMessage);
-        ProtocolAdaptor protocolAdaptor = receiveContext.getProtocolAdaptor();
-        protocolAdaptor.chooseProtocol(MockMqttChannel.wrapClientIdentifier(heapMqttMessage.getClientIdentifier()),
-                new SmqttMessage<>(getMqttMessage(heapMqttMessage),heapMqttMessage.getTimestamp(),Boolean.TRUE), receiveContext);
+//        ProtocolAdaptor protocolAdaptor = receiveContext.getProtocolAdaptor()
+//                new PublishMessage()
+//        protocolAdaptor.chooseProtocol(MockMqttC
+//                hannel.wrapClientIdentifier(heapMqttMessage.getClientIdentifier()),
+//                new SmqttMessage<>(getMqttMessage(heapMqttMessage),heapMqttMessage.getTimestamp(),Boolean.TRUE), receiveContext);
         executeNext(contextView);
     }
 

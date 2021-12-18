@@ -4,6 +4,10 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheEntryProcessor;
+import org.apache.ignite.cluster.ClusterState;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.lang.IgniteRunnable;
 import org.apache.ignite.resources.IgniteInstanceResource;
@@ -15,6 +19,8 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 import javax.cache.processor.MutableEntry;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,37 +33,49 @@ import java.util.Map;
 public class Test2 {
     public static void main(String[] args) throws InterruptedException {
         // Preparing IgniteConfiguration using Java APIs
-        IgniteConfiguration cfg = new IgniteConfiguration();
+        DataRegionConfiguration dataRegionConfiguration=new DataRegionConfiguration()
+                .setName("store")
+                .setPersistenceEnabled(true);
+        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
+        dataStorageConfiguration.setDataRegionConfigurations(dataRegionConfiguration);
 
+        IgniteConfiguration cfg = new IgniteConfiguration();
+        cfg.setDataStorageConfiguration(dataStorageConfiguration);
+        cfg.setLocalHost("127.0.0.1");
         // The node will be started as a client node.
         cfg.setClientMode(false);
-        cfg.setLocalHost("127.0.0.1");
+
+
         // Classes of custom Java logic will be transferred over the wire from this app.
         cfg.setPeerClassLoadingEnabled(true);
 
-        // Setting up an IP Finder to ensure the client can locate the servers.
+        TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
-        TcpDiscoveryIpFinder discoveryIpFinder= new TcpDiscoveryVmIpFinder();
-
-        cfg.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(ipFinder));
+        ipFinder.setAddresses(Arrays.asList("127.0.0.1"));
+        spi.setIpFinder(ipFinder);
+        cfg.setDiscoverySpi(spi);
 
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
+        ignite.cluster().state(ClusterState.ACTIVE);
 
         // Create an IgniteCacheRegion and put some values in it.
-        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
-        Map<String,Object> map = new HashMap<>();
-        map.put("1","90090099");
-        cache.put(3,map);
-        Thread.sleep(2000);
-        cache.get(3).put("1","2121");
+        CacheConfiguration configuration = new CacheConfiguration();
+        configuration.setName("test");
+        configuration.setDataRegionName("store");
+        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache(configuration);
+//        Map<String,Object> map = new HashMap<>();
+//        map.put("1","90090099");
+//        cache.put(3,map);
+//        Thread.sleep(2000);
+        Map<String,Object> map = cache.get(3);
+        System.out.println(map);
 
 
         System.out.println(">> Created the cache and add the values.");
 
         // Executing custom Java compute task on server nodes.
-        ignite.compute(ignite.cluster().forServers()).broadcast(new RemoteTask());
+//        ignite.compute(ignite.cluster().forServers()).broadcast(new RemoteTask());
 
         System.out.println(">> Compute task is executed, check for output on the server nodes.");
 

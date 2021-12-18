@@ -82,5 +82,14 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
         }
     }
 
+    /**
+     * check cluster
+     *
+     * @return  boolean
+     */
+    default boolean isCluster() {
+       return getConfiguration().getClusterConfig().isEnable();
+    }
+
 
 }

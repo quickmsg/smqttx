@@ -18,6 +18,7 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.CacheRebalanceMode;
+import org.apache.ignite.cluster.ClusterState;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 
@@ -32,20 +33,39 @@ public class IgniteIntegrate implements Integrate {
 
     private final ProtocolAdaptor protocolAdaptor;
 
+    private final IgniteChannels igniteChannels;
+
+    private final IgniteIntegrateCluster cluster;
+
+    private final IgniteIntegrateTopics integrateTopics;
+
+    private final IgniteMessages igniteMessages;
+
+    private final ReactorPipeline pipeline;
+
+    private final IgniteExecutor igniteExecutor;
+
     public IgniteIntegrate(IgniteConfiguration configuration, ProtocolAdaptor protocolAdaptor) {
         this.ignite = Ignition.start(configuration);
+        this.ignite.cluster().state(ClusterState.ACTIVE);
         this.protocolAdaptor = protocolAdaptor;
+        this.igniteChannels = new IgniteChannels(this, new ConcurrentHashMap<>());
+        this.cluster= new IgniteIntegrateCluster(this, ignite.cluster());
+        this.integrateTopics=new IgniteIntegrateTopics(this);
+        this.igniteMessages=new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
+        this.pipeline = new ReactorPipeline();
+        this.igniteExecutor = new IgniteExecutor(ignite.compute(ignite.cluster()));
     }
 
 
     @Override
     public IntegrateChannels getChannels() {
-        return new IgniteChannels(this, new ConcurrentHashMap<>());
+        return this.igniteChannels;
     }
 
     @Override
     public IntegrateCluster getCluster() {
-        return new IgniteIntegrateCluster(this, ignite.cluster());
+        return this.cluster;
     }
 
     @Override
@@ -72,17 +92,17 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public IntegrateTopics<SubscribeTopic> getTopics() {
-        return new IgniteIntegrateTopics(this);
+        return this.integrateTopics;
     }
 
     @Override
     public IntegrateMessages getMessages() {
-        return new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
+        return this.igniteMessages;
     }
 
     @Override
     public JobExecutor getJobExecutor() {
-        return new IgniteExecutor(ignite.compute(ignite.cluster()));
+        return this.igniteExecutor ;
     }
 
     @Override
@@ -97,7 +117,7 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public Pipeline getPipeline() {
-        return new ReactorPipeline();
+        return this.pipeline;
     }
 
 

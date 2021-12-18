@@ -1,10 +1,10 @@
 package io.github.quickmsg.core.http;
 
+import io.github.quickmsg.common.http.HttpActor;
 import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Headers;
 import io.github.quickmsg.common.http.annotation.Router;
-import io.github.quickmsg.common.http.HttpActor;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -32,30 +32,23 @@ public class HttpRouterAcceptor implements Consumer<HttpServerRoutes> {
         HttpActor.INSTANCE.forEach(httpActor -> {
             Class<?> classt = httpActor.getClass();
             Router router = classt.getAnnotation(Router.class);
-            BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>>
-                    handler = (httpServerRequest, httpServerResponse) ->
-                    this.doRequest(httpServerRequest, httpServerResponse, httpActor, router);
+            BiFunction<? super HttpServerRequest, ? super HttpServerResponse, ? extends Publisher<Void>> handler = (httpServerRequest, httpServerResponse) -> this.doRequest(httpServerRequest, httpServerResponse, httpActor, router);
             switch (router.type()) {
                 case PUT:
-                    httpServerRoutes
-                            .put(router.value(), handler);
+                    httpServerRoutes.put(router.value(), handler);
                     break;
                 case POST:
-                    httpServerRoutes
-                            .post(router.value(), handler);
+                    httpServerRoutes.post(router.value(), handler);
                     break;
                 case DELETE:
-                    httpServerRoutes
-                            .delete(router.value(), handler);
+                    httpServerRoutes.delete(router.value(), handler);
                     break;
                 case OPTIONS:
-                    httpServerRoutes
-                            .options(router.value(), handler);
+                    httpServerRoutes.options(router.value(), handler);
                     break;
                 case GET:
                 default:
-                    httpServerRoutes
-                            .get(router.value(), handler);
+                    httpServerRoutes.get(router.value(), handler);
                     break;
             }
         });

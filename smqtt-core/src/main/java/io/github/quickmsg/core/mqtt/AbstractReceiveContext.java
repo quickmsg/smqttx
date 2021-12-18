@@ -43,6 +43,7 @@ import reactor.netty.resources.LoopResources;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author luxurong
@@ -84,7 +85,6 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.passwordAuthentication = basicAuthentication();
-
         this.integrate = integrateBuilder().newIntegrate(initConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
@@ -149,30 +149,31 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     }
 
     private IgniteConfiguration initConfig() {
-        DataRegionConfiguration[] regionConfigurations =
-                (DataRegionConfiguration[]) Arrays.stream(IgniteCacheRegion.values())
-                        .map(region -> new DataRegionConfiguration()
-                                .setName(region.getRegionName())
-                                .setPersistenceEnabled(region.persistence())).toArray();
-
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
-        dataStorageConfiguration.setDataRegionConfigurations(regionConfigurations);
-
-
+        dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
-        igniteConfiguration.setClientMode(false);
+//        igniteConfiguration.setGridLogger(Slf4jLogger)
         igniteConfiguration.setLocalHost("127.0.0.1");
-        igniteConfiguration.setPeerClassLoadingEnabled(true);
-        // Enable cache events.
-        igniteConfiguration.setIncludeEventTypes(EventType.EVT_NODE_JOINED, EventType.EVT_NODE_LEFT, EventType.EVT_NODE_FAILED);
 
-
-        // Setting up an IP Finder to ensure the client can locate the servers.
+        igniteConfiguration.setClientMode(false);
+        TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        ipFinder.setAddresses(Collections.singletonList("127.0.0.1:47500..47509"));
-        igniteConfiguration.setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(ipFinder));
+        ipFinder.setAddresses(Arrays.asList("127.0.0.1", "127.0.0.1:47500..47509"));
+        spi.setIpFinder(ipFinder);
+
+        igniteConfiguration.setDiscoverySpi(spi);
         return igniteConfiguration;
+    }
+
+    private DataRegionConfiguration[] getDataRegionConfigurations(IgniteCacheRegion[] values) {
+        DataRegionConfiguration[] regionConfigurations = new DataRegionConfiguration[values.length];
+        for(int i=0;i<values.length;i++){
+            regionConfigurations[i] =new DataRegionConfiguration()
+                    .setName(values[i].getRegionName())
+                    .setPersistenceEnabled(values[i].persistence());
+        }
+        return regionConfigurations;
     }
 
 

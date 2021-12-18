@@ -19,9 +19,9 @@ import lombok.Data;
 @Data
 public class PublishMessage implements Message {
 
-    private int messageId;
+    private String clientId;
 
-    private boolean cluster;
+    private int messageId;
 
     private String topic;
 
@@ -43,14 +43,19 @@ public class PublishMessage implements Message {
         return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
     }
 
+    public PublishMessage(){}
+
     public PublishMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
         this.context  = receiveContext;
         this.mqttChannel = mqttChannel;
         MqttPublishMessage mqttPublishMessage = (MqttPublishMessage)message;
         this.messageId=mqttPublishMessage.variableHeader().packetId();
+        this.clientId = mqttChannel.getClientIdentifier();
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
     }
+
+
 }

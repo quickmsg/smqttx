@@ -1,16 +1,13 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.event.EventSubscriber;
-import io.github.quickmsg.common.event.acceptor.PublishEvent;
-import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-import io.github.quickmsg.common.utils.RetryFailureHandler;
+import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import org.apache.ignite.IgniteMessaging;
 import org.apache.ignite.lang.IgniteBiPredicate;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
 import java.util.Set;
 import java.util.UUID;
@@ -19,18 +16,15 @@ import java.util.stream.Collectors;
 /**
  * @author luxurong
  */
-public class IgniteIntegrateCluster extends EventSubscriber<PublishEvent> implements IntegrateCluster {
+public class IgniteIntegrateCluster implements IntegrateCluster {
 
     private final IgniteIntegrate igniteIntegrate;
 
     private final IgniteMessaging message;
 
-    private final Sinks.Many<PublishEvent> heapMqttMessageMany = Sinks.many().multicast().onBackpressureBuffer();
-
     private final org.apache.ignite.IgniteCluster igniteCluster;
 
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate, org.apache.ignite.IgniteCluster igniteCluster) {
-        super(igniteIntegrate.getPipeline(), PublishEvent.class);
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteCluster;
@@ -64,28 +58,28 @@ public class IgniteIntegrateCluster extends EventSubscriber<PublishEvent> implem
 
 
     @Override
-    public Mono<Void> shutdown() {
-        return Mono.fromRunnable(() ->
-                message.remoteListen(igniteCluster.localNode().id().toString(), (IgniteBiPredicate<UUID, Object>) (uuid, o) -> true));
+    public void shutdown() {
+        message.stopLocalListen(this.getLocalNode(),(uuid, o) -> true);
+    }
+
+    @Override
+    public void sendCluster(ClusterMessage clusterMessage) {
+        IntegrateTopics<SubscribeTopic> topics = igniteIntegrate.getTopics();
+        String topic = clusterMessage.getTopic();
+        Set<String> otherNodes = topics.isWildcard(topic) ?
+                this.getOtherClusterNode() : topics.getRemoteTopicsContext(topic);
+        otherNodes.forEach(node -> message.send(node, clusterMessage));
     }
 
     private boolean doRemote(UUID uuid, Object o) {
-        heapMqttMessageMany.emitNext((PublishEvent) o, new RetryFailureHandler());
+        ClusterMessage clusterMessage = (ClusterMessage) o;
+        igniteIntegrate.getProtocolAdaptor().chooseProtocol(clusterMessage.toPublishMessage(ContextHolder.getReceiveContext()));
         return true;
     }
 
     @Override
     public Integrate getIntegrate() {
         return this.igniteIntegrate;
-    }
-
-    @Override
-    public void apply(PublishEvent publishEvent) {
-        IntegrateTopics<SubscribeTopic> topics = igniteIntegrate.getTopics();
-        String topic = publishEvent.getTopic();
-        Set<String> otherNodes = topics.isWildcard(topic) ?
-                this.getOtherClusterNode() : topics.getRemoteTopicsContext(topic);
-        otherNodes.forEach(node -> message.send(node, publishEvent));
     }
 
 

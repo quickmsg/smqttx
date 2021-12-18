@@ -10,8 +10,6 @@
         <module>smqtt-common</module>
         <module>smqtt-core</module>
         <module>smqtt-bootstrap</module>
-        <module>smqtt-registry</module>
-        <module>smqtt-persistent</module>
         <module>smqtt-rule</module>
         <module>smqtt-ui</module>
         <module>smqtt-metric</module>
@@ -85,6 +83,11 @@
             <dependency>
                 <groupId>org.apache.ignite</groupId>
                 <artifactId>ignite-indexing</artifactId>
+                <version>${ignite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ignite</groupId>
+                <artifactId>ignite-log4j2</artifactId>
                 <version>${ignite.version}</version>
             </dependency>
             <dependency>

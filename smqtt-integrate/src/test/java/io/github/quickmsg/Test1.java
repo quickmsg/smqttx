@@ -4,6 +4,9 @@ import io.github.quickmsg.common.integrate.proxy.IntegrateProxy;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.DataRegionConfiguration;
+import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
@@ -19,7 +22,15 @@ import java.util.Map;
 public class Test1 {
     public static void main(String[] args) throws InterruptedException {
         // Preparing IgniteConfiguration using Java APIs
+        // Preparing IgniteConfiguration using Java APIs
+        DataRegionConfiguration dataRegionConfiguration=new DataRegionConfiguration()
+                .setName("store")
+                .setPersistenceEnabled(true);
+        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
+        dataStorageConfiguration.setDataRegionConfigurations(dataRegionConfiguration);
+
         IgniteConfiguration cfg = new IgniteConfiguration();
+        cfg.setDataStorageConfiguration(dataStorageConfiguration);
 
         // The node will be started as a client node.
         cfg.setClientMode(false);
@@ -40,10 +51,10 @@ public class Test1 {
 //        cache.put(1, "Hello");
 //        cache.put(2, "World!");
 
-        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache("myCache");
-        TestAnnocation proxy=
-                new IntegrateProxy<>(new TestAnnocation(),TestAnnocation.class, ignite.compute()).proxy();
-        proxy.tet();
+        CacheConfiguration configuration = new CacheConfiguration();
+        configuration.setName("test");
+        configuration.setDataRegionName("store");
+        IgniteCache<Integer, Map<String,Object>> cache = ignite.getOrCreateCache(configuration);
 
         long time1 = System.currentTimeMillis();
 

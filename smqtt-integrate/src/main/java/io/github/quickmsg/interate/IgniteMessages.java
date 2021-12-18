@@ -4,9 +4,9 @@ import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
-import io.github.quickmsg.common.message.HeapMqttMessage;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.topic.AbstractTopicAggregate;
 import io.github.quickmsg.common.topic.TopicFilter;
 import org.apache.ignite.IgniteAtomicLong;
@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * @author luxurong
  */
-public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> implements IntegrateMessages {
+public class IgniteMessages extends AbstractTopicAggregate<PublishMessage> implements IntegrateMessages {
 
     protected final IgniteIntegrate integrate;
 
@@ -36,7 +36,7 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
 
     private final IgniteAtomicLong number;
 
-    protected IgniteMessages(TopicFilter<HeapMqttMessage> fixedTopicFilter, TopicFilter<HeapMqttMessage> treeTopicFilter, IgniteIntegrate integrate) {
+    protected IgniteMessages(TopicFilter<PublishMessage> fixedTopicFilter, TopicFilter<PublishMessage> treeTopicFilter, IgniteIntegrate integrate) {
         super(fixedTopicFilter, treeTopicFilter);
         this.integrate = integrate;
         this.sessionCache = integrate.getCache(IgniteCacheRegion.SESSION);
@@ -103,20 +103,18 @@ public class IgniteMessages extends AbstractTopicAggregate<HeapMqttMessage> impl
     }
 
     @Override
-    public void saveSessionMessage(SessionMessage of) {
-
+    public void saveSessionMessage(SessionMessage sessionMessage) {
         String SESSION_PREFIX = "session:";
-        IgniteSet<SessionMessage> sessionMessages = sessionCache.getAndPutIfAbsent(of.getClientIdentifier(), integrate
+        IgniteSet<SessionMessage> sessionMessages = sessionCache.getAndPutIfAbsent(sessionMessage.getClientIdentifier(), integrate
                 .getIgnite()
-                .set(SESSION_PREFIX + number.incrementAndGet(), new CollectionConfiguration().setCollocated(true)));
-        if (sessionMessages.add(of)) {
+                .set(SESSION_PREFIX + sessionMessage.getClientIdentifier(), new CollectionConfiguration().setCollocated(true)));
+        if (sessionMessages.add(sessionMessage)) {
             sessionCounter.incrementAndGet();
         }
     }
 
     @Override
     public Set<RetainMessage> getRetainMessage(String topicName) {
-
          retainCache.get(topicName);
          return  new HashSet<>();
     }

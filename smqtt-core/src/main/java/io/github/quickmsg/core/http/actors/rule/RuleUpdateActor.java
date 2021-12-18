@@ -1,10 +1,10 @@
 package io.github.quickmsg.core.http.actors.rule;
 
-import io.github.quickmsg.common.annotation.AllowCors;
-import io.github.quickmsg.common.annotation.Header;
-import io.github.quickmsg.common.annotation.Router;
 import io.github.quickmsg.common.config.Configuration;
-import io.github.quickmsg.common.enums.HttpType;
+import io.github.quickmsg.common.http.annotation.AllowCors;
+import io.github.quickmsg.common.http.annotation.Header;
+import io.github.quickmsg.common.http.annotation.Router;
+import io.github.quickmsg.common.http.enums.HttpType;
 import io.github.quickmsg.common.rule.RuleChainDefinition;
 import io.github.quickmsg.core.http.AbstractHttpActor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,14 +29,10 @@ public class RuleUpdateActor extends AbstractHttpActor {
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
-        return request
-                .receive()
-                .asString(StandardCharsets.UTF_8)
-                .map(this.toList(RuleChainDefinition.class))
-                .doOnNext(message -> {
-                    // todo
-                    log.info("http request url {} body {}", request.path(), message);
-                }).then(response.sendString(Mono.just("success")).then());
+        return request.receive().asString(StandardCharsets.UTF_8).map(this.toList(RuleChainDefinition.class)).doOnNext(message -> {
+            // todo
+            log.info("http request url {} body {}", request.path(), message);
+        }).then(response.sendString(Mono.just("success")).then());
     }
 
 }

@@ -1,7 +1,7 @@
 package io.github.quickmsg.common.integrate.cluster;
 
-import io.github.quickmsg.common.cluster.ClusterNode;
 import io.github.quickmsg.common.integrate.IntegrateGetter;
+import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -14,7 +14,7 @@ public interface IntegrateCluster extends IntegrateGetter {
     /**
      * 获取集群节点信息
      *
-     * @return {@link ClusterNode}
+     * @return node collection
      */
     Set<String> getClusterNode();
 
@@ -22,7 +22,7 @@ public interface IntegrateCluster extends IntegrateGetter {
     /**
      * 获取其他集群节点信息
      *
-     * @return {@link ClusterNode}
+     * @return other node collection
      */
     Set<String> getOtherClusterNode();
 
@@ -40,7 +40,16 @@ public interface IntegrateCluster extends IntegrateGetter {
      *
      * @return {@link Mono}
      */
-    Mono<Void> shutdown();
+    void shutdown();
+
+
+    /**
+     * 停止
+     *
+     * @param clusterMessage {@link ClusterMessage}
+     * @return {@link Mono}
+     */
+    void sendCluster(ClusterMessage clusterMessage);
 
 
 }
