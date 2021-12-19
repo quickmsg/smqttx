@@ -2,6 +2,8 @@ import ch.qos.logback.classic.Level;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.core.Bootstrap;
 
+import static org.apache.ignite.IgniteSystemProperties.IGNITE_NO_ASCII;
+
 /**
  * @author luxurong
  */

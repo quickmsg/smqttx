@@ -1,6 +1,8 @@
 package io.github.quickmsg.common.utils;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import org.apache.ignite.internal.IgniteKernal;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -16,6 +18,12 @@ public class LoggerLevel {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         loggerContext.getLogger("reactor.netty").setLevel(ch.qos.logback.classic.Level.DEBUG);
     }
+
+    public static void  disableIgniteLog() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger("org.apache.ignite").setLevel(Level.INFO);
+    }
+
 
     /**
      * 修改root日志级别

@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import reactor.core.scheduler.Schedulers;
@@ -156,9 +157,8 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
-//        igniteConfiguration.setGridLogger(Slf4jLogger)
+        igniteConfiguration.setGridLogger(new Slf4jLogger());
         igniteConfiguration.setLocalHost("127.0.0.1");
-
         igniteConfiguration.setClientMode(false);
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();

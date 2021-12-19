@@ -94,6 +94,7 @@ public class Bootstrap {
         if (tcpConfig.getWiretap() != null && tcpConfig.getWiretap()) {
             LoggerLevel.wiretap();
         }
+        LoggerLevel.disableIgniteLog();
         mqttConfiguration.setOptions(tcpConfig.getOptions());
         mqttConfiguration.setChildOptions(tcpConfig.getChildOptions());
         mqttConfiguration.setRuleChainDefinitions(ruleChainDefinitions);

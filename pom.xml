@@ -87,7 +87,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ignite</groupId>
-                <artifactId>ignite-log4j2</artifactId>
+                <artifactId>ignite-slf4j</artifactId>
                 <version>${ignite.version}</version>
             </dependency>
             <dependency>
