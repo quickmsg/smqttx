@@ -46,6 +46,7 @@ public abstract class AbsAck implements Ack {
     @Override
     public void stop() {
         died = true;
+        ackManager.deleteAck(getId());
     }
 
 

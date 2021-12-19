@@ -68,6 +68,8 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             if (passwordAuthentication.auth(connectMessage.getUsername(), connectMessage.getPassword(), clientIdentifier)) {
                 /*cancel  defer close not authenticate channel */
                 mqttChannel.setConnectMessage(connectMessage);
+                mqttChannel.setStatus(ChannelStatus.ONLINE);
+                mqttChannel.setAuthTime(System.currentTimeMillis());
                 /*registry unread event close channel */
                 mqttChannel.getConnection()
                         .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
