@@ -2,6 +2,7 @@ package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.enums.ChannelStatus;
@@ -14,6 +15,7 @@ import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.utils.EventMsg;
@@ -54,57 +56,49 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             /*check clientIdentifier exist*/
             if (channels.exists(clientIdentifier)) {
                 return mqttChannel.write(
-                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED),
-                        false).then(mqttChannel.close()).thenReturn(event);
+                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED)).then(mqttChannel.close()).thenReturn(event);
             }
             /*protocol version support*/
             if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
                     && MqttVersion.MQTT_3_1 != connectMessage.getVersion()) {
                 return mqttChannel.write(
-                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION),
-                        false).then(mqttChannel.close()).thenReturn(event);
+                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION)).then(mqttChannel.close()).thenReturn(event);
             }
             /*password check*/
             if (passwordAuthentication.auth(connectMessage.getUsername(), connectMessage.getPassword(), clientIdentifier)) {
                 /*cancel  defer close not authenticate channel */
-                mqttChannel.disposableClose();
-                mqttChannel.setClientIdentifier(clientIdentifier);
-                Optional.ofNullable(connectMessage.getWill()).ifPresent(mqttChannel::setWill);
-                mqttChannel.setAuthTime(System.currentTimeMillis());
-                mqttChannel.setKeepalive(connectMessage.getKeepalive());
-                mqttChannel.setVersion(connectMessage.getVersion().protocolName());
-                mqttChannel.setSessionPersistent(!connectMessage.isCleanSession());
-                mqttChannel.setStatus(ChannelStatus.ONLINE);
-                mqttChannel.setUsername(connectMessage.getUsername());
+                mqttChannel.setConnectMessage(connectMessage);
                 /*registry unread event close channel */
-
                 mqttChannel.getConnection()
                         .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
                                 () -> close(mqttChannel, mqttReceiveContext, eventRegistry));
 
                 /*registry will message send */
-                mqttChannel.registryClose(channel -> Optional.ofNullable(mqttChannel.getWill())
+                mqttChannel.registryClose(channel -> Optional.ofNullable(mqttChannel.getConnectMessage().getWill())
                         .ifPresent(will ->
                                 topics.getObjectsByTopic(will.getWillTopic())
                                         .forEach(subscribeTopic -> {
                                             MqttChannel subscribeChannel = subscribeTopic.getMqttChannel();
+                                            MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
+                                            int id = 0;
+                                            if (mqttQoS.value() > 0) {
+                                                id = subscribeChannel.generateMessageId();
+                                                RetryMessage retryMessage = new RetryMessage(id, will.isRetain(), will.getWillTopic(), will.getMqttQoS(), will.getWillMessage(), subscribeChannel, mqttReceiveContext);
+                                                doRetry(subscribeChannel.generateRetryId(id), 5, retryMessage);
+                                            }
                                             subscribeChannel.write(
                                                     MqttMessageUtils
-                                                            .buildPub(false,
-                                                                    subscribeTopic.minQos(will.getMqttQoS()),
-                                                                    subscribeTopic.getQoS() == MqttQoS.AT_MOST_ONCE
-                                                                            ? 0 : subscribeChannel.generateMessageId(),
+                                                            .buildPub(false, mqttQoS, id,
                                                                     will.getWillTopic(),
                                                                     Unpooled.wrappedBuffer(will.getWillMessage())
-                                                            ), subscribeTopic.getQoS().value() > 0
-                                            ).subscribe();
+                                                            )).subscribe();
                                         })));
                 /* do session message*/
                 doSession(mqttChannel, channels, topics);
 
 
                 /* registry new channel*/
-                channels.registry(mqttChannel.getClientIdentifier(), mqttChannel);
+                channels.registry(mqttChannel.getConnectMessage().getClientId(), mqttChannel);
 
                 /* registry close mqtt channel event*/
                 mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext, eventRegistry));
@@ -115,20 +109,20 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
                 event = buildConnectEvent(mqttChannel);
 
-                return mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED), false)
+                return mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED))
                         .then(Mono.fromRunnable(() -> sendOfflineMessage(mqttReceiveContext.getIntegrate().getMessages(), mqttChannel)))
                         .thenReturn(event)
                         ;
             } else {
                 return mqttChannel.write(
-                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD),
-                        false).then(mqttChannel.close()).thenReturn(event);
+                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD)).then(mqttChannel.close()).thenReturn(event);
             }
         } catch (Exception e) {
             log.error("connect error ", e);
         }
         return Mono.just(event);
     }
+
 
     @Override
     public Class<ConnectMessage> getClassType() {
@@ -137,31 +131,47 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     private Event buildConnectEvent(MqttChannel mqttChannel) {
         ConnectEvent connectEvent = new ConnectEvent();
+        ConnectMessage connectMessage = mqttChannel.getConnectMessage();
         connectEvent.setAddress(mqttChannel.getAddress());
-        connectEvent.setKeepalive(mqttChannel.getKeepalive());
-        connectEvent.setClientId(mqttChannel.getClientIdentifier());
-        connectEvent.setUsername(mqttChannel.getUsername());
-        connectEvent.setSessionPersistent(mqttChannel.isSessionPersistent());
+        connectEvent.setKeepalive(connectMessage.getKeepalive());
+        connectEvent.setClientId(connectMessage.getClientId());
+        connectEvent.setUsername(connectMessage.getUsername());
+        connectEvent.setSessionPersistent(!connectMessage.isCleanSession());
         connectEvent.setType(EventMsg.CONNECT_MESSAGE);
-        connectEvent.setWill(JacksonUtil.bean2Json(mqttChannel.getWill()));
+        connectEvent.setWill(JacksonUtil.bean2Json(connectMessage.getWill()));
         connectEvent.setTimestamp(mqttChannel.getAuthTime());
         return connectEvent;
     }
 
     private void sendOfflineMessage(IntegrateMessages messages, MqttChannel mqttChannel) {
-        Optional.ofNullable(messages.getSessionMessage(mqttChannel.getClientIdentifier()))
+        Optional.ofNullable(messages.getSessionMessage(mqttChannel.getConnectMessage().getClientId()))
                 .ifPresent(sessionMessages -> {
-                    sessionMessages.forEach(sessionMessage -> mqttChannel
-                            .write(sessionMessage.toPublishMessage(mqttChannel),
-                                    sessionMessage.getQos() > 0)
-                            .subscribeOn(Schedulers.single())
-                            .subscribe());
+                    sessionMessages.forEach(sessionMessage -> {
+                        int messageId = 0;
+                        if (sessionMessage.getQos() > 0) {
+                            messageId = mqttChannel.generateMessageId();
+                            RetryMessage retryMessage = new RetryMessage(messageId,
+                                    sessionMessage.isRetain(),
+                                    sessionMessage.getTopic(),
+                                    MqttQoS.valueOf(sessionMessage.getQos()),
+                                    sessionMessage.getBody(),
+                                    mqttChannel,
+                                    ContextHolder.getReceiveContext());
+                            doRetry(mqttChannel.generateRetryId(messageId), 5, retryMessage);
+                        }
+                        mqttChannel
+                                .write(sessionMessage.toPublishMessage(mqttChannel,messageId))
+                                .subscribeOn(Schedulers.single())
+                                .subscribe();
+                    });
+                    messages.deleteSessionMessage(mqttChannel.getConnectMessage().getClientId());
                 });
     }
 
+
     private void close(MqttChannel mqttChannel, MqttReceiveContext mqttReceiveContext, EventRegistry eventRegistry) {
         mqttChannel.setStatus(ChannelStatus.OFFLINE);
-        if (!mqttChannel.isSessionPersistent()) {
+        if (mqttChannel.getConnectMessage().isCleanSession()) {
             mqttChannel.getTopics()
                     .forEach(subscribeTopic ->
                             mqttReceiveContext
@@ -184,7 +194,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     private void doSession(MqttChannel mqttChannel,
                            IntegrateChannels channels,
                            IntegrateTopics<SubscribeTopic> topics) {
-        MqttChannel sessionChannel = channels.get(mqttChannel.getClientIdentifier());
+        MqttChannel sessionChannel = channels.get(mqttChannel.getConnectMessage().getClientId());
         if (sessionChannel != null) {
             sessionChannel
                     .getTopics()

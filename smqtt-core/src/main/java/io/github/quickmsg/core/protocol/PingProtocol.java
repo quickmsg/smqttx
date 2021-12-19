@@ -16,8 +16,8 @@ public class PingProtocol implements Protocol<PingMessage> {
 
     @Override
     public Mono<Event> parseProtocol(PingMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        return mqttChannel.write(MqttMessageUtils.buildPongMessage(), false)
-                .then(Mono.fromSupplier(() -> build(EventMsg.PING_MESSAGE, mqttChannel.getClientIdentifier(), 0)));
+        return mqttChannel.write(MqttMessageUtils.buildPongMessage())
+                .then(Mono.fromSupplier(() -> build(EventMsg.PING_MESSAGE, mqttChannel.getConnectMessage().getClientId(), 0)));
     }
 
     @Override

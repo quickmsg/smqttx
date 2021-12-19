@@ -6,6 +6,7 @@ import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
 import io.netty.handler.codec.mqtt.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
+@NoArgsConstructor
 public class ConnectMessage implements Message {
 
     private boolean logger;

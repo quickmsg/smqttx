@@ -15,6 +15,7 @@ import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteAtomicLong;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.CacheRebalanceMode;
@@ -118,6 +119,11 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public Pipeline getPipeline() {
         return this.pipeline;
+    }
+
+    @Override
+    public IgniteAtomicLong getGrableCounter(String name) {
+        return ignite.atomicLong(name,0,true);
     }
 
 

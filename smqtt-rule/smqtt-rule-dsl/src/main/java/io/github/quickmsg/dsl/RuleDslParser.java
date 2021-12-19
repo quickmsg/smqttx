@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class RuleDslParser {
 
-    private RuleChain ruleChain = RuleChain.INSTANCE;
+    private final RuleChain ruleChain = RuleChain.INSTANCE;
 
 
     private final List<RuleChainDefinition> ruleChainDefinitions;

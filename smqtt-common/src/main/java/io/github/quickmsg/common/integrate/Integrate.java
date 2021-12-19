@@ -9,6 +9,7 @@ import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.event.Pipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteAtomicLong;
 
 /**
  * @author luxurong
@@ -81,6 +82,13 @@ public interface Integrate {
      */
     Pipeline   getPipeline();
 
+
+    /**
+     * get  Pipeline
+     *
+     * @return {@link Pipeline get event pipeline  }
+     */
+    IgniteAtomicLong getGrableCounter(String name);
 
 
 }

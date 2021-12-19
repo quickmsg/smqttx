@@ -1,18 +1,21 @@
 package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.message.mqtt.SubscribeMessage;
 import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
+import io.netty.handler.codec.mqtt.MqttQoS;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
@@ -33,7 +36,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
                     IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
                     message.getSubscribeTopics()
                             .forEach(subscribeTopic -> {
-                                this.loadRetainMessage(messages, mqttChannel, subscribeTopic.getTopicFilter());
+                                this.loadRetainMessage(messages, mqttChannel, subscribeTopic);
                                 topics.registryTopic(subscribeTopic.getTopicFilter(), subscribeTopic.setMqttChannel(mqttChannel));
                             });
                 }).then(mqttChannel.write(
@@ -42,7 +45,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
                                 message.getSubscribeTopics()
                                         .stream()
                                         .map(subscribeTopic -> subscribeTopic.getQoS().value())
-                                        .collect(Collectors.toList())), false))
+                                        .collect(Collectors.toList()))))
                 .thenReturn(buildEvent(message, mqttChannel));
     }
 
@@ -53,16 +56,23 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
 
     private SubscribeEvent buildEvent(SubscribeMessage message, MqttChannel mqttChannel) {
         return new SubscribeEvent(EventMsg.SUBSCRIBE_MESSAGE,
-                mqttChannel.getClientIdentifier(),
+                mqttChannel.getConnectMessage().getClientId(),
                 message.getSubscribeTopics(),
                 System.currentTimeMillis());
     }
 
-    private void loadRetainMessage(IntegrateMessages messages, MqttChannel mqttChannel, String topic) {
-        messages.getRetainMessage(topic)
-                .forEach(retainMessage ->
-                        mqttChannel.write(retainMessage.toPublishMessage(mqttChannel), retainMessage.getQos() > 0)
-                                .subscribe());
+    private void loadRetainMessage(IntegrateMessages messages, MqttChannel mqttChannel, SubscribeTopic topic) {
+        messages.getRetainMessage(topic.getTopicFilter())
+                .forEach(retainMessage ->{
+                    MqttQoS minQos = topic.minQos(MqttQoS.valueOf(retainMessage.getQos()));
+                    int messageId = 0;
+                    if(minQos.value()>0){
+                        messageId = mqttChannel.generateMessageId();
+                        RetryMessage retryMessage = new RetryMessage(messageId, false, retainMessage.getTopic(), MqttQoS.valueOf(retainMessage.getQos()), retainMessage.getBody(), mqttChannel, ContextHolder.getReceiveContext());
+                        doRetry(mqttChannel.generateRetryId(messageId),5,retryMessage);
+                    }
+                    mqttChannel.write(retainMessage.toPublishMessage(messageId)).subscribe();
+                });
     }
 
 

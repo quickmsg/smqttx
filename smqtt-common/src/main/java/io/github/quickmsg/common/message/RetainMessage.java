@@ -30,11 +30,11 @@ public class RetainMessage {
                 .build();
     }
 
-    public MqttPublishMessage toPublishMessage(MqttChannel mqttChannel) {
+    public MqttPublishMessage toPublishMessage(int messageId) {
         return MqttMessageUtils.buildPub(
                 false,
                 MqttQoS.valueOf(this.qos),
-                qos > 0 ? mqttChannel.generateMessageId() : 0,
+                messageId,
                 topic,
                 PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(body));
     }

@@ -50,7 +50,7 @@ public class PublishMessage implements Message {
         this.mqttChannel = mqttChannel;
         MqttPublishMessage mqttPublishMessage = (MqttPublishMessage)message;
         this.messageId=mqttPublishMessage.variableHeader().packetId();
-        this.clientId = mqttChannel.getClientIdentifier();
+        this.clientId = mqttChannel.getConnectMessage().getClientId();
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();

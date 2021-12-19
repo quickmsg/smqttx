@@ -16,7 +16,7 @@ public interface IntegrateMessages extends IntegrateGetter {
 
     void deleteSessionMessage(String clientIdentifier);
 
-    void saveSessionMessage(SessionMessage of);
+    boolean saveSessionMessage(SessionMessage of);
 
     void saveRetainMessage(RetainMessage of);
 

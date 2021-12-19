@@ -36,9 +36,9 @@ public enum ChannelEvent {
         public ByteBuf writeBody(MqttChannel mqttChannel, Message message) {
             return PooledByteBufAllocator.DEFAULT
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
-                            mqttChannel.getClientIdentifier(),
+                            mqttChannel.getConnectMessage().getClientId(),
                             System.currentTimeMillis(),
-                            mqttChannel.getUsername(),
+                            mqttChannel.getConnectMessage().getUsername(),
                             ChannelStatus.ONLINE)).getBytes());
         }
 
@@ -58,9 +58,9 @@ public enum ChannelEvent {
         public ByteBuf writeBody(MqttChannel mqttChannel, Message message) {
             return PooledByteBufAllocator.DEFAULT
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
-                            mqttChannel.getClientIdentifier(),
+                            mqttChannel.getConnectMessage().getClientId(),
                             System.currentTimeMillis(),
-                            mqttChannel.getUsername(),
+                            mqttChannel.getConnectMessage().getUsername(),
                             ChannelStatus.OFFLINE)).getBytes());
         }
     };

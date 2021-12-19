@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.context;
 
+import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
@@ -70,6 +71,13 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
      */
     Integrate getIntegrate();
 
+    /**
+     * get ack
+     *
+     * @return {@link AckManager }
+     */
+    AckManager getAckManager();
+
 
     /**
      * submit event pipeline
@@ -90,6 +98,9 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
     default boolean isCluster() {
        return getConfiguration().getClusterConfig().isEnable();
     }
+
+
+
 
 
 }

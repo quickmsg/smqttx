@@ -33,7 +33,7 @@ public class IgniteChannels implements IntegrateChannels {
 
     @Override
     public void close(MqttChannel mqttChannel) {
-        Optional.ofNullable(mqttChannel.getClientIdentifier())
+        Optional.ofNullable(mqttChannel.getConnectMessage().getClientId())
                 .ifPresent(channelMap::remove);
     }
 

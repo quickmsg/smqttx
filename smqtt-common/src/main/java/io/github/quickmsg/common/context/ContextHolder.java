@@ -1,5 +1,7 @@
 package io.github.quickmsg.common.context;
 
+import io.github.quickmsg.common.channel.MqttChannel;
+
 /**
  * @author luxurong
  */
@@ -14,6 +16,5 @@ public class ContextHolder {
     public static ReceiveContext<?> getReceiveContext() {
         return ContextHolder.context;
     }
-
 
 }

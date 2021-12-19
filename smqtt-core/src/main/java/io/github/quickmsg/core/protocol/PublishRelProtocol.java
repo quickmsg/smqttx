@@ -19,6 +19,7 @@ import java.util.Set;
 /**
  * @author luxurong
  */
+// todo 暂不支持qos2
 public class PublishRelProtocol implements Protocol<PublishRelMessage> {
     @Override
     public Mono<Event> parseProtocol(PublishRelMessage message, MqttChannel mqttChannel, ContextView contextView) {
@@ -30,29 +31,30 @@ public class PublishRelProtocol implements Protocol<PublishRelMessage> {
          */
         // todo 处理持久化 && 集群
 
-        return mqttChannel.removeQos2Msg(id)
-                .map(msg -> {
-                    ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-                    IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
-                    Set<SubscribeTopic> subscribeTopics = topics.getObjectsByTopic(msg.getTopic());
-
-                    return Mono.fromRunnable(() ->
-                                    subscribeTopics.forEach(subscribeTopic -> {
-                                                MqttQoS qoS = subscribeTopic.minQos(subscribeTopic.getQoS());
-                                                subscribeTopic.getMqttChannel()
-                                                        .write(msg.buildMqttMessage(qoS,
-                                                                subscribeTopic.getMqttChannel().generateMessageId()), qoS.value() > 0).subscribe();
-                                            }
-                                    ))
-                            .then(mqttChannel.cancelRetry(MqttMessageType.PUBREC, id))
-                            .then(mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false))
-                            .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
-                                    mqttChannel.getClientIdentifier(),
-                                    id));
-                }).orElseGet(() -> mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false)
-                        .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
-                                mqttChannel.getClientIdentifier(),
-                                id)));
+//        return mqttChannel.removeQos2Msg(id)
+//                .map(msg -> {
+//                    ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
+//                    IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
+//                    Set<SubscribeTopic> subscribeTopics = topics.getObjectsByTopic(msg.getTopic());
+//
+//                    return Mono.fromRunnable(() ->
+//                                    subscribeTopics.forEach(subscribeTopic -> {
+//                                                MqttQoS qoS = subscribeTopic.minQos(subscribeTopic.getQoS());
+//                                                subscribeTopic.getMqttChannel()
+//                                                        .write(msg.buildMqttMessage(qoS,
+//                                                                subscribeTopic.getMqttChannel().generateMessageId()), qoS.value() > 0).subscribe();
+//                                            }
+//                                    ))
+//                            .then(mqttChannel.cancelRetry(MqttMessageType.PUBREC, id))
+//                            .then(mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false))
+//                            .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
+//                                    mqttChannel.getClientIdentifier(),
+//                                    id));
+//                }).orElseGet(() -> mqttChannel.write(MqttMessageUtils.buildPublishComp(id), false)
+//                        .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
+//                                mqttChannel.getClientIdentifier(),
+//                                id)));
+        return Mono.empty();
     }
 
     @Override
