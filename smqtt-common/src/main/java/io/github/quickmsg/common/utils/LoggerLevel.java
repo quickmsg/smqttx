@@ -21,7 +21,7 @@ public class LoggerLevel {
 
     public static void  disableIgniteLog() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.getLogger("org.apache.ignite").setLevel(Level.INFO);
+        loggerContext.getLogger("org.apache.ignite").setLevel(Level.ERROR);
     }
 
 

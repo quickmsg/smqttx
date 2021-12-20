@@ -133,11 +133,11 @@ public class Bootstrap {
      * @return Mono
      */
     public Mono<Bootstrap> start() {
+        System.getProperties().put("IGNITE_QUIET","false");
         BannerUtils.banner();
         MqttConfiguration mqttConfiguration = initMqttConfiguration();
         MqttTransportFactory mqttTransportFactory = new MqttTransportFactory();
         LoggerLevel.root(rootLevel);
-
         return mqttTransportFactory.createTransport(mqttConfiguration).start().doOnError(Throwable::printStackTrace).doOnSuccess(transports::add).then(startWs(mqttConfiguration)).then(startHttp()).thenReturn(this).doOnSuccess(started);
     }
 
