@@ -28,7 +28,7 @@ public class UnSubscribeProtocol implements Protocol<UnSubscribeMessage> {
                                         .getTopics()
                                         .removeTopic(topic, new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel))))
                 .then(mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.getMessageId())))
-                .thenReturn(new UnSubscribeEvent(EventMsg.UN_SUBSCRIBE_MESSAGE,
+                .thenReturn(new UnSubscribeEvent(
                         mqttChannel.getConnectMessage().getClientId(),
                         message.getMessageId(),
                         message.getTopics(),

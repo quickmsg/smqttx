@@ -17,9 +17,6 @@ public class SubscribeAckEvent extends MessageEvent {
 
 
     @QuerySqlField(index = true)
-    private String type;
-
-    @QuerySqlField(index = true)
     private String clientIdentifier;
 
     @QuerySqlField(index = true)

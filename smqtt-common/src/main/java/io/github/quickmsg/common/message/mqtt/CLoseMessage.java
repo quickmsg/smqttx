@@ -34,6 +34,7 @@ public class CLoseMessage implements Message {
     public CLoseMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
         this.context  = receiveContext;
         this.mqttChannel = mqttChannel;
+        this.timestamp = System.currentTimeMillis();
     }
 
 }

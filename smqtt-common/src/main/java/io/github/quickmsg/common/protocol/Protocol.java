@@ -1,11 +1,9 @@
 package io.github.quickmsg.common.protocol;
 
-import io.github.quickmsg.common.ack.Ack;
 import io.github.quickmsg.common.ack.RetryAck;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.event.Event;
-import io.github.quickmsg.common.event.acceptor.CommonEvent;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
@@ -50,20 +48,12 @@ public interface Protocol<T extends Message> {
     Class<T> getClassType();
 
 
-    default Event build(String type, String clientId, int id) {
-        return new CommonEvent(type, clientId, id, System.currentTimeMillis());
-    }
 
     default void doRetry(long id, int retrySize, RetryMessage retrymessage) {
         RetryAck retryAck = new RetryAck(id, retrySize, 5, () -> {
             ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(retrymessage);
         }, ContextHolder.getReceiveContext().getAckManager());
         retryAck.start();
-    }
-
-    default Ack getAck(int messageId, int channelId) {
-        long id = (long) channelId << 4 | messageId;
-        return ContextHolder.getReceiveContext().getAckManager().getAck(id);
     }
 
 }

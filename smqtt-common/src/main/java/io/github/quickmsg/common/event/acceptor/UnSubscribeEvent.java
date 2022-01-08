@@ -16,8 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 public class UnSubscribeEvent extends MessageEvent {
 
-    @QuerySqlField(index = true)
-    private String type;
 
     @QuerySqlField(index = true)
     private String clientIdentifier;

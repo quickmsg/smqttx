@@ -14,10 +14,8 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 @Setter
 @ToString
 @AllArgsConstructor
-public class CommonEvent extends MessageEvent {
+public class DisconnectEvent extends MessageEvent {
 
-    @QuerySqlField(index = true)
-    private String type;
 
     @QuerySqlField(index = true)
     private String clientId;
@@ -27,8 +25,5 @@ public class CommonEvent extends MessageEvent {
 
     @QuerySqlField(index = true, descending = true)
     private long timestamp;
-
-
-
 
 }

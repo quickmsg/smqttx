@@ -13,6 +13,7 @@ import lombok.Data;
 @Data
 public class PingMessage implements Message {
 
+    private long timestamp;
 
     @JsonIgnore
     private MqttChannel mqttChannel;
@@ -33,6 +34,7 @@ public class PingMessage implements Message {
     public PingMessage(MqttChannel mqttChannel, ReceiveContext<?> receiveContext) {
         this.context = receiveContext;
         this.mqttChannel = mqttChannel;
+        this.timestamp = System.currentTimeMillis();
     }
 
 }

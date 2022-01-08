@@ -22,6 +22,8 @@ public class ClusterMessage implements Message {
 
     private byte[] body;
 
+    private long timestamp;
+
     @JsonIgnore
     private ReceiveContext<?> context;
 
@@ -47,6 +49,7 @@ public class ClusterMessage implements Message {
         this.retain = message.isRetain();
         this.body = message.getBody();
         this.context=message.getContext();
+        this.timestamp = System.currentTimeMillis();
 
     }
 

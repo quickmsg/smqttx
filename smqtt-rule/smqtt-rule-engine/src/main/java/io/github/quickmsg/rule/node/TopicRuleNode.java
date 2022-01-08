@@ -1,7 +1,9 @@
 package io.github.quickmsg.rule.node;
 
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.event.Event;
+import io.github.quickmsg.common.event.acceptor.PublishEvent;
+import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.rule.RuleNode;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -40,24 +42,14 @@ public class TopicRuleNode implements RuleNode {
     @Override
     public void execute(ContextView contextView) {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-        HeapMqttMessage heapMqttMessage = contextView.get(HeapMqttMessage.class);
-        log.info("rule engine TopicRuleNode  request {}", heapMqttMessage);
-//        ProtocolAdaptor protocolAdaptor = receiveContext.getProtocolAdaptor()
-//                new PublishMessage()
-//        protocolAdaptor.chooseProtocol(MockMqttC
-//                hannel.wrapClientIdentifier(heapMqttMessage.getClientIdentifier()),
-//                new SmqttMessage<>(getMqttMessage(heapMqttMessage),heapMqttMessage.getTimestamp(),Boolean.TRUE), receiveContext);
-        executeNext(contextView);
-    }
-
-
-    private MqttPublishMessage getMqttMessage(HeapMqttMessage heapMqttMessage) {
-        return MqttMessageUtils
-                .buildPub(false,
-                        MqttQoS.valueOf(heapMqttMessage.getQos()),
-                        0,
-                        this.topic,
-                        PooledByteBufAllocator.DEFAULT.buffer().writeBytes(heapMqttMessage.getMessage()));
+        Event event = contextView.get(Event.class);
+        if(event instanceof PublishEvent){
+            PublishEvent publishEvent = (PublishEvent) event;
+            log.info("rule engine TopicRuleNode  request {}", publishEvent);
+            ProtocolAdaptor protocolAdaptor = receiveContext.getProtocolAdaptor();
+//            protocolAdaptor.chooseProtocol();
+            executeNext(contextView);
+        }
     }
 
 

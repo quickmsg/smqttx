@@ -55,7 +55,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
     }
 
     private SubscribeEvent buildEvent(SubscribeMessage message, MqttChannel mqttChannel) {
-        return new SubscribeEvent(EventMsg.SUBSCRIBE_MESSAGE,
+        return new SubscribeEvent(
                 mqttChannel.getConnectMessage().getClientId(),
                 message.getSubscribeTopics(),
                 System.currentTimeMillis());
@@ -68,7 +68,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
                     int messageId = 0;
                     if(minQos.value()>0){
                         messageId = mqttChannel.generateMessageId();
-                        RetryMessage retryMessage = new RetryMessage(messageId, false, retainMessage.getTopic(), MqttQoS.valueOf(retainMessage.getQos()), retainMessage.getBody(), mqttChannel, ContextHolder.getReceiveContext());
+                        RetryMessage retryMessage = new RetryMessage(messageId,System.currentTimeMillis(), false, retainMessage.getTopic(), MqttQoS.valueOf(retainMessage.getQos()), retainMessage.getBody(), mqttChannel, ContextHolder.getReceiveContext());
                         doRetry(mqttChannel.generateRetryId(messageId),5,retryMessage);
                     }
                     mqttChannel.write(retainMessage.toPublishMessage(messageId)).subscribe();

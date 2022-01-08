@@ -16,6 +16,9 @@ public class PublishRecMessage implements Message {
 
     private int messageId;
 
+    private long timestamp;
+
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 
@@ -26,6 +29,7 @@ public class PublishRecMessage implements Message {
         this.context  = receiveContext;
         this.mqttChannel = mqttChannel;
         this.messageId=((MqttMessageIdVariableHeader) ((MqttMessage) message).variableHeader()).messageId();
+        this.timestamp = System.currentTimeMillis();
     }
 
 }

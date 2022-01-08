@@ -20,11 +20,6 @@ public class ReactorPipeline implements Pipeline {
     }
 
     @Override
-    public Flux<Event> handle() {
-        return onBackpressureBuffer.asFlux();
-    }
-
-    @Override
     public <T extends Event> Flux<T> handle(Class<T> tClass) {
         return onBackpressureBuffer
                 .asFlux()

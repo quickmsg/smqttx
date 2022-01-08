@@ -19,7 +19,7 @@ public class RuleDslParser {
         this.ruleChainDefinitions = ruleChainDefinitions;
     }
 
-    public RuleDslExecutor parseRule() {
+    public RuleDslExecutor executor() {
         if (ruleChainDefinitions != null && ruleChainDefinitions.size() > 0) {
             ruleChainDefinitions.stream().map(RuleChainDefinition::getChain).forEach(ruleChain::addRules);
         }

@@ -1,7 +1,8 @@
 package io.github.quickmsg.rule.node;
 
-import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.rule.source.Source;
+import io.github.quickmsg.rule.JsonMap;
 import io.github.quickmsg.rule.RuleNode;
 import io.github.quickmsg.rule.source.SourceManager;
 import reactor.util.context.ContextView;
@@ -35,10 +36,10 @@ public class DatabaseRuleNode implements RuleNode {
 
     @Override
     public void execute(ContextView contextView) {
-        HeapMqttMessage heapMqttMessage = contextView.get(HeapMqttMessage.class);
-        Map<String, Object> param = new HashMap<>();
+        Event event = contextView.get(Event.class);
         if (script != null) {
-            Object obj = triggerTemplate(script, context -> heapMqttMessage.getKeyMap().forEach(context::set));
+            Object obj = triggerTemplate(script, context -> context.set("root",event));
+            Map<String,Object> param  = new HashMap<>(2);
             param.put("sql", String.valueOf(obj));
             SourceManager.getSourceBean(Source.DATA_BASE).transmit(param);
         }

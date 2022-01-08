@@ -16,6 +16,8 @@ import lombok.Data;
 public class PublishCompMessage implements Message {
 
     private int messageId;
+    private long timestamp;
+
 
     @JsonIgnore
     private MqttChannel mqttChannel;
@@ -28,6 +30,7 @@ public class PublishCompMessage implements Message {
         this.context  = receiveContext;
         this.mqttChannel = mqttChannel;
         this.messageId=((MqttMessageIdVariableHeader) ((MqttMessage) message).variableHeader()).messageId();
+        this.timestamp = System.currentTimeMillis();
     }
 
 }

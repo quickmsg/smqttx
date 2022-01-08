@@ -85,7 +85,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
                                             int id = 0;
                                             if (mqttQoS.value() > 0) {
                                                 id = subscribeChannel.generateMessageId();
-                                                RetryMessage retryMessage = new RetryMessage(id, will.isRetain(), will.getWillTopic(), will.getMqttQoS(), will.getWillMessage(), subscribeChannel, mqttReceiveContext);
+                                                RetryMessage retryMessage = new RetryMessage(id,System.currentTimeMillis(), will.isRetain(), will.getWillTopic(), will.getMqttQoS(), will.getWillMessage(), subscribeChannel, mqttReceiveContext);
                                                 doRetry(subscribeChannel.generateRetryId(id), 5, retryMessage);
                                             }
                                             subscribeChannel.write(
@@ -113,8 +113,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
                 return mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED))
                         .then(Mono.fromRunnable(() -> sendOfflineMessage(mqttReceiveContext.getIntegrate().getMessages(), mqttChannel)))
-                        .thenReturn(event)
-                        ;
+                        .thenReturn(event);
             } else {
                 return mqttChannel.write(
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD)).then(mqttChannel.close()).thenReturn(event);
@@ -139,7 +138,6 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         connectEvent.setClientId(connectMessage.getClientId());
         connectEvent.setUsername(connectMessage.getUsername());
         connectEvent.setSessionPersistent(!connectMessage.isCleanSession());
-        connectEvent.setType(EventMsg.CONNECT_MESSAGE);
         connectEvent.setWill(JacksonUtil.bean2Json(connectMessage.getWill()));
         connectEvent.setTimestamp(mqttChannel.getAuthTime());
         return connectEvent;
@@ -152,7 +150,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
                         int messageId = 0;
                         if (sessionMessage.getQos() > 0) {
                             messageId = mqttChannel.generateMessageId();
-                            RetryMessage retryMessage = new RetryMessage(messageId,
+                            RetryMessage retryMessage = new RetryMessage(messageId,System.currentTimeMillis(),
                                     sessionMessage.isRetain(),
                                     sessionMessage.getTopic(),
                                     MqttQoS.valueOf(sessionMessage.getQos()),

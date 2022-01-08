@@ -51,9 +51,9 @@ public class IgniteIntegrate implements Integrate {
         this.ignite.cluster().state(ClusterState.ACTIVE);
         this.protocolAdaptor = protocolAdaptor;
         this.igniteChannels = new IgniteChannels(this, new ConcurrentHashMap<>());
-        this.cluster= new IgniteIntegrateCluster(this, ignite.cluster());
-        this.integrateTopics=new IgniteIntegrateTopics(this);
-        this.igniteMessages=new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
+        this.cluster = new IgniteIntegrateCluster(this, ignite.cluster());
+        this.integrateTopics = new IgniteIntegrateTopics(this);
+        this.igniteMessages = new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
         this.pipeline = new ReactorPipeline();
         this.igniteExecutor = new IgniteExecutor(ignite.compute(ignite.cluster()));
     }
@@ -78,10 +78,26 @@ public class IgniteIntegrate implements Integrate {
     }
 
     @Override
+    public <K, V> IntegrateCache<K, V> getLocalCache(String cacheName) {
+        return getLocalCache(cacheName, false);
+    }
+
+    @Override
+    public <K, V> IntegrateCache<K, V> getLocalCache(String cacheName, boolean local) {
+        CacheMode cacheMode = local ? CacheMode.LOCAL : CacheMode.PARTITIONED;
+        CacheConfiguration<K, V> configuration =
+                new CacheConfiguration<K, V>()
+                        .setName(cacheName).setCacheMode(cacheMode);
+        return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
+    }
+
+    @Override
     public <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion) {
+        CacheMode cacheMode = igniteCacheRegion.local() ? CacheMode.LOCAL : CacheMode.PARTITIONED;
         CacheConfiguration<K, V> configuration =
                 new CacheConfiguration<K, V>()
                         .setName(igniteCacheRegion.getCacheName())
+                        .setCacheMode(cacheMode)
                         .setDataRegionName(igniteCacheRegion.getRegionName())
                         .setAtomicityMode(CacheConfiguration.DFLT_CACHE_ATOMICITY_MODE)
                         .setCacheMode(CacheMode.PARTITIONED)
@@ -103,7 +119,7 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public JobExecutor getJobExecutor() {
-        return this.igniteExecutor ;
+        return this.igniteExecutor;
     }
 
     @Override
@@ -123,7 +139,7 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public IgniteAtomicLong getGrableCounter(String name) {
-        return ignite.atomicLong(name,0,true);
+        return ignite.atomicLong(name, 0, true);
     }
 
 

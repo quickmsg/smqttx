@@ -19,10 +19,10 @@ import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
-import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
+import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.metric.InfluxDbMetricFactory;
@@ -66,7 +66,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final EventRegistry eventRegistry;
 
-    private final DslExecutor dslExecutor;
+    private final RuleDslAcceptor ruleDslAcceptor;
 
     private final MetricManager metricManager;
 
@@ -79,16 +79,16 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
-        RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
         this.configuration = configuration;
         this.transport = transport;
-        this.dslExecutor = ruleDslParser.parseRule();
         this.eventRegistry = eventRegistry();
         this.protocolAdaptor = protocolAdaptor();
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.passwordAuthentication = basicAuthentication();
         this.integrate = integrateBuilder().newIntegrate(initConfig());
+        RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
+        this.ruleDslAcceptor = new RuleDslAcceptor(integrate.getPipeline(), ruleDslParser.executor());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());

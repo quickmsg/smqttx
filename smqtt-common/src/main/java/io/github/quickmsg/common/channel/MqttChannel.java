@@ -49,10 +49,6 @@ public class MqttChannel {
     @JsonIgnore
     private transient AtomicInteger atomicInteger;
 
-    public boolean isActive() {
-        return !connection.isDisposed();
-    }
-
     public static MqttChannel init(Connection connection) {
         MqttChannel mqttChannel = new MqttChannel();
         mqttChannel.setTopics(new CopyOnWriteArraySet<>());
@@ -114,22 +110,6 @@ public class MqttChannel {
      */
     public Mono<Void> write(MqttMessage mqttMessage) {
         if (this.connection.channel().isActive() && this.connection.channel().isWritable()) {
-            return connection.outbound().sendObject(Mono.just(mqttMessage)).then();
-        } else {
-            return Mono.empty();
-        }
-    }
-
-
-    /**
-     * write message
-     *
-     * @param mqttMessage #{@link MqttMessage}
-     * @return mono
-     */
-    public Mono<Void> write(MqttMessage mqttMessage, Consumer<AckManager> ackManagerConsumer) {
-        if (this.connection.channel().isActive() && this.connection.channel().isWritable()) {
-            ackManagerConsumer.accept(ContextHolder.getReceiveContext().getAckManager());
             return connection.outbound().sendObject(Mono.just(mqttMessage)).then();
         } else {
             return Mono.empty();

@@ -9,8 +9,6 @@ import java.util.function.Consumer;
  */
 public interface Pipeline  extends Consumer<Event> {
 
-    Flux<Event> handle();
-
     <M extends Event> Flux<M> handle(Class<M > tClass);
 
 }

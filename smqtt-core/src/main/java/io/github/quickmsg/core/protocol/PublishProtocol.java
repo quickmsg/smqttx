@@ -5,6 +5,7 @@ import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.event.Event;
+import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
@@ -40,7 +41,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
             Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
             if (mqttChannel == null) {
                 return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
-                        .thenReturn(buildEvent(message));
+                        .then(Mono.empty());
             }
             switch (MqttQoS.valueOf(message.getQos())) {
                 case AT_MOST_ONCE:
@@ -74,7 +75,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     }
 
     private Event buildEvent(PublishMessage message) {
-        return new PublishEvent(EventMsg.PUBLISH_MESSAGE,
+        return new PublishEvent(
                 System.currentTimeMillis(),
                 message.getClientId(),
                 message.getTopic(),
@@ -103,7 +104,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                                     int messageId = 0;
                                     if (minQos.value() > 0) {
                                         messageId = mqttChannel.generateMessageId();
-                                        RetryMessage retryMessage = new RetryMessage(messageId, message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), mqttChannel, ContextHolder.getReceiveContext());
+                                        RetryMessage retryMessage = new RetryMessage(messageId,System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), mqttChannel, ContextHolder.getReceiveContext());
                                         doRetry(mqttChannel.generateRetryId(messageId), 5, retryMessage);
                                     }
                                     subscribeTopic.getMqttChannel().write(message.buildMqttMessage(minQos, messageId)).subscribe();

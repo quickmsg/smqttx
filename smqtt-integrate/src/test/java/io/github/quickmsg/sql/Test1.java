@@ -8,7 +8,7 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheEntryProcessor;
+import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
 import org.apache.ignite.cache.query.annotations.QuerySqlFunction;
@@ -17,8 +17,10 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -49,14 +51,15 @@ public class Test1 {
         // Starting the node
         Ignite ignite = Ignition.start(cfg);
 
-        IgniteCache<Integer,Person>  cache=
+        IgniteCache<Integer, Message.Person>  cache=
                 ignite.getOrCreateCache(
-                        new CacheConfiguration<Integer,Person>()
+                        new CacheConfiguration<Integer, Message.Person>()
                                 .setName("myCache")
                                 .setSqlFunctionClasses(MyFunctions.class)
-                                .setIndexedTypes(Integer.class,Person.class));
-        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("insert into Person (_key,username,id,age) values (2,'lisi',1,2)").setLocal(true);
-        cache.query(sqlFieldsQuery);
+                                .setCacheMode(CacheMode.LOCAL)
+                                .setIndexedTypes(Integer.class,Message.Person.class));
+//        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("insert into Person (_key,username,id,age) values (2,'lisi',1,2)").setLocal(true);
+//        cache.query(sqlFieldsQuery);
         Map<String,Object> map = new HashMap<>();
         Map<String,Object> map1 = new HashMap<>();
         map1.put("haha",2);
@@ -67,27 +70,64 @@ public class Test1 {
 
         List<String> sts = new ArrayList<>();
         sts.add(JacksonUtil.map2Json(map));
-        cache.put(1,new Person("zhnagsan",2,28,sts));
-//        cache.put(2,new Person("lisi",2,38));
+
+        cache.put(1,new Message.Person("zhnagsan",2,28,sts));
+
+        IgniteCache<Integer, Message.Person>  cache2=
+                ignite.getOrCreateCache(
+                        new CacheConfiguration<Integer, Message.Person>()
+                                .setName("myCache2")
+                                .setSqlFunctionClasses(MyFunctions.class)
+                                .setCacheMode(CacheMode.LOCAL)
+                                .setIndexedTypes(Integer.class,Message.Person.class));
+
+
+        Map<String,Object> map2 = new HashMap<>();
+        Map<String,Object> map3 = new HashMap<>();
+        map2.put("haha",2);
+
+        map2.put("json",1);
+        map2.put("map",map3);
+
+
+        List<String> sts2 = new ArrayList<>();
+        sts2.add(JacksonUtil.map2Json(map2));
+
+        cache2.put(2,new Message.Person("lisi",3,28,sts2));
+
+
 
 
         long time1 = System.currentTimeMillis();
-
-
-
-//        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("select * from Person where age > 19").setLocal(true);
-        // Iterate over the result set.
-//        try (QueryCursor<List<?>> cursor=cache.query(sqlFieldsQuery)) {
-//            for (List<?> row : cursor)
-//                System.out.println("person=" + row);
-//        }
-
-
-
+        SqlFieldsQuery query = new SqlFieldsQuery("select * from Person where age >1 ").setLocal(true);
+//         Iterate over the result set.
+        try (QueryCursor<List<?>> cursor=cache2.query(query)) {
+            for (List<?> row : cursor)
+                System.out.println("person=" + row);
+        }
         long time2 = System.currentTimeMillis();
+        System.out.println("sql query cost time " + (time2 - time1));
+
+//        Flux.interval(Duration.ofMillis(10))
+//                .subscribeOn(Schedulers.parallel())
+//                .subscribe(index->{
+//                    long time1 = System.currentTimeMillis();
+//                    int max = new Random().nextInt(2000000);
+//                    SqlFieldsQuery query = new SqlFieldsQuery("select * from Message.Person where age > "+max).setLocal(true);
+////         Iterate over the result set.
+//                    try (QueryCursor<List<?>> cursor=cache.query(query)) {
+//                        for (List<?> row : cursor)
+//                            System.out.println("person=" + row);
+//                    }
+//                    long time2 = System.currentTimeMillis();
+//                    System.out.println("sql query cost time " + (time2 - time1));
+//                });
 
 
-        System.out.println("sql query cost time " + ((time2 - time1) / 1000) + "s");
+
+
+
+
 
         System.out.println(">> Compute task is executed, check for output on the server nodes.");
 

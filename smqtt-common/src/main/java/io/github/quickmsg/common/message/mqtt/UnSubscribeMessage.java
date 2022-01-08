@@ -17,6 +17,7 @@ import java.util.List;
 public class UnSubscribeMessage implements Message {
 
     private int messageId;
+    private long timestamp;
 
     private List<String> topics;
 
@@ -33,5 +34,6 @@ public class UnSubscribeMessage implements Message {
         MqttUnsubscribeMessage unsubscribeMessage = (MqttUnsubscribeMessage) message;
         this.messageId = unsubscribeMessage.variableHeader().messageId();
         this.topics = unsubscribeMessage.payload().topics();
+        this.timestamp = System.currentTimeMillis();
     }
 }

@@ -1,5 +1,7 @@
 package io.github.quickmsg.common.rule;
 
+import io.github.quickmsg.common.event.Event;
+
 /**
  * @author luxurong
  */
@@ -7,9 +9,9 @@ public interface DslExecutor {
 
     /**
      * 执行
-     * @param object 请求参数
+     * @param event {@link  Event}
 =     */
-    void executeRule(Object... object);
+    void executeRule(Event event);
 
 
     /**

@@ -19,6 +19,9 @@ public class RetryMessage implements Message {
 
     private int messageId;
 
+    private long timestamp;
+
+
     private boolean isRetain;
 
     private String topic;
@@ -26,6 +29,7 @@ public class RetryMessage implements Message {
     private MqttQoS mqttQoS;
 
     private byte[] body;
+
 
     private MqttChannel mqttChannel;
 

@@ -26,6 +26,11 @@ public interface Message {
             return null;
         }
 
+        @Override
+        public long getTimestamp() {
+            return System.currentTimeMillis();
+        }
+
     };
 
     int getMessageId();
@@ -34,5 +39,6 @@ public interface Message {
 
     ReceiveContext<?> getContext();
 
+    long getTimestamp();
 
 }

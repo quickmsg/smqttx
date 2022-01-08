@@ -15,6 +15,8 @@ public class DisConnectMessage implements Message {
 
 
 
+    private long timestamp;
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 
@@ -35,6 +37,7 @@ public class DisConnectMessage implements Message {
     public DisConnectMessage( MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
         this.context  = receiveContext;
         this.mqttChannel = mqttChannel;
+        this.timestamp = System.currentTimeMillis();
     }
 
 

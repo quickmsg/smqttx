@@ -1,6 +1,6 @@
 package io.github.quickmsg.rule.node;
 
-import io.github.quickmsg.common.message.HeapMqttMessage;
+import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.rule.RuleNode;
 import reactor.util.context.ContextView;
 
@@ -33,8 +33,8 @@ public class PredicateRuleNode implements RuleNode {
 
     public void execute(ContextView contextView) {
         if ((Boolean) triggerScript(script, context -> {
-            HeapMqttMessage mqttMessage = contextView.get(HeapMqttMessage.class);
-            mqttMessage.getKeyMap().forEach(context::set);
+            Event event = contextView.get(Event.class);
+            context.set("$",event);
         })) {
             executeNext(contextView);
         }

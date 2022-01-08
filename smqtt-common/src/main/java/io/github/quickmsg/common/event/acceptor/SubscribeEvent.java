@@ -21,9 +21,6 @@ public class SubscribeEvent extends MessageEvent {
 
 
     @QuerySqlField(index = true)
-    private String type;
-
-    @QuerySqlField(index = true)
     private String clientIdentifier;
 
     @QuerySqlField(index = true)

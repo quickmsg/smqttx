@@ -1,6 +1,5 @@
 package io.github.quickmsg.rule.node;
 
-import io.github.quickmsg.common.message.HeapMqttMessage;
 import io.github.quickmsg.common.rule.source.Source;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.rule.RuleNode;
@@ -30,16 +29,16 @@ public class TransmitRuleNode implements RuleNode {
 
     @Override
     public void execute(ContextView contextView) {
-        HeapMqttMessage heapMqttMessage = contextView.get(HeapMqttMessage.class);
-        Map<String, Object> param;
-        if (script != null) {
-            Object obj = triggerTemplate(script, context -> heapMqttMessage.getKeyMap().forEach(context::set));
-            param = JacksonUtil.json2Map(obj.toString(), String.class, Object.class);
-
-        } else {
-            param = heapMqttMessage.getKeyMap();
-        }
-        SourceManager.getSourceBean(source).transmit(param);
+//        HeapMqttMessage heapMqttMessage = contextView.get(HeapMqttMessage.class);
+//        Map<String, Object> param;
+//        if (script != null) {
+//            Object obj = triggerTemplate(script, context -> heapMqttMessage.getKeyMap().forEach(context::set));
+//            param = JacksonUtil.json2Map(obj.toString(), String.class, Object.class);
+//
+//        } else {
+//            param = heapMqttMessage.getKeyMap();
+//        }
+//        SourceManager.getSourceBean(source).transmit(param);
         executeNext(contextView);
     }
 

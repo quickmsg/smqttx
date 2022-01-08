@@ -12,9 +12,6 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 public class PublicAckEvent extends MessageEvent {
 
 
-    @QuerySqlField(index = true)
-    private String type;
-
     @QuerySqlField(index = true, descending = true)
     private long timestamp;
 

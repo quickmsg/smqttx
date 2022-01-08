@@ -5,9 +5,7 @@ package io.github.quickmsg.common.event;
  */
 public interface Event {
 
-    String getType();
-
-    Action getAction();
-
     long getTimestamp();
+
+
 }

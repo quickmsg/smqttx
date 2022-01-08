@@ -32,6 +32,9 @@ public class ConnectMessage implements Message {
 
     private boolean cleanSession;
 
+    private long timestamp;
+
+
     private MqttChannel.Will will;
 
     @JsonIgnore
@@ -67,6 +70,7 @@ public class ConnectMessage implements Message {
         this.keepalive =variableHeader.keepAliveTimeSeconds();
         this.clientId = mqttConnectPayload.clientIdentifier();
         this.mqttChannel =mqttChannel;
+        this.timestamp = System.currentTimeMillis();
     }
 
 }

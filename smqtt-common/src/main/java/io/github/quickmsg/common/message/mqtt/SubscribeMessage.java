@@ -20,6 +20,9 @@ public class SubscribeMessage implements Message {
 
     private int messageId;
 
+    private long timestamp;
+
+
     private List<SubscribeTopic> subscribeTopics;
 
     @JsonIgnore
@@ -33,6 +36,7 @@ public class SubscribeMessage implements Message {
         this.mqttChannel = mqttChannel;
         MqttSubscribeMessage subscribeMessage = (MqttSubscribeMessage) message;
         this.messageId = subscribeMessage.variableHeader().messageId();
+        this.timestamp = System.currentTimeMillis();
         this.subscribeTopics =
                 subscribeMessage
                         .payload()

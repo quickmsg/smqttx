@@ -10,6 +10,7 @@ import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.rule.DslExecutor;
+import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 
 import java.util.function.Consumer;
@@ -40,9 +41,9 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
     /**
      * 规则引擎注册器
      *
-     * @return {@link DslExecutor}
+     * @return {@link RuleDslAcceptor}
      */
-    DslExecutor getDslExecutor();
+    RuleDslAcceptor getRuleDslAcceptor();
 
 
     /**

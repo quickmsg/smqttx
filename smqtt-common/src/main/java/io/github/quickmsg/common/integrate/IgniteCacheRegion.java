@@ -13,11 +13,21 @@ public enum IgniteCacheRegion {
         public boolean persistence() {
             return false;
         }
+
+        @Override
+        public boolean local() {
+            return false;
+        }
     },
     MESSAGE("message_cache", "message_data_region") {
         @Override
         public boolean persistence() {
             return true;
+        }
+
+        @Override
+        public boolean local() {
+            return false;
         }
     },
     SESSION("session_message", "session_data_region") {
@@ -25,11 +35,21 @@ public enum IgniteCacheRegion {
         public boolean persistence() {
             return true;
         }
+
+        @Override
+        public boolean local() {
+            return false;
+        }
     },
     RETAIN("retain_message", "retain_data_region") {
         @Override
         public boolean persistence() {
             return true;
+        }
+
+        @Override
+        public boolean local() {
+            return false;
         }
     },
     ACK("ack_message", "ack_data_region") {
@@ -37,7 +57,12 @@ public enum IgniteCacheRegion {
         public boolean persistence() {
             return false;
         }
-    }
+
+        @Override
+        public boolean local() {
+            return false;
+        }
+    },
     ;
 
 
@@ -51,5 +76,7 @@ public enum IgniteCacheRegion {
     }
 
     public abstract boolean persistence();
+
+    public abstract boolean local();
 
 }

@@ -23,7 +23,7 @@ public class PublishAckProtocol implements Protocol<PublishAckMessage> {
         return Mono.fromRunnable(() ->
                         Optional.ofNullable(contextView.get(ReceiveContext.class).getAckManager().getAck(mqttChannel.generateRetryId(message.getMessageId())))
                                 .ifPresent(Ack::stop))
-                .thenReturn(new PublicAckEvent(EventMsg.PUBLISH_ACK_MESSAGE, System.currentTimeMillis(), mqttChannel.getConnectMessage().getClientId(), message.getMessageId()));
+                .thenReturn(new PublicAckEvent( System.currentTimeMillis(), mqttChannel.getConnectMessage().getClientId(), message.getMessageId()));
     }
 
     @Override
