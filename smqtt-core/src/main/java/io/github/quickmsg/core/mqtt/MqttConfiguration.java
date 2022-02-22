@@ -1,7 +1,7 @@
 package io.github.quickmsg.core.mqtt;
 
-import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.config.AbstractConfiguration;
+import io.github.quickmsg.common.config.AclConfig;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.config.SslContext;
 import io.github.quickmsg.common.rule.RuleChainDefinition;
@@ -34,8 +34,6 @@ public class MqttConfiguration extends AbstractSslHandler implements AbstractCon
 
     private SslContext sslContext;
 
-    private PasswordAuthentication reactivePasswordAuth = (u, p, c) -> true;
-
     private Integer bossThreadSize = Runtime.getRuntime().availableProcessors();
 
     private Integer workThreadSize = Runtime.getRuntime().availableProcessors() * 2;
@@ -54,11 +52,13 @@ public class MqttConfiguration extends AbstractSslHandler implements AbstractCon
 
     private BootstrapConfig.ClusterConfig clusterConfig;
 
-    private BootstrapConfig.MeterConfig meterConfig ;
+    private BootstrapConfig.MeterConfig meterConfig;
 
     private List<RuleChainDefinition> ruleChainDefinitions;
 
     private List<SourceDefinition> sourceDefinitions;
+
+    private AclConfig aclConfig;
 
     private Map<Object, Object> environmentMap;
 

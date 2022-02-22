@@ -1,6 +1,7 @@
 package io.github.quickmsg.common.context;
 
 import io.github.quickmsg.common.ack.AckManager;
+import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
@@ -78,6 +79,15 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
      * @return {@link AckManager }
      */
     AckManager getAckManager();
+
+
+    /**
+     * get acl
+     *
+     * @return {@link  AclManager}
+     */
+    AclManager getAclManager();
+
 
 
     /**

@@ -1,5 +1,7 @@
 package io.github.quickmsg.core.protocol;
 
+import io.github.quickmsg.common.acl.AclAction;
+import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
@@ -38,6 +40,11 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         try {
             IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
+            AclManager aclManager = receiveContext.getAclManager();
+            if(!aclManager.auth(mqttChannel.getConnectMessage().getClientId(),message.getTopic(), AclAction.PUBLISH)){
+                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ",mqttChannel.getConnectMessage(),message.getTopic());
+                return Mono.empty();
+            }
             Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
             if (mqttChannel == null) {
                 return send(mqttChannels, message, messages, filterRetainMessage(message, messages))

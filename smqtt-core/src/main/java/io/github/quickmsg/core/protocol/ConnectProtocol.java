@@ -1,5 +1,8 @@
 package io.github.quickmsg.core.protocol;
 
+import io.github.quickmsg.common.ack.AckManager;
+import io.github.quickmsg.common.acl.AclAction;
+import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
@@ -52,7 +55,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             Integrate integrate = mqttReceiveContext.getIntegrate();
             IntegrateChannels channels = integrate.getChannels();
             IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
-            PasswordAuthentication passwordAuthentication = mqttReceiveContext.getPasswordAuthentication();
+            AclManager aclManager = mqttReceiveContext.getAclManager();
             /*check clientIdentifier exist*/
             if (channels.exists(clientIdentifier)) {
                 return mqttChannel.write(
@@ -60,12 +63,12 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             }
             /*protocol version support*/
             if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
-                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion()) {
+                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5!= connectMessage.getVersion()) {
                 return mqttChannel.write(
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION)).then(mqttChannel.close()).thenReturn(event);
             }
             /*password check*/
-            if (passwordAuthentication.auth(connectMessage.getUsername(), connectMessage.getPassword(), clientIdentifier)) {
+            if (aclManager.auth(clientIdentifier, clientIdentifier, AclAction.CONNECT)) {
                 /*cancel  defer close not authenticate channel */
                 mqttChannel.setConnectMessage(connectMessage);
                 mqttChannel.setStatus(ChannelStatus.ONLINE);

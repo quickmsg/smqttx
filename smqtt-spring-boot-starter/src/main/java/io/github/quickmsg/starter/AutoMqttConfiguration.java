@@ -37,6 +37,8 @@ public class AutoMqttConfiguration {
                 .ruleChainDefinitions(springBootstrapConfig.getRules())
                 .sourceDefinitions(springBootstrapConfig.getSources())
                 .meterConfig(springBootstrapConfig.getMeter())
+                .aclConfig(springBootstrapConfig.getAclConfig())
+                .meterConfig(springBootstrapConfig.getMeter())
                 .build()
                 .start()
                 .doOnSuccess(this::printUiUrl).block();

@@ -22,13 +22,6 @@ public interface AbstractConfiguration extends Configuration {
     Integer getWebSocketPort();
 
 
-    /**
-     * 获取服务端认证
-     *
-     * @return {@link PasswordAuthentication}
-     */
-    PasswordAuthentication getReactivePasswordAuth();
-
 
     /**
      * 获取规则引擎
@@ -44,6 +37,14 @@ public interface AbstractConfiguration extends Configuration {
      * @return {@link SourceDefinition}
      */
     List<SourceDefinition> getSourceDefinitions();
+
+
+    /**
+     * 获取acl配置
+     *
+     * @return {@link AclConfig}
+     */
+    AclConfig getAclConfig();
 
 
 

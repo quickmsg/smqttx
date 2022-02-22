@@ -2,6 +2,7 @@ package io.github.quickmsg.starter;
 
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.quickmsg.common.config.AclConfig;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.rule.RuleChainDefinition;
 import io.github.quickmsg.common.rule.source.SourceDefinition;
@@ -80,6 +81,15 @@ public class SpringBootstrapConfig {
      * 规则定义
      */
     private List<SourceDefinition> sources;
+
+
+    /**
+     * acl
+     */
+    private AclConfig aclConfig;
+
+
+
 
 
 }

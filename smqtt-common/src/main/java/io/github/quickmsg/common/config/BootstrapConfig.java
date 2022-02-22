@@ -118,10 +118,12 @@ public class BootstrapConfig {
         /**
          * 用户名
          */
+        @Deprecated
         private String username;
         /**
          * 密码
          */
+        @Deprecated
         private String password;
         /**
          * 二进制日志（需要开启root 为debug）
