@@ -46,10 +46,6 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 return Mono.empty();
             }
             Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
-            if (mqttChannel == null) {
-                return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
-                        .then(Mono.empty());
-            }
             switch (MqttQoS.valueOf(message.getQos())) {
                 case AT_MOST_ONCE:
                     return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
