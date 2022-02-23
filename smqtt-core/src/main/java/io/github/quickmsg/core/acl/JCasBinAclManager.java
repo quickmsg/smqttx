@@ -20,27 +20,30 @@ public class JCasBinAclManager implements AclManager {
 
     private final AclConfig aclConfig;
 
-    private  Enforcer enforcer;
+    private Enforcer enforcer;
 
     public JCasBinAclManager(AclConfig aclConfig) {
         this.aclConfig = aclConfig;
         String rootPath = Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource("")).map(URL::getPath).orElse(null);
-        if(aclConfig.getAclPolicy() == AclPolicy.JDBC){
-            AclConfig.JdbcAclConfig jdbcAclConfig= aclConfig.getJdbcAclConfig();
+        if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
+            AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
             Objects.requireNonNull(jdbcAclConfig);
             try {
-                enforcer = new Enforcer(rootPath+"mqtt_model.conf",new JDBCAdapter(jdbcAclConfig.getDriver(),jdbcAclConfig.getUrl(),jdbcAclConfig.getUsername(),jdbcAclConfig.getPassword()));
+                enforcer = new Enforcer(rootPath + "mqtt_model.conf", new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(), jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
             } catch (Exception e) {
-                log.error("init acl jdbc error {}",aclConfig,e);
+                log.error("init acl jdbc error {}", aclConfig, e);
             }
-        }
-        else{
-            enforcer = new Enforcer(rootPath+"mqtt_model.conf",aclConfig.getFilePath());
+        } else {
+            enforcer = new Enforcer(rootPath + "mqtt_model.conf", aclConfig.getFilePath());
         }
     }
 
     @Override
     public boolean auth(String sub, String source, AclAction action) {
-        return enforcer.enforce(sub,source,action.name());
+        if (aclConfig.getAclPolicy() == AclPolicy.NONE) {
+            return true;
+        } else {
+            return enforcer.enforce(sub, source, action.name());
+        }
     }
 }
