@@ -41,11 +41,16 @@ public class PublishProtocol implements Protocol<PublishMessage> {
             IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
             AclManager aclManager = receiveContext.getAclManager();
+            Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
+            if (mqttChannel == null) {
+                // cluster message
+                return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
+                        .then(Mono.empty());
+            }
             if(!aclManager.auth(mqttChannel.getConnectMessage().getClientId(),message.getTopic(), AclAction.PUBLISH)){
                 log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ",mqttChannel.getConnectMessage(),message.getTopic());
                 return Mono.empty();
             }
-            Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
             switch (MqttQoS.valueOf(message.getQos())) {
                 case AT_MOST_ONCE:
                     return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
