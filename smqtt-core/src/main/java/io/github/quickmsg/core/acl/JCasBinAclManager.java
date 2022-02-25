@@ -46,4 +46,14 @@ public class JCasBinAclManager implements AclManager {
             return enforcer.enforce(sub, source, action.name());
         }
     }
+
+    @Override
+    public boolean add(String sub, String source, AclAction action) {
+        return enforcer.addNamedPolicy("p",sub,source,action.name());
+    }
+
+    @Override
+    public boolean delete(String sub, String source, AclAction action) {
+        return enforcer.removeNamedPolicy("p",sub,source,action.name());
+    }
 }

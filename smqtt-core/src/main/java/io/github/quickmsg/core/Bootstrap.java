@@ -70,9 +70,6 @@ public class Bootstrap {
     private MqttConfiguration initMqttConfiguration() {
 
         MqttConfiguration mqttConfiguration = defaultConfiguration();
-        if (tcpConfig.getUsername() != null || tcpConfig.getPassword() != null) {
-            mqttConfiguration.setReactivePasswordAuth((user, pwd, id) -> user.equals(tcpConfig.getUsername()) && new String(pwd).equals(tcpConfig.getPassword()));
-        }
         Optional.ofNullable(tcpConfig.getPort()).ifPresent(mqttConfiguration::setPort);
         Optional.ofNullable(tcpConfig.getLowWaterMark()).ifPresent(mqttConfiguration::setLowWaterMark);
         Optional.ofNullable(tcpConfig.getHighWaterMark()).ifPresent(mqttConfiguration::setHighWaterMark);
