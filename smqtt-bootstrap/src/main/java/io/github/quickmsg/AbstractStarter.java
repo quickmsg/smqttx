@@ -58,6 +58,7 @@ public abstract class AbstractStarter {
                 .meterConfig(config.getSmqttConfig().getMeterConfig())
                 .ruleChainDefinitions(config.getSmqttConfig().getRuleChainDefinitions())
                 .sourceDefinitions(config.getSmqttConfig().getRuleSources())
+                .aclConfig(config.getSmqttConfig().getAclConfig())
                 .build()
                 .doOnStarted(AbstractStarter::printUiUrl).startAwait();
 

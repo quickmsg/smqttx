@@ -95,7 +95,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.ackManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512);
         // tod
-        this.aclManager = new JCasBinAclManager(null);
+        this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
     }
