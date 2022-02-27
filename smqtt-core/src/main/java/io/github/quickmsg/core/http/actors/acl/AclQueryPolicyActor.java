@@ -6,12 +6,8 @@ import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Router;
 import io.github.quickmsg.common.http.enums.HttpType;
-import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.core.http.AbstractHttpActor;
-import io.github.quickmsg.core.http.HttpConfiguration;
 import io.github.quickmsg.core.http.actors.acl.model.PolicyModel;
-import io.github.quickmsg.core.http.model.LoginDo;
-import io.github.quickmsg.core.http.model.LoginVm;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -19,18 +15,16 @@ import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author luxurong
  */
 
-@Router(value = "/smqtt/acl/policy/add", type = HttpType.POST)
+@Router(value = "/smqtt/acl/policy/query", type = HttpType.POST)
 @Slf4j
 @Header(key = "Content-Type", value = "application/json")
 @AllowCors
-public class AclAddPolicyActor extends AbstractHttpActor {
+public class AclQueryPolicyActor extends AbstractHttpActor {
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration configuration) {
@@ -39,7 +33,7 @@ public class AclAddPolicyActor extends AbstractHttpActor {
                 .asString(StandardCharsets.UTF_8)
                 .map(this.toJson(PolicyModel.class))
                 .doOnNext(policyModel ->
-                      ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(),policyModel.getSource(),policyModel.getAction())
+                        ContextHolder.getReceiveContext().getAclManager().delete(policyModel.getSubject(),policyModel.getSource(),policyModel.getAction())
                 ).then(response.sendString(Mono.just("success")).then());
     }
 }

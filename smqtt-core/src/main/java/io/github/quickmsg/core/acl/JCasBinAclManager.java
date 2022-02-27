@@ -9,6 +9,8 @@ import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,12 +20,9 @@ import java.util.Optional;
 @Slf4j
 public class JCasBinAclManager implements AclManager {
 
-    private final AclConfig aclConfig;
-
     private Enforcer enforcer;
 
     public JCasBinAclManager(AclConfig aclConfig) {
-        this.aclConfig = aclConfig;
         String rootPath = Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource("")).map(URL::getPath).orElse(null);
         if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
             AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
@@ -33,27 +32,37 @@ public class JCasBinAclManager implements AclManager {
             } catch (Exception e) {
                 log.error("init acl jdbc error {}", aclConfig, e);
             }
-        } else {
+        } else  if (aclConfig.getAclPolicy() == AclPolicy.File){
             enforcer = new Enforcer(rootPath + "mqtt_model.conf", aclConfig.getFilePath());
         }
     }
 
     @Override
     public boolean auth(String sub, String source, AclAction action) {
-        if (aclConfig.getAclPolicy() == AclPolicy.NONE) {
-            return true;
-        } else {
-            return enforcer.enforce(sub, source, action.name());
-        }
+        return  Optional.ofNullable(enforcer)
+                .map(ef->enforcer.enforce(sub,source,action.name()))
+                .orElse(true);
     }
 
     @Override
     public boolean add(String sub, String source, AclAction action) {
-        return enforcer.addNamedPolicy("p",sub,source,action.name());
+        return  Optional.ofNullable(enforcer)
+                .map(ef->enforcer.addNamedPolicy("p",sub,source,action.name()))
+                .orElse(true);
+
     }
 
     @Override
     public boolean delete(String sub, String source, AclAction action) {
-        return enforcer.removeNamedPolicy("p",sub,source,action.name());
+        return  Optional.ofNullable(enforcer)
+                .map(ef->enforcer.addNamedPolicy("p",sub,source,action.name()))
+                .orElse(true);
+    }
+
+    @Override
+    public List<List<String>> get() {
+        return  Optional.ofNullable(enforcer)
+                .map(ef->enforcer.getNamedPolicy("p"))
+                .orElse(Collections.emptyList());
     }
 }
