@@ -7,6 +7,8 @@ import io.github.quickmsg.common.config.AclConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
+import org.casbin.jcasbin.model.Model;
+import org.casbin.jcasbin.persist.file_adapter.FileAdapter;
 
 import java.net.URL;
 import java.util.Collections;
@@ -23,17 +25,22 @@ public class JCasBinAclManager implements AclManager {
     private Enforcer enforcer;
 
     public JCasBinAclManager(AclConfig aclConfig) {
-        String rootPath = Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource("")).map(URL::getPath).orElse(null);
+        Model model = new Model();
+        model.addDef("r", "r", "sub, obj, act");
+        model.addDef("p", "p", "sub, obj, act");
+        model.addDef("e", "e", "some(where (p.eft == allow))");
+        model.addDef("m", "m", "r.sub == p.sub && r.obj == p.obj && r.act == p.act");
+
         if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
             AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
             Objects.requireNonNull(jdbcAclConfig);
             try {
-                enforcer = new Enforcer(rootPath + "mqtt_model.conf", new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(), jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
+                enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(), jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
             } catch (Exception e) {
                 log.error("init acl jdbc error {}", aclConfig, e);
             }
         } else  if (aclConfig.getAclPolicy() == AclPolicy.File){
-            enforcer = new Enforcer(rootPath + "mqtt_model.conf", aclConfig.getFilePath());
+            enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
         }
     }
 
