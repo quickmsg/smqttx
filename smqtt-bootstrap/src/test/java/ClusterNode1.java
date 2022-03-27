@@ -25,8 +25,6 @@ public class ClusterNode1 {
                                 .TcpConfig
                                 .builder()
                                 .port(8888)
-                                .username("smqtt")
-                                .password("smqtt")
                                 .build())
                 .httpConfig(
                         BootstrapConfig

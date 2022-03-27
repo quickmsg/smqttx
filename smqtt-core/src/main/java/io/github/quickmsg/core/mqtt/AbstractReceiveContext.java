@@ -125,7 +125,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private ProtocolAdaptor protocolAdaptor() {
         return Optional.ofNullable(ProtocolAdaptor.INSTANCE)
-                .orElseGet(() -> new DefaultProtocolAdaptor(Schedulers.newBoundedElastic(configuration.getBusinessThreadSize(), configuration.getBusinessQueueSize(), "business-io"))).proxy();
+                .orElseGet(DefaultProtocolAdaptor::new).proxy();
     }
 
     private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {

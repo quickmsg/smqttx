@@ -55,6 +55,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 case AT_MOST_ONCE:
                     return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
                             .thenReturn(buildEvent(message));
+                case EXACTLY_ONCE:
                 case AT_LEAST_ONCE:
 
                     //todo 使用时间轮 && 持久化 qos1 qos2消息
@@ -62,8 +63,6 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                             mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))
                                     .then(filterRetainMessage(message, messages)))
                             .thenReturn(buildEvent(message));
-                // todo 暂不支持qos2
-                case EXACTLY_ONCE:
                 default:
                     return Mono.empty();
             }

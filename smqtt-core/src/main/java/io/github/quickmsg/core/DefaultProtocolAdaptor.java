@@ -22,16 +22,13 @@ import java.util.Optional;
 public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
 
-    private final Scheduler scheduler;
-
-
     @SuppressWarnings("unchecked")
-    public DefaultProtocolAdaptor(Scheduler scheduler) {
-        this.scheduler = Optional.ofNullable(scheduler).orElse(Schedulers.boundedElastic());
+    //todo 设置背压
+    public DefaultProtocolAdaptor() {
         DynamicLoader
                 .findAll(Protocol.class)
                 .forEach(protocol ->
-                        acceptor.asFlux().ofType(protocol.getClassType()).subscribeOn(this.scheduler).subscribe(msg -> {
+                        acceptor.asFlux().ofType(protocol.getClassType()).subscribe(msg -> {
                             Message message = (Message) msg;
                             Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
                             ReceiveContext<?> receiveContext = message.getContext();
