@@ -3,7 +3,6 @@ package io.github.quickmsg.core.mqtt;
 import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.ack.TimeAckManager;
 import io.github.quickmsg.common.acl.AclManager;
-import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.config.AbstractConfiguration;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.config.ConfigCheck;
@@ -41,7 +40,7 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
-import reactor.core.scheduler.Schedulers;
+import reactor.core.publisher.Sinks;
 import reactor.netty.resources.LoopResources;
 
 import java.util.Arrays;
@@ -84,7 +83,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.configuration = configuration;
         this.transport = transport;
         this.eventRegistry = eventRegistry();
-        this.protocolAdaptor = protocolAdaptor();
+        this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(),abstractConfiguration.getBusinessThreadSize());
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.integrate = integrateBuilder().newIntegrate(initConfig());
@@ -94,7 +93,6 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.ackManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512);
-        // tod
         this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
@@ -123,9 +121,9 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     }
 
 
-    private ProtocolAdaptor protocolAdaptor() {
+    private ProtocolAdaptor protocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         return Optional.ofNullable(ProtocolAdaptor.INSTANCE)
-                .orElseGet(DefaultProtocolAdaptor::new).proxy();
+                .orElseGet(() -> new DefaultProtocolAdaptor(businessQueueSize,threadSize)).proxy();
     }
 
     private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {

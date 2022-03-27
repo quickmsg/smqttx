@@ -14,8 +14,6 @@ public interface ProtocolAdaptor {
     ProtocolAdaptor INSTANCE = DynamicLoader.findFirst(ProtocolAdaptor.class).orElse(null);
 
 
-     Sinks.Many<Message> acceptor = Sinks.many().multicast().onBackpressureBuffer();
-
 
     MessageProxy MESSAGE_PROXY = new MessageProxy();
 

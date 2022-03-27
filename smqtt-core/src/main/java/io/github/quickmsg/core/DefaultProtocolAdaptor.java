@@ -6,14 +6,9 @@ import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.github.quickmsg.common.utils.RetryFailureHandler;
-import io.netty.handler.codec.mqtt.MqttMessageType;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.scheduler.Scheduler;
+import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author luxurong
@@ -21,22 +16,17 @@ import java.util.Optional;
 @Slf4j
 public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
+    private final Sinks.Many<Message> acceptor;
 
     @SuppressWarnings("unchecked")
-    //todo 设置背压
-    public DefaultProtocolAdaptor() {
-        DynamicLoader
-                .findAll(Protocol.class)
-                .forEach(protocol ->
-                        acceptor.asFlux().ofType(protocol.getClassType()).subscribe(msg -> {
-                            Message message = (Message) msg;
-                            Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
-                            ReceiveContext<?> receiveContext = message.getContext();
-                            messageProtocol
-                                    .doParseProtocol(message, message.getMqttChannel())
-                                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext()))
-                                    .subscribe(receiveContext::submitEvent);
-                        }));
+    public DefaultProtocolAdaptor(Integer businessQueueSize, Integer threadSize) {
+        this.acceptor = Sinks.many().multicast().onBackpressureBuffer(businessQueueSize);
+        DynamicLoader.findAll(Protocol.class).forEach(protocol -> acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize)).ofType(protocol.getClassType()).subscribe(msg -> {
+            Message message = (Message) msg;
+            Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
+            ReceiveContext<?> receiveContext = message.getContext();
+            messageProtocol.doParseProtocol(message, message.getMqttChannel()).contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext())).subscribe(receiveContext::submitEvent);
+        }));
     }
 
     @Override
