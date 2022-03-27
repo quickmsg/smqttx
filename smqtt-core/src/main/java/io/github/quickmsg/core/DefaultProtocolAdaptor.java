@@ -31,6 +31,10 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
 
     @Override
     public void chooseProtocol(Message message) {
-        acceptor.emitNext(message, RetryFailureHandler.RETRY_NON_SERIALIZED);
+        try {
+            acceptor.emitNext(message, RetryFailureHandler.RETRY_NON_SERIALIZED);
+        }catch (Exception e){
+            log.error("protocol emitNext error",e);
+        }
     }
 }

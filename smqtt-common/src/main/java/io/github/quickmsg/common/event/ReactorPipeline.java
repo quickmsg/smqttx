@@ -16,7 +16,11 @@ public class ReactorPipeline implements Pipeline {
 
     @Override
     public void accept(Event event) {
-        onBackpressureBuffer.emitNext(event, new RetryFailureHandler());
+        try {
+            onBackpressureBuffer.emitNext(event, new RetryFailureHandler());
+        }catch (Exception e){
+           log.error("event emitNext error",e);
+        }
     }
 
     @Override
