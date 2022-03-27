@@ -23,13 +23,13 @@ public class SessionMessage {
 
     private byte[] body;
 
-    private String clientIdentifier;
+    private String clientId;
 
     private boolean retain;
 
     public static SessionMessage of(String clientIdentifier, PublishMessage message) {
         return SessionMessage.builder()
-                .clientIdentifier(clientIdentifier)
+                .clientId(clientIdentifier)
                 .topic(message.getTopic())
                 .qos(message.getQos())
                 .retain(message.isRetain())
@@ -37,13 +37,15 @@ public class SessionMessage {
                 .build();
     }
 
-    public MqttPublishMessage toPublishMessage(MqttChannel mqttChannel, int messageId) {
-        return MqttMessageUtils.buildPub(
-                false,
-                MqttQoS.valueOf(this.qos),
-                messageId,
-                topic,
-                PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(body));
+
+    public  PublishMessage toPublishMessage() {
+        PublishMessage publishMessage =new PublishMessage();
+        publishMessage.setBody(this.body);
+        publishMessage.setTopic(this.topic);
+        publishMessage.setRetain(this.retain);
+        publishMessage.setClientId(this.clientId);
+        publishMessage.setQos(this.qos);
+        return publishMessage;
     }
 
 }

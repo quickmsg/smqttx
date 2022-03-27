@@ -1,11 +1,8 @@
 package io.github.quickmsg.core.protocol;
 
-import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
-import io.github.quickmsg.common.auth.PasswordAuthentication;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.enums.ChannelStatus;
@@ -18,20 +15,16 @@ import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
-import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
-import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
-import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.context.ContextView;
 
 import java.util.Optional;
@@ -63,7 +56,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             }
             /*protocol version support*/
             if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
-                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5!= connectMessage.getVersion()) {
+                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
                 return mqttChannel.write(
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION)).then(mqttChannel.close()).thenReturn(event);
             }
@@ -85,18 +78,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
                                         .forEach(subscribeTopic -> {
                                             MqttChannel subscribeChannel = subscribeTopic.getMqttChannel();
                                             MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
-                                            int id = 0;
-                                            if (mqttQoS.value() > 0) {
-                                                id = subscribeChannel.generateMessageId();
-                                                RetryMessage retryMessage = new RetryMessage(id,System.currentTimeMillis(), will.isRetain(), will.getWillTopic(), will.getMqttQoS(), will.getWillMessage(), subscribeChannel, mqttReceiveContext);
-                                                doRetry(subscribeChannel.generateRetryId(id), 5, retryMessage);
-                                            }
-                                            subscribeChannel.write(
-                                                    MqttMessageUtils
-                                                            .buildPub(false, mqttQoS, id,
-                                                                    will.getWillTopic(),
-                                                                    Unpooled.wrappedBuffer(will.getWillMessage())
-                                                            )).subscribe();
+                                            subscribeChannel.sendPublish(mqttQoS, will.toPublishMessage());
                                         })));
                 /* do session message*/
                 doSession(mqttChannel, channels, topics);
@@ -150,22 +132,8 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         Optional.ofNullable(messages.getSessionMessage(mqttChannel.getConnectMessage().getClientId()))
                 .ifPresent(sessionMessages -> {
                     sessionMessages.forEach(sessionMessage -> {
-                        int messageId = 0;
-                        if (sessionMessage.getQos() > 0) {
-                            messageId = mqttChannel.generateMessageId();
-                            RetryMessage retryMessage = new RetryMessage(messageId,System.currentTimeMillis(),
-                                    sessionMessage.isRetain(),
-                                    sessionMessage.getTopic(),
-                                    MqttQoS.valueOf(sessionMessage.getQos()),
-                                    sessionMessage.getBody(),
-                                    mqttChannel,
-                                    ContextHolder.getReceiveContext());
-                            doRetry(mqttChannel.generateRetryId(messageId), 5, retryMessage);
-                        }
-                        mqttChannel
-                                .write(sessionMessage.toPublishMessage(mqttChannel,messageId))
-                                .subscribeOn(Schedulers.single())
-                                .subscribe();
+                        mqttChannel.sendPublish(MqttQoS.valueOf(sessionMessage.getQos()),
+                                sessionMessage.toPublishMessage());
                     });
                     messages.deleteSessionMessage(mqttChannel.getConnectMessage().getClientId());
                 });

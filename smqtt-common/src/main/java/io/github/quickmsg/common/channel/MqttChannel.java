@@ -1,11 +1,12 @@
 package io.github.quickmsg.common.channel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
+import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
@@ -83,8 +84,8 @@ public class MqttChannel {
         return atomicInteger.incrementAndGet();
     }
 
-    public long generateRetryId(int messageId){
-       return  (long)id << 4 | messageId;
+    public long generateRetryId(int messageId) {
+        return (long) id << 4 | messageId;
     }
 
 
@@ -100,7 +101,35 @@ public class MqttChannel {
 
         private byte[] willMessage;
 
+        public  PublishMessage toPublishMessage() {
+            PublishMessage publishMessage =new PublishMessage();
+            publishMessage.setBody(this.willMessage);
+            publishMessage.setTopic(this.willTopic);
+            publishMessage.setRetain(this.isRetain);
+            publishMessage.setQos(this.mqttQoS.value());
+            return publishMessage;
+        }
+
+
     }
+
+    public void sendPublish(MqttQoS mqttQoS, PublishMessage message) {
+        switch (mqttQoS) {
+            case AT_MOST_ONCE:
+                this.write(message.buildMqttMessage(mqttQoS, 0)).subscribe();
+                break;
+            case EXACTLY_ONCE:
+            case AT_LEAST_ONCE:
+            default:
+                int messageId = this.generateMessageId();
+                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), this, ContextHolder.getReceiveContext());
+                ContextHolder.getReceiveContext().getAckManager().doRetry(messageId, retryMessage);
+                this.write(message.buildMqttMessage(mqttQoS, messageId)).subscribe();
+                break;
+        }
+    }
+
+
 
     /**
      * write message

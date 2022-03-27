@@ -104,12 +104,13 @@ public class IgniteMessages extends AbstractTopicAggregate<PublishMessage> imple
 
     @Override
     public boolean saveSessionMessage(SessionMessage sessionMessage) {
+        String clientId = sessionMessage.getClientId();
         String SESSION_PREFIX = "session:";
-        IgniteSet<SessionMessage> sessionMessages = sessionCache.getAndPutIfAbsent(sessionMessage.getClientIdentifier(), integrate
+        IgniteSet<SessionMessage> sessionMessages = sessionCache.getAndPutIfAbsent(clientId, integrate
                 .getIgnite()
-                .set(SESSION_PREFIX + sessionMessage.getClientIdentifier(), new CollectionConfiguration().setCollocated(true).setBackups(1)));
+                .set(SESSION_PREFIX +clientId, new CollectionConfiguration().setCollocated(true).setBackups(1)));
         if(sessionMessages == null){
-            sessionMessages = sessionCache.get(sessionMessage.getClientIdentifier());
+            sessionMessages = sessionCache.get(clientId);
         }
         boolean success = sessionMessages.add(sessionMessage);
         if (success) {

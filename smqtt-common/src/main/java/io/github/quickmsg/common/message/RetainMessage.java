@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.message;
 
-import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -16,27 +15,38 @@ import lombok.Data;
 @Builder
 public class RetainMessage {
 
-    private int qos;
+    private String clientId;
 
     private String topic;
 
+    private int qos;
+
+    private boolean retain;
+
     private byte[] body;
+
+    private long timestamp;
 
     public static RetainMessage of(PublishMessage message) {
         return RetainMessage.builder()
                 .topic(message.getTopic())
                 .qos(message.getQos())
                 .body(message.getBody())
+                .clientId(message.getClientId())
+                .retain(message.isRetain())
+                .timestamp(message.getTimestamp())
                 .build();
     }
 
-    public MqttPublishMessage toPublishMessage(int messageId) {
-        return MqttMessageUtils.buildPub(
-                false,
-                MqttQoS.valueOf(this.qos),
-                messageId,
-                topic,
-                PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(body));
+    public  PublishMessage toPublishMessage() {
+        PublishMessage publishMessage =new PublishMessage();
+        publishMessage.setBody(this.body);
+        publishMessage.setTopic(this.topic);
+        publishMessage.setRetain(this.retain);
+        publishMessage.setClientId(this.clientId);
+        publishMessage.setQos(this.qos);
+        return publishMessage;
     }
+
 
 }

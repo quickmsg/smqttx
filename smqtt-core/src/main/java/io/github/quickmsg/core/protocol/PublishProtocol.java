@@ -1,13 +1,12 @@
 package io.github.quickmsg.core.protocol;
 
+import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.event.Event;
-import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.PublishEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
@@ -16,9 +15,7 @@ import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.SessionMessage;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
-import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +44,8 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
                         .then(Mono.empty());
             }
-            if(!aclManager.auth(mqttChannel.getConnectMessage().getClientId(),message.getTopic(), AclAction.PUBLISH)){
-                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ",mqttChannel.getConnectMessage(),message.getTopic());
+            if (!aclManager.auth(mqttChannel.getConnectMessage().getClientId(), message.getTopic(), AclAction.PUBLISH)) {
+                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectMessage(), message.getTopic());
                 return Mono.empty();
             }
             switch (MqttQoS.valueOf(message.getQos())) {
@@ -57,8 +54,6 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                             .thenReturn(buildEvent(message));
                 case EXACTLY_ONCE:
                 case AT_LEAST_ONCE:
-
-                    //todo 使用时间轮 && 持久化 qos1 qos2消息
                     return send(mqttChannels, message, messages,
                             mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))
                                     .then(filterRetainMessage(message, messages)))
@@ -106,15 +101,9 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 subscribeTopics.stream()
                         .filter(subscribeTopic -> filterOfflineSession(subscribeTopic.getMqttChannel(), messages, message))
                         .forEach(subscribeTopic -> {
-                                    MqttChannel mqttChannel = subscribeTopic.getMqttChannel();
-                                    MqttQoS minQos = subscribeTopic.minQos(MqttQoS.valueOf(message.getQos()));
-                                    int messageId = 0;
-                                    if (minQos.value() > 0) {
-                                        messageId = mqttChannel.generateMessageId();
-                                        RetryMessage retryMessage = new RetryMessage(messageId,System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), mqttChannel, ContextHolder.getReceiveContext());
-                                        doRetry(mqttChannel.generateRetryId(messageId), 5, retryMessage);
-                                    }
-                                    subscribeTopic.getMqttChannel().write(message.buildMqttMessage(minQos, messageId)).subscribe();
+                                    subscribeTopic
+                                            .getMqttChannel()
+                                            .sendPublish(subscribeTopic.minQos(MqttQoS.valueOf(message.getQos())), message);
                                 }
                         )).then(other);
 

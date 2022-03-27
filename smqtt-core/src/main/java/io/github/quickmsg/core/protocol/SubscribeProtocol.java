@@ -3,14 +3,12 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.acceptor.SubscribeEvent;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.message.mqtt.SubscribeMessage;
 import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
@@ -68,14 +66,8 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
     private void loadRetainMessage(IntegrateMessages messages, MqttChannel mqttChannel, SubscribeTopic topic) {
         messages.getRetainMessage(topic.getTopicFilter())
                 .forEach(retainMessage -> {
-                    MqttQoS minQos = topic.minQos(MqttQoS.valueOf(retainMessage.getQos()));
-                    int messageId = 0;
-                    if (minQos.value() > 0) {
-                        messageId = mqttChannel.generateMessageId();
-                        RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), false, retainMessage.getTopic(), MqttQoS.valueOf(retainMessage.getQos()), retainMessage.getBody(), mqttChannel, ContextHolder.getReceiveContext());
-                        doRetry(mqttChannel.generateRetryId(messageId), 5, retryMessage);
-                    }
-                    mqttChannel.write(retainMessage.toPublishMessage(messageId)).subscribe();
+                    mqttChannel.sendPublish(topic.minQos(MqttQoS.valueOf(retainMessage.getQos())),
+                            retainMessage.toPublishMessage());
                 });
     }
 

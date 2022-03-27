@@ -49,11 +49,5 @@ public interface Protocol<T extends Message> {
 
 
 
-    default void doRetry(long id, int retrySize, RetryMessage retrymessage) {
-        RetryAck retryAck = new RetryAck(id, retrySize, 5, () -> {
-            ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(retrymessage);
-        }, ContextHolder.getReceiveContext().getAckManager());
-        retryAck.start();
-    }
 
 }
