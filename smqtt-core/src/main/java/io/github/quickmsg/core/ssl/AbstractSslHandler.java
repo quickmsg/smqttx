@@ -48,7 +48,7 @@ public class AbstractSslHandler {
     public TcpServer initTcpServer(MqttConfiguration mqttConfiguration) {
         TcpServer server = TcpServer.create();
         if (mqttConfiguration.getSsl()) {
-            server.secure(sslContextSpec -> this.secure(sslContextSpec, mqttConfiguration));
+            server=server.secure(sslContextSpec -> this.secure(sslContextSpec, mqttConfiguration));
         }
         if (mqttConfiguration.getOptions() != null) {
             for (Map.Entry<String, Object> entry : mqttConfiguration.getOptions().entrySet()) {
