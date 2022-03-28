@@ -12,7 +12,7 @@ public enum AclPolicy {
     /**
      * disk file
      */
-    File,
+    FILE,
 
     /**
      * sql database
