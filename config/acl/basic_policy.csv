@@ -1,2 +1,3 @@
 p, client01, topicA, PUBLISH
 p, client02, topicB, PUBLISH
+p, client02, client02, CONNECT

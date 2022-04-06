@@ -7,12 +7,14 @@ import io.github.quickmsg.common.message.mqtt.PingMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.EventMsg;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
 /**
  * @author luxurong
  */
+@Slf4j
 public class PingProtocol implements Protocol<PingMessage> {
 
     @Override

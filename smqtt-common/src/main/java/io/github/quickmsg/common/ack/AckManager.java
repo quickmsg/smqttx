@@ -10,9 +10,9 @@ public interface AckManager {
 
     void addAck(Ack ack);
 
-    Ack getAck(Long id);
+    Ack getAck(int channelId,Long id);
 
-    void deleteAck(Long id);
+    void deleteAck(int channelId,Long id);
 
    void doRetry(long id,  RetryMessage retrymessage);
 

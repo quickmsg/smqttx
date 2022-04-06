@@ -58,7 +58,7 @@ public class MqttChannel {
         mqttChannel.setConnection(connection);
         mqttChannel.setStatus(ChannelStatus.INIT);
         mqttChannel.setAddress(connection.address().toString());
-        mqttChannel.setId((int) ContextHolder.getReceiveContext().getIntegrate().getGrableCounter("channel").incrementAndGet());
+        mqttChannel.setId((int) ContextHolder.getReceiveContext().getIntegrate().getGlobalCounter("channel-id").incrementAndGet());
         connection.onReadIdle(2000, connection::dispose);
         return mqttChannel;
     }

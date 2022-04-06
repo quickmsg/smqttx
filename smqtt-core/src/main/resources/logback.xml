@@ -58,7 +58,6 @@
     <root level="INFO">
         <appender-ref ref="stdout"/>
         <appender-ref ref="system"/>
-
     </root>
 
     <logger name="ack" level="INFO" additivity="false">

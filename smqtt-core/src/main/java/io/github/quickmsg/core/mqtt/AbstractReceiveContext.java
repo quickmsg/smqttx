@@ -153,13 +153,13 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
         igniteConfiguration.setGridLogger(new Slf4jLogger());
-        igniteConfiguration.setLocalHost("127.0.0.1");
+//        igniteConfiguration.setWorkDirectory("c://ignite");
+//        igniteConfiguration.setLocalHost("127.0.0.1");
         igniteConfiguration.setClientMode(false);
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        ipFinder.setAddresses(Arrays.asList("127.0.0.1", "127.0.0.1:47500..47509"));
+        ipFinder.setAddresses(Arrays.asList("127.0.0.1"));
         spi.setIpFinder(ipFinder);
-
         igniteConfiguration.setDiscoverySpi(spi);
         return igniteConfiguration;
     }

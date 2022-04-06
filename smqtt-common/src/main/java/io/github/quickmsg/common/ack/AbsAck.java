@@ -48,7 +48,7 @@ public abstract class AbsAck implements Ack {
     public void stop() {
         died = true;
         log.info("task retry stop ...........");
-        ackManager.deleteAck(getId());
+        ackManager.deleteAck(getChannelId(),getId());
     }
 
 

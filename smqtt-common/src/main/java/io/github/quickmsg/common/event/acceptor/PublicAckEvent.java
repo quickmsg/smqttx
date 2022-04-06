@@ -19,5 +19,5 @@ public class PublicAckEvent extends MessageEvent {
     private String clientId;
 
     @QuerySqlField(index = true)
-    private int messageId;
+    private long messageId;
 }

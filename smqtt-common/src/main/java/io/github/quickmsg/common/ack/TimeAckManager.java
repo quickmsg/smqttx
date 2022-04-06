@@ -5,6 +5,7 @@ import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.netty.util.HashedWheelTimer;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +18,7 @@ public class TimeAckManager extends HashedWheelTimer implements AckManager {
 
     private final  int retryPeriod;
 
-    private final Map<Long, Ack> ackMap = new ConcurrentHashMap<>();
+    private final Map<Integer,Map<Long, Ack>> ackMap = new ConcurrentHashMap<>();
 
     public TimeAckManager(long tickDuration, TimeUnit unit, int ticksPerWheel, int retrySize, int retryPeriod) {
         super( tickDuration, unit, ticksPerWheel);
@@ -27,23 +28,27 @@ public class TimeAckManager extends HashedWheelTimer implements AckManager {
 
     @Override
     public void addAck(Ack ack) {
-        ackMap.put(ack.getId(),ack);
+        Map<Long, Ack> ackCache = ackMap.computeIfAbsent(ack.getChannelId(),id->new ConcurrentHashMap<>());
+        ackCache.put(ack.getId(),ack);
         this.newTimeout(ack,ack.getTimed(),ack.getTimeUnit());
     }
 
     @Override
-    public Ack getAck(Long id) {
-        return ackMap.get(id);
+    public Ack getAck(int channelId,Long id) {
+        return  Optional.ofNullable(ackMap.get(channelId))
+               .map(cache->cache.get(id))
+               .orElse(null);
     }
 
     @Override
-    public void deleteAck(Long id) {
-        ackMap.remove(id);
+    public void deleteAck(int channelId,Long id) {
+        Optional.ofNullable(ackMap.get(channelId))
+                        .ifPresent(longAckMap -> longAckMap.remove(id));
     }
 
     @Override
     public void doRetry(long id,  RetryMessage retrymessage) {
-        RetryAck retryAck = new RetryAck(id, retrySize, retryPeriod, () -> {
+        RetryAck retryAck = new RetryAck(retrymessage.getMqttChannel().getId(),id, retrySize, retryPeriod,() -> {
             ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(retrymessage);
         }, this);
         retryAck.start();

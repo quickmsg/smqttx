@@ -103,7 +103,7 @@ public interface Integrate {
      *
      * @return {@link Pipeline get event pipeline  }
      */
-    IgniteAtomicLong getGrableCounter(String name);
+    IgniteAtomicLong getGlobalCounter(String name);
 
 
 }

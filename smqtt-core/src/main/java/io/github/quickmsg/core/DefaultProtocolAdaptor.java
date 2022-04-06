@@ -21,11 +21,14 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
     @SuppressWarnings("unchecked")
     public DefaultProtocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         this.acceptor = Sinks.many().multicast().onBackpressureBuffer(businessQueueSize);
-        DynamicLoader.findAll(Protocol.class).forEach(protocol -> acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize)).ofType(protocol.getClassType()).subscribe(msg -> {
+        DynamicLoader.findAll(Protocol.class).forEach(protocol ->
+                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize)).ofType(protocol.getClassType()).subscribe(msg -> {
             Message message = (Message) msg;
             Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
             ReceiveContext<?> receiveContext = message.getContext();
-            messageProtocol.doParseProtocol(message, message.getMqttChannel()).contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext())).subscribe(receiveContext::submitEvent);
+            messageProtocol.doParseProtocol(message, message.getMqttChannel())
+                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext()))
+                    .subscribe(receiveContext::submitEvent);
         }));
     }
 

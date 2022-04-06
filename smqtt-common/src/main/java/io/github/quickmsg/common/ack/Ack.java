@@ -16,6 +16,8 @@ public interface Ack extends TimerTask {
 
     long getId();
 
+    int getChannelId();
+
     void start();
 
     void stop();
