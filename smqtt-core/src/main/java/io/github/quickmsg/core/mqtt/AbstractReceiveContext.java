@@ -19,10 +19,10 @@ import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
+import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
-import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.core.acl.JCasBinAclManager;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
@@ -72,7 +72,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final Integrate integrate;
 
-    private final RetryManager ackManager;
+    private final RetryManager retryManager;
 
     private final AclManager aclManager;
 
@@ -82,7 +82,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.configuration = configuration;
         this.transport = transport;
         this.eventRegistry = eventRegistry();
-        this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(),abstractConfiguration.getBusinessThreadSize());
+        this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(), abstractConfiguration.getBusinessThreadSize());
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.integrate = integrateBuilder().newIntegrate(initConfig());
@@ -91,7 +91,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
-        this.ackManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
+        this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
         this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
@@ -122,7 +122,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private ProtocolAdaptor protocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         return Optional.ofNullable(ProtocolAdaptor.INSTANCE)
-                .orElseGet(() -> new DefaultProtocolAdaptor(businessQueueSize,threadSize)).proxy();
+                .orElseGet(() -> new DefaultProtocolAdaptor(businessQueueSize, threadSize)).proxy();
     }
 
     private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {
