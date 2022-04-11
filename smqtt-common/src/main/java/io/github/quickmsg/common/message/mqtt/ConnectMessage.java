@@ -24,15 +24,13 @@ public class ConnectMessage implements Message {
 
     private MqttVersion version;
 
-    private String username;
-
-    private byte[] password;
-
     private int keepalive;
 
     private boolean cleanSession;
 
     private long timestamp;
+
+    private MqttChannel.Auth auth;
 
 
     private MqttChannel.Will will;
@@ -49,28 +47,28 @@ public class ConnectMessage implements Message {
     }
 
 
-    public ConnectMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
-        this.context  = receiveContext;
+    public ConnectMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext) {
+        this.context = receiveContext;
         this.mqttChannel = mqttChannel;
         MqttConnectVariableHeader variableHeader = ((MqttConnectMessage) message).variableHeader();
         MqttConnectPayload mqttConnectPayload = ((MqttConnectMessage) message).payload();
-        this.clientId=mqttConnectPayload.clientIdentifier();
-        this.version=MqttVersion.fromProtocolNameAndLevel(variableHeader.name(), (byte) variableHeader.version());
-        this.username=mqttConnectPayload.userName();
-        this.password=mqttConnectPayload.passwordInBytes();
-        this.cleanSession=variableHeader.isCleanSession();
         if (variableHeader.isWillFlag()) {
-            this.will= MqttChannel.Will.builder()
-                            .willMessage(mqttConnectPayload.willMessageInBytes())
-                            .isRetain(variableHeader.isWillRetain())
-                            .willTopic(mqttConnectPayload.willTopic())
-                            .mqttQoS(MqttQoS.valueOf(variableHeader.willQos()))
-                            .build();
+            this.will = MqttChannel.Will.builder()
+                    .willMessage(mqttConnectPayload.willMessageInBytes())
+                    .isRetain(variableHeader.isWillRetain())
+                    .willTopic(mqttConnectPayload.willTopic())
+                    .mqttQoS(MqttQoS.valueOf(variableHeader.willQos()))
+                    .build();
         }
-        this.keepalive =variableHeader.keepAliveTimeSeconds();
-        this.clientId = mqttConnectPayload.clientIdentifier();
-        this.mqttChannel =mqttChannel;
+        if (variableHeader.hasUserName() && variableHeader.hasPassword()) {
+            this.auth = new MqttChannel.Auth();
+            this.auth.setUsername(mqttConnectPayload.userName());
+            this.auth.setPassword(mqttConnectPayload.passwordInBytes());
+        }
+        this.version = MqttVersion.fromProtocolNameAndLevel(variableHeader.name(), (byte) variableHeader.version());
+        this.cleanSession = variableHeader.isCleanSession();
+        this.keepalive = variableHeader.keepAliveTimeSeconds();
         this.timestamp = System.currentTimeMillis();
+        this.clientId = mqttConnectPayload.clientIdentifier();
     }
-
 }

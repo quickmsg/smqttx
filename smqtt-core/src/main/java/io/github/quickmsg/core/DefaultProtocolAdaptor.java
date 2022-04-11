@@ -22,7 +22,8 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
     public DefaultProtocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         this.acceptor = Sinks.many().multicast().onBackpressureBuffer(businessQueueSize);
         DynamicLoader.findAll(Protocol.class).forEach(protocol ->
-                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize)).ofType(protocol.getClassType()).subscribe(msg -> {
+                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize))
+                        .ofType(protocol.getClassType()).subscribe(msg -> {
             Message message = (Message) msg;
             Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
             ReceiveContext<?> receiveContext = message.getContext();

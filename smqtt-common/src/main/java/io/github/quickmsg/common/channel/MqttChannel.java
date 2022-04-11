@@ -9,6 +9,7 @@ import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -31,6 +32,8 @@ import java.util.function.Consumer;
 public class MqttChannel {
 
     private Integer id;
+
+    private String clientId;
 
     private Connection connection;
 
@@ -84,10 +87,18 @@ public class MqttChannel {
         return atomicInteger.incrementAndGet();
     }
 
-    public long generateRetryId(int messageId) {
-        return (long) id << 4 | messageId;
-    }
 
+
+    @Data
+    public static class Auth {
+
+        private String username;
+
+        private byte[] password;
+
+
+
+    }
 
     @Data
     @Builder
@@ -110,7 +121,6 @@ public class MqttChannel {
             return publishMessage;
         }
 
-
     }
 
     public void sendPublish(MqttQoS mqttQoS, PublishMessage message) {
@@ -123,7 +133,7 @@ public class MqttChannel {
             default:
                 int messageId = this.generateMessageId();
                 RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), this, ContextHolder.getReceiveContext());
-                ContextHolder.getReceiveContext().getAckManager().doRetry(messageId, retryMessage);
+                ContextHolder.getReceiveContext().getRetryManager().doRetry(this, retryMessage);
                 this.write(message.buildMqttMessage(mqttQoS, messageId)).subscribe();
                 break;
         }

@@ -1,8 +1,9 @@
 package io.github.quickmsg.common.ack;
 
-import io.github.quickmsg.common.context.ContextHolder;
+import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
 
 import java.util.Map;
 import java.util.Optional;
@@ -12,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author luxurong
  */
-public class TimeAckManager extends HashedWheelTimer implements AckManager {
+public class TimeAckManager extends HashedWheelTimer implements RetryManager {
 
     private final  int retrySize;
 
     private final  int retryPeriod;
 
-    private final Map<Integer,Map<Long, Ack>> ackMap = new ConcurrentHashMap<>();
+    private final Map<MqttChannel,Map<Integer, RetryTask>> retryMap = new ConcurrentHashMap<>();
 
     public TimeAckManager(long tickDuration, TimeUnit unit, int ticksPerWheel, int retrySize, int retryPeriod) {
         super( tickDuration, unit, ticksPerWheel);
@@ -26,32 +27,25 @@ public class TimeAckManager extends HashedWheelTimer implements AckManager {
         this.retryPeriod = retryPeriod;
     }
 
+
     @Override
-    public void addAck(Ack ack) {
-        Map<Long, Ack> ackCache = ackMap.computeIfAbsent(ack.getChannelId(),id->new ConcurrentHashMap<>());
-        ackCache.put(ack.getId(),ack);
-        this.newTimeout(ack,ack.getTimed(),ack.getTimeUnit());
+    public void doRetry(MqttChannel mqttChannel, RetryMessage retrymessage) {
+        RetryTask retryTask = new RetryTask(retrymessage,retrySize,retryPeriod);
+        retryTask.setTimeout(this.newTimeout(retryTask,retryPeriod,TimeUnit.SECONDS));
+        Map<Integer, RetryTask> retryTaskMap =retryMap.computeIfAbsent(mqttChannel,channel->new ConcurrentHashMap<>());
+        retryTaskMap.put(retrymessage.getMessageId(),retryTask);
     }
 
     @Override
-    public Ack getAck(int channelId,Long id) {
-        return  Optional.ofNullable(ackMap.get(channelId))
-               .map(cache->cache.get(id))
-               .orElse(null);
+    public void cancelRetry(MqttChannel mqttChannel, int messageId) {
+        Optional.ofNullable(retryMap.get(mqttChannel))
+                .flatMap(retryMap -> Optional.ofNullable(retryMap.remove(messageId)))
+                .ifPresent(RetryTask::cancel);
     }
 
     @Override
-    public void deleteAck(int channelId,Long id) {
-        Optional.ofNullable(ackMap.get(channelId))
-                        .ifPresent(longAckMap -> longAckMap.remove(id));
+    public void clearRetry(MqttChannel mqttChannel) {
+        Optional.ofNullable(retryMap.remove(mqttChannel))
+                .ifPresent(retryMap-> retryMap.values().forEach(RetryTask::cancel));
     }
-
-    @Override
-    public void doRetry(long id,  RetryMessage retrymessage) {
-        RetryAck retryAck = new RetryAck(retrymessage.getMqttChannel().getId(),id, retrySize, retryPeriod,() -> {
-            ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(retrymessage);
-        }, this);
-        retryAck.start();
-    }
-
 }

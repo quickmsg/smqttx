@@ -1,6 +1,5 @@
 package io.github.quickmsg.core.protocol;
 
-import io.github.quickmsg.common.ack.AckManager;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.channel.MqttChannel;

@@ -1,6 +1,6 @@
 package io.github.quickmsg.common.context;
 
-import io.github.quickmsg.common.ack.AckManager;
+import io.github.quickmsg.common.ack.RetryManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;
@@ -10,7 +10,6 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
-import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 
@@ -74,11 +73,11 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
     Integrate getIntegrate();
 
     /**
-     * get ack
+     * get retry
      *
-     * @return {@link AckManager }
+     * @return {@link RetryManager }
      */
-    AckManager getAckManager();
+    RetryManager getRetryManager();
 
 
     /**

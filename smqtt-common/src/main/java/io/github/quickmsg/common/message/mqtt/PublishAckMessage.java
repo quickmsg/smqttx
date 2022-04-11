@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 public class PublishAckMessage implements Message {
 
-    private long messageId;
+    private int messageId;
 
     private long timestamp;
 

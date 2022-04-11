@@ -3,17 +3,12 @@ package io.github.quickmsg.common.enums;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
-import io.github.quickmsg.common.message.mqtt.ConnectMessage;
-import io.github.quickmsg.common.message.mqtt.PublishMessage;
-import io.github.quickmsg.common.utils.MqttMessageUtils;
-import io.github.quickmsg.common.message.SmqttMessage;
 import io.github.quickmsg.common.message.system.ChannelStatusMessage;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.handler.codec.mqtt.MqttMessage;
-import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.netty.handler.codec.mqtt.MqttQoS;
+
+import java.util.Optional;
 
 /**
  * @author luxurong
@@ -38,7 +33,9 @@ public enum ChannelEvent {
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
                             mqttChannel.getConnectMessage().getClientId(),
                             System.currentTimeMillis(),
-                            mqttChannel.getConnectMessage().getUsername(),
+                            Optional.ofNullable(mqttChannel.getConnectMessage().getAuth())
+                                    .map(MqttChannel.Auth::getUsername)
+                                    .orElse(null),
                             ChannelStatus.ONLINE)).getBytes());
         }
 
@@ -60,7 +57,9 @@ public enum ChannelEvent {
                     .directBuffer().writeBytes(JacksonUtil.bean2Json(new ChannelStatusMessage(
                             mqttChannel.getConnectMessage().getClientId(),
                             System.currentTimeMillis(),
-                            mqttChannel.getConnectMessage().getUsername(),
+                            Optional.ofNullable(mqttChannel.getConnectMessage().getAuth())
+                                    .map(MqttChannel.Auth::getUsername)
+                                    .orElse(null),
                             ChannelStatus.OFFLINE)).getBytes());
         }
     };
@@ -69,17 +68,17 @@ public enum ChannelEvent {
      * write event
      *
      * @param mqttChannel    {@link MqttChannel }
-     * @param message           {@link Message }
+     * @param message        {@link Message }
      * @param receiveContext {@link ReceiveContext }
      */
-    public  abstract void sender(MqttChannel mqttChannel, Message message, ReceiveContext<?> receiveContext);
+    public abstract void sender(MqttChannel mqttChannel, Message message, ReceiveContext<?> receiveContext);
 
 
     /**
      * body
      *
-     * @param mqttChannel    {@link MqttChannel }
-     * @param message           {@link Message }
+     * @param mqttChannel {@link MqttChannel }
+     * @param message     {@link Message }
      * @return ByteBuf
      */
     public abstract ByteBuf writeBody(MqttChannel mqttChannel, Message message);

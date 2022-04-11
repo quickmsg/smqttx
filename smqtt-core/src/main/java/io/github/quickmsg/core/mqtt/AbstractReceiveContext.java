@@ -1,6 +1,6 @@
 package io.github.quickmsg.core.mqtt;
 
-import io.github.quickmsg.common.ack.AckManager;
+import io.github.quickmsg.common.ack.RetryManager;
 import io.github.quickmsg.common.ack.TimeAckManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.config.AbstractConfiguration;
@@ -72,7 +72,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final Integrate integrate;
 
-    private final AckManager ackManager;
+    private final RetryManager ackManager;
 
     private final AclManager aclManager;
 
