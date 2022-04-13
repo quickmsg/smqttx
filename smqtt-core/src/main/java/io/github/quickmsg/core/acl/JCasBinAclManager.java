@@ -3,6 +3,7 @@ package io.github.quickmsg.core.acl;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.acl.AclPolicy;
+import io.github.quickmsg.common.acl.filter.AclFunction;
 import io.github.quickmsg.common.config.AclConfig;
 import io.github.quickmsg.common.acl.model.PolicyModel;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,11 @@ public class JCasBinAclManager implements AclManager {
                 }
             } else if (aclConfig.getAclPolicy() == AclPolicy.FILE) {
                 enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
+            }
+            else {
+                enforcer = new Enforcer();
+                enforcer.addFunction("filter",new AclFunction());
+
             }
         }
     }

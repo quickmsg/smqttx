@@ -3,6 +3,7 @@ package io.github.quickmsg.core.mqtt;
 import io.github.quickmsg.common.ack.RetryManager;
 import io.github.quickmsg.common.ack.TimeAckManager;
 import io.github.quickmsg.common.acl.AclManager;
+import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.AbstractConfiguration;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.config.ConfigCheck;
@@ -75,6 +76,10 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     private final RetryManager retryManager;
 
     private final AclManager aclManager;
+
+    //todo impl
+    private final AuthManager authManager = null;
+
 
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {

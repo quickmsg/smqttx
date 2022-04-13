@@ -138,7 +138,7 @@ public class IgniteIntegrate implements Integrate {
     }
 
     @Override
-    public IgniteAtomicLong getGrableCounter(String name) {
+    public IgniteAtomicLong getGlobalCounter(String name) {
         return ignite.atomicLong(name, 0, true);
     }
 

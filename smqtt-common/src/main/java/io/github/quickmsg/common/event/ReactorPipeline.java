@@ -4,6 +4,7 @@ import io.github.quickmsg.common.utils.RetryFailureHandler;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author luxurong
@@ -12,7 +13,7 @@ import reactor.core.publisher.Sinks;
 public class ReactorPipeline implements Pipeline {
 
 
-    private final Sinks.Many<Event> onBackpressureBuffer = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<Event> onBackpressureBuffer = Sinks.many().multicast().directAllOrNothing();
 
     @Override
     public void accept(Event event) {
@@ -27,7 +28,8 @@ public class ReactorPipeline implements Pipeline {
     public <T extends Event> Flux<T> handle(Class<T> tClass) {
         return onBackpressureBuffer
                 .asFlux()
-                .ofType(tClass);
+                .ofType(tClass)
+                .publishOn(Schedulers.parallel());
     }
 
 }
