@@ -57,5 +57,7 @@ public class AuthConfig {
 
         private String password;
 
+        private String authSql;
+
     }
 }

@@ -109,6 +109,13 @@ public class BootstrapConfig {
         @JsonProperty("acl")
         private AclConfig aclConfig;
 
+        /**
+         * acl
+         */
+        @JsonProperty("auth")
+        private AuthConfig authConfig;
+
+
     }
 
     @Data
@@ -437,6 +444,7 @@ public class BootstrapConfig {
         private MeterType meterType;
 
         private Influxdb influxdb;
+
     }
 
     /**

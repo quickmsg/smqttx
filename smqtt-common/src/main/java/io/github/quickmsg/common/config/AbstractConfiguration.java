@@ -45,6 +45,13 @@ public interface AbstractConfiguration extends Configuration {
      */
     AclConfig getAclConfig();
 
+    /**
+     * 获取auth配置
+     *
+     * @return {@link AuthConfig}
+     */
+    AuthConfig getAuthConfig();
+
 
 
     /**
@@ -53,6 +60,9 @@ public interface AbstractConfiguration extends Configuration {
      * @return {@link Map}
      */
     Map<Object, Object> getEnvironmentMap();
+
+
+
 
 
 

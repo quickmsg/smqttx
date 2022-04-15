@@ -4,6 +4,7 @@ import io.github.quickmsg.common.auth.AuthBean;
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.AuthConfig;
 import io.github.quickmsg.common.utils.CsvReader;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +33,10 @@ public class FileAuthManager implements AuthManager {
     }
 
     @Override
-    public boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
-        return Optional.ofNullable(authBeanMap.get(clientIdentifier))
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+        return Mono.just(Optional.ofNullable(authBeanMap.get(clientIdentifier))
                 .map(authBean -> authBean.getUsername().equals(userName) && authBean.getPassword().equals(new String(passwordInBytes)))
-                .orElse(false);
+                .orElse(false));
     }
 
 

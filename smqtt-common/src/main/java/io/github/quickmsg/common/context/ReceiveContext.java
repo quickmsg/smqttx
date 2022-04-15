@@ -1,6 +1,6 @@
 package io.github.quickmsg.common.context;
 
-import io.github.quickmsg.common.ack.RetryManager;
+import io.github.quickmsg.common.retry.RetryManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.event.Event;

@@ -1,4 +1,4 @@
-package io.github.quickmsg.common.ack;
+package io.github.quickmsg.common.retry;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;

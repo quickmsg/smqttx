@@ -2,6 +2,7 @@ package io.github.quickmsg.core.auth;
 
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.AuthConfig;
+import reactor.core.publisher.Mono;
 
 /**
  * @author luxurong
@@ -15,8 +16,8 @@ public class FixedAuthManager implements AuthManager {
     }
 
     @Override
-    public boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
-        return authConfig.getFixed().getUsername().equals(userName)
-                && authConfig.getFixed().getPassword().equals(new String(passwordInBytes));
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+        return Mono.just(authConfig.getFixed().getUsername().equals(userName)
+                && authConfig.getFixed().getPassword().equals(new String(passwordInBytes)));
     }
 }

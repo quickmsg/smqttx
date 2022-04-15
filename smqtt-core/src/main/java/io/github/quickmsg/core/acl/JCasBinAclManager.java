@@ -4,8 +4,8 @@ import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.acl.AclPolicy;
 import io.github.quickmsg.common.acl.filter.AclFunction;
-import io.github.quickmsg.common.config.AclConfig;
 import io.github.quickmsg.common.acl.model.PolicyModel;
+import io.github.quickmsg.common.config.AclConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
@@ -31,22 +31,22 @@ public class JCasBinAclManager implements AclManager {
             model.addDef("r", "r", "sub, obj, act");
             model.addDef("p", "p", "sub, obj, act");
             model.addDef("e", "e", "some(where (p.eft == allow))");
-            model.addDef("m", "m", "r.sub == p.sub && r.obj == p.obj && r.act == p.act");
+            model.addDef("m", "m", "filter(r.sub,p.sub) && r.obj == p.obj && r.act == p.act");
             if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
                 AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
                 Objects.requireNonNull(jdbcAclConfig);
                 try {
-                    enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(), jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
+                    enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
+                            jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
+                    enforcer.addFunction("filter", new AclFunction());
                 } catch (Exception e) {
                     log.error("init acl jdbc error {}", aclConfig, e);
                 }
             } else if (aclConfig.getAclPolicy() == AclPolicy.FILE) {
                 enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
-            }
-            else {
+            } else {
                 enforcer = new Enforcer();
-                enforcer.addFunction("filter",new AclFunction());
-
+                enforcer.addFunction("filter", new AclFunction());
             }
         }
     }

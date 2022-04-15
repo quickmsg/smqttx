@@ -1,13 +1,10 @@
 package io.github.quickmsg.core.mqtt;
 
-import io.github.quickmsg.common.ack.RetryManager;
-import io.github.quickmsg.common.ack.TimeAckManager;
+import io.github.quickmsg.common.retry.RetryManager;
+import io.github.quickmsg.common.retry.TimeAckManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.auth.AuthManager;
-import io.github.quickmsg.common.config.AbstractConfiguration;
-import io.github.quickmsg.common.config.BootstrapConfig;
-import io.github.quickmsg.common.config.ConfigCheck;
-import io.github.quickmsg.common.config.Configuration;
+import io.github.quickmsg.common.config.*;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
@@ -25,6 +22,7 @@ import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
 import io.github.quickmsg.core.acl.JCasBinAclManager;
+import io.github.quickmsg.core.auth.AuthManagerFactory;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.metric.InfluxDbMetricFactory;
@@ -77,8 +75,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final AclManager aclManager;
 
-    //todo impl
-    private final AuthManager authManager = null;
+    private final AuthManager authManager;
 
 
 
@@ -98,6 +95,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
         this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
+        this.authManager = authManagerFactory().provider(abstractConfiguration.getAuthConfig()).getAuthManager();
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
     }
@@ -119,6 +117,14 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         }
     }
 
+    public AuthManagerProvider authManagerFactory(){
+        return AuthManagerFactory::new;
+    }
+
+    public interface AuthManagerProvider {
+        AuthManagerFactory provider(AuthConfig authConfig);
+
+    }
 
     private EventRegistry eventRegistry() {
         return ChannelEvent::sender;
