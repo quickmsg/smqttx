@@ -1,4 +1,4 @@
-package io.github.quickmsg.source.db.config;
+package io.github.quickmsg.core.db;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
