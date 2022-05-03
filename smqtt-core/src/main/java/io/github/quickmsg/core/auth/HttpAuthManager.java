@@ -10,6 +10,7 @@ import reactor.netty.ByteBufFlux;
 import reactor.netty.http.client.HttpClient;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,9 +34,8 @@ public class HttpAuthManager implements AuthManager {
                             .ifPresent(addHeaders -> addHeaders.forEach(headers::add));
                 });
     }
-
     @Override
-    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
         AuthConfig.HttpAuthConfig httpAuthConfig = authConfig.getHttp();
         Map<String, String> params = new HashMap<>();
         params.put("clientIdentifier", clientIdentifier);
@@ -45,7 +45,8 @@ public class HttpAuthManager implements AuthManager {
         return client.post().uri(httpAuthConfig.getPath())
                 .send(ByteBufFlux.fromString(Mono.just(JacksonUtil.map2Json(params))))
                 .response()
-                .map(response -> HttpResponseStatus.OK == response.status());
+                .map(response -> HttpResponseStatus.OK == response.status())
+                .block(Duration.ofSeconds(3));
     }
 
 }

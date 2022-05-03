@@ -34,7 +34,7 @@ public class SqlAuthManager implements AuthManager {
                 .init(properties);
     }
 
-    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -47,7 +47,7 @@ public class SqlAuthManager implements AuthManager {
 
             rs = ps.executeQuery();
             if (rs.next()) {
-                return Mono.just(true);
+                return true;
             }
         } catch (SQLException e) {
             log.error("auth error clientIdentifier={}", clientIdentifier, e);
@@ -67,6 +67,6 @@ public class SqlAuthManager implements AuthManager {
             }
         }
 
-        return Mono.just(false);
+        return false;
     }
 }

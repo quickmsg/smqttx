@@ -11,6 +11,13 @@
     <name>smqtt-core</name>
     <artifactId>smqtt-core</artifactId>
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-db -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-db</artifactId>
+            <version>5.7.22</version>
+        </dependency>
+
         <dependency>
             <groupId>io.github.quickmsg</groupId>
             <artifactId>smqtt-integrate</artifactId>

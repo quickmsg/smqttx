@@ -1,7 +1,6 @@
 package io.github.quickmsg.core.protocol;
 
-import io.github.quickmsg.common.acl.AclAction;
-import io.github.quickmsg.common.acl.AclManager;
+import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.enums.ChannelEvent;
@@ -53,7 +52,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             Integrate integrate = mqttReceiveContext.getIntegrate();
             IntegrateChannels channels = integrate.getChannels();
             IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
-            AclManager aclManager = mqttReceiveContext.getAclManager();
+            AuthManager aclManager = mqttReceiveContext.getAuthManager();
             /*check clientIdentifier exist*/
             if (channels.exists(clientIdentifier)) {
                 return mqttChannel.write(
@@ -66,7 +65,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
                         MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION)).then(mqttChannel.close()).thenReturn(event);
             }
             /*password check*/
-            if (aclManager.auth(clientIdentifier, clientIdentifier, AclAction.CONNECT)) {
+            if (aclManager.auth(connectMessage.getAuth().getUsername(), connectMessage.getAuth().getPassword(), clientIdentifier)) {
                 /*cancel  defer close not authenticate channel */
                 mqttChannel.setConnectMessage(connectMessage);
                 mqttChannel.setStatus(ChannelStatus.ONLINE);
@@ -110,8 +109,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             }
         } catch (Exception e) {
             log.error("connect error ", e);
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
         return Mono.just(event);

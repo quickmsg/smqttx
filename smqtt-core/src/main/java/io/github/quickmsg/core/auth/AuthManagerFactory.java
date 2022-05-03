@@ -23,7 +23,7 @@ public class AuthManagerFactory {
         } else if (authConfig.getFile() != null) {
             return new FileAuthManager(authConfig);
         } else if (authConfig.getFixed() != null) {
-            return new FileAuthManager(authConfig);
+            return new FixedAuthManager(authConfig);
         } else if (authConfig.getSql() != null) {
             return new SqlAuthManager(authConfig);
         } else {

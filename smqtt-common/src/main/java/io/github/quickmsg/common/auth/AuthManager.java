@@ -15,6 +15,6 @@ public interface AuthManager {
      * @param clientIdentifier 设备标志
      * @return 布尔
      */
-    Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier);
+    Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier);
 
 }
