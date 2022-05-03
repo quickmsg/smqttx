@@ -17,6 +17,7 @@ import io.github.quickmsg.common.topic.TreeTopicFilter;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteAtomicLong;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.CacheRebalanceMode;
 import org.apache.ignite.cluster.ClusterState;
@@ -99,7 +100,7 @@ public class IgniteIntegrate implements Integrate {
                         .setName(igniteCacheRegion.getCacheName())
                         .setCacheMode(cacheMode)
                         .setDataRegionName(igniteCacheRegion.getRegionName())
-                        .setAtomicityMode(CacheConfiguration.DFLT_CACHE_ATOMICITY_MODE)
+                        .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
                         .setCacheMode(CacheMode.PARTITIONED)
                         .setBackups(1)
                         .setRebalanceMode(CacheRebalanceMode.ASYNC);

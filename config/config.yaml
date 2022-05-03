@@ -26,6 +26,10 @@ smqtt:
       url: jdbc:mysql://localhost:3306/smqtt
       username: root
       password: 123
+  auth:
+    fixed:
+      username: smqtt
+      password: smqtt
   http: # http相关配置 端口固定60000
     enable: true # 开关
     accessLog: true # http访问日志

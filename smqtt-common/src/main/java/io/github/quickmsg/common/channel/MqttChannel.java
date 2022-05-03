@@ -9,7 +9,6 @@ import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -18,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -69,9 +69,9 @@ public class MqttChannel {
 
     public Mono<Void> close() {
         return Mono.fromRunnable(() -> {
-            if (this.connectMessage.isCleanSession()) {
-                this.topics.clear();
-            }
+            Optional.ofNullable(this.connectMessage)
+                    .filter(ConnectMessage::isCleanSession)
+                    .ifPresent(msg -> this.topics.clear());
             if (!this.connection.isDisposed()) {
                 this.connection.dispose();
             }
@@ -88,14 +88,12 @@ public class MqttChannel {
     }
 
 
-
     @Data
     public static class Auth {
 
         private String username;
 
         private byte[] password;
-
 
 
     }
@@ -112,8 +110,8 @@ public class MqttChannel {
 
         private byte[] willMessage;
 
-        public  PublishMessage toPublishMessage() {
-            PublishMessage publishMessage =new PublishMessage();
+        public PublishMessage toPublishMessage() {
+            PublishMessage publishMessage = new PublishMessage();
             publishMessage.setBody(this.willMessage);
             publishMessage.setTopic(this.willTopic);
             publishMessage.setRetain(this.isRetain);
@@ -138,7 +136,6 @@ public class MqttChannel {
                 break;
         }
     }
-
 
 
     /**

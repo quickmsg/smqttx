@@ -8,6 +8,7 @@ import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.event.NoneEvent;
 import io.github.quickmsg.common.event.acceptor.ConnectEvent;
+import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
@@ -43,7 +44,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     public Mono<Event> parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
         Event event = NoneEvent.INSTANCE;
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
-        IntegrateCache<String, String> cache = mqttReceiveContext.getIntegrate().getCache("LOCK");
+        IntegrateCache<String, String> cache = mqttReceiveContext.getIntegrate().getCache(IgniteCacheRegion.LOCK);
         Lock lock = cache.lock(connectMessage.getClientId());
         try {
             lock.lock();

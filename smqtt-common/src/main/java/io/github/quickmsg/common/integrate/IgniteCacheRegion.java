@@ -63,6 +63,17 @@ public enum IgniteCacheRegion {
             return false;
         }
     },
+    LOCK("lock", "lock_region") {
+        @Override
+        public boolean persistence() {
+            return false;
+        }
+
+        @Override
+        public boolean local() {
+            return false;
+        }
+    },
     ;
 
 

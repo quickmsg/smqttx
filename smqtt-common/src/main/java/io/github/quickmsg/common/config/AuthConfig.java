@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.config;
 
-import io.netty.handler.codec.http.HttpMethod;
 import lombok.Data;
 
 import java.util.Map;

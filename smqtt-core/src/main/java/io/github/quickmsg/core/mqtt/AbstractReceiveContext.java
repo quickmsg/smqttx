@@ -180,7 +180,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         for (int i = 0; i < values.length; i++) {
             regionConfigurations[i] = new DataRegionConfiguration()
                     .setName(values[i].getRegionName())
-                    .setPersistenceEnabled(values[i].persistence());
+                                    .setPersistenceEnabled(values[i].persistence());
         }
         return regionConfigurations;
     }
