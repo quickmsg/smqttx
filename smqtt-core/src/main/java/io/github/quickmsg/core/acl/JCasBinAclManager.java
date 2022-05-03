@@ -38,7 +38,6 @@ public class JCasBinAclManager implements AclManager {
                 try {
                     enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
                             jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
-                    enforcer.addFunction("filter", new AclFunction());
                 } catch (Exception e) {
                     log.error("init acl jdbc error {}", aclConfig, e);
                 }
@@ -46,8 +45,8 @@ public class JCasBinAclManager implements AclManager {
                 enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
             } else {
                 enforcer = new Enforcer();
-                enforcer.addFunction("filter", new AclFunction());
             }
+            enforcer.addFunction("filter", new AclFunction());
         }
     }
 
