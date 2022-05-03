@@ -6,7 +6,9 @@ import io.github.quickmsg.core.mqtt.MqttConfiguration;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import reactor.netty.tcp.SslProvider;
 import reactor.netty.tcp.TcpServer;
 
@@ -22,19 +24,17 @@ public class AbstractSslHandler {
     public void secure(SslProvider.SslContextSpec sslContextSpec, Configuration configuration) {
         try {
             if (configuration.getSsl()) {
-                File cert;
-                File key;
                 SslContext sslContext = configuration.getSslContext();
+                SslContextBuilder sslContextBuilder ;
                 if (sslContext != null) {
-                    cert = new File(sslContext.getCrt());
-                    key = new File(sslContext.getKey());
-
+                    sslContextBuilder = SslContextBuilder.forServer(new File(sslContext.getCrt()), new File(sslContext.getKey()));
+                    if(StringUtils.isNotEmpty(sslContext.getCa())){
+                        sslContextBuilder= sslContextBuilder.trustManager(new File(sslContext.getCa()));
+                    }
                 } else {
                     SelfSignedCertificate ssc = new SelfSignedCertificate();
-                    cert = ssc.certificate();
-                    key = ssc.privateKey();
+                    sslContextBuilder = SslContextBuilder.forServer(ssc.certificate(),ssc.privateKey());
                 }
-                SslContextBuilder sslContextBuilder = SslContextBuilder.forServer(cert, key);
                 sslContextSpec.sslContext(sslContextBuilder);
             }
 

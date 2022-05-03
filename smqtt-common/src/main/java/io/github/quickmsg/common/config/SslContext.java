@@ -14,6 +14,8 @@ public class SslContext {
 
     private String key;
 
+    private String ca;
+
     private Boolean enable;
 
 
