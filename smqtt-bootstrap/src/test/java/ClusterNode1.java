@@ -38,11 +38,7 @@ public class ClusterNode1 {
                         BootstrapConfig.
                                 ClusterConfig
                                 .builder()
-                                .enable(false)
-                                .namespace("smqtt")
-                                .node("node-1")
-                                .port(7773)
-                                .url("127.0.0.1:7771,127.0.0.1:7772").
+                                .enable(false).
                                 build())
                 .build()
                 .start().block();

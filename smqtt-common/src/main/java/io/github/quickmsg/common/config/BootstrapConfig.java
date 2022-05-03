@@ -247,26 +247,25 @@ public class BootstrapConfig {
          */
         private boolean enable;
         /**
-         * 集群url
+         * 集群ip集合
          */
-        private String url;
-        /**
-         * 集群启动本地端口
-         */
-        private Integer port;
-        /**
-         * 集群名称 需要唯一
-         */
-        private String node;
+        private List<String> addresses;
 
         /**
-         * 集群空间 需要一致才能通信
+         * 组播ip
          */
-        private String namespace;
+        private String multicastGroup;
+
+
         /**
-         * 集群额外配置（主要用于容器映射）
+         * 组播端口
          */
-        private ClusterExternal external;
+        private Integer multicastPort;
+
+        /**
+         * 集群持久化文件
+         */
+        private String workDirectory;
     }
 
     @Data

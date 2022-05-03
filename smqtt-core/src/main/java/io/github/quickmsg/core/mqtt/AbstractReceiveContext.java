@@ -1,7 +1,5 @@
 package io.github.quickmsg.core.mqtt;
 
-import io.github.quickmsg.common.retry.RetryManager;
-import io.github.quickmsg.common.retry.TimeAckManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.*;
@@ -17,6 +15,8 @@ import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
+import io.github.quickmsg.common.retry.RetryManager;
+import io.github.quickmsg.common.retry.TimeAckManager;
 import io.github.quickmsg.common.rule.RuleDslAcceptor;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
@@ -33,15 +33,17 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
+import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import reactor.netty.resources.LoopResources;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -78,7 +80,6 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     private final AuthManager authManager;
 
 
-
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
         this.configuration = configuration;
@@ -87,7 +88,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(), abstractConfiguration.getBusinessThreadSize());
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
-        this.integrate = integrateBuilder().newIntegrate(initConfig());
+        this.integrate = integrateBuilder().newIntegrate(initConfig(abstractConfiguration.getClusterConfig()));
         RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
         this.ruleDslAcceptor = new RuleDslAcceptor(integrate.getPipeline(), ruleDslParser.executor());
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
@@ -117,7 +118,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         }
     }
 
-    public AuthManagerProvider authManagerFactory(){
+    public AuthManagerProvider authManagerFactory() {
         return AuthManagerFactory::new;
     }
 
@@ -158,21 +159,40 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         return configuration -> new IgniteIntegrate(configuration, protocolAdaptor);
     }
 
-    private IgniteConfiguration initConfig() {
+    private IgniteConfiguration initConfig(BootstrapConfig.ClusterConfig clusterConfig) {
         DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
         dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
         igniteConfiguration.setGridLogger(new Slf4jLogger());
-//        igniteConfiguration.setWorkDirectory("c://ignite");
-//        igniteConfiguration.setLocalHost("127.0.0.1");
+        if(StringUtils.isNotEmpty(configuration.getClusterConfig().getWorkDirectory())){
+            igniteConfiguration.setWorkDirectory(configuration.getClusterConfig().getWorkDirectory());
+        }
         igniteConfiguration.setClientMode(false);
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
-        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        ipFinder.setAddresses(Arrays.asList("127.0.0.1"));
-        spi.setIpFinder(ipFinder);
+        if(clusterConfig.isEnable()){
+            TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+            if(StringUtils.isNotEmpty(configuration.getClusterConfig().getMulticastGroup())){
+                ipFinder.setMulticastGroup(configuration.getClusterConfig().getMulticastGroup());
+            }
+            if(configuration.getClusterConfig().getMulticastPort()!=null){
+                ipFinder.setMulticastPort(configuration.getClusterConfig().getMulticastPort());
+            }
+            ipFinder.setAddresses(configuration.getClusterConfig().getAddresses());
+            spi.setIpFinder(ipFinder);
+        }
+        else {
+            TcpDiscoveryVmIpFinder discoveryVmIpFinder = new TcpDiscoveryVmIpFinder();
+            ArrayList<String> addresses=new ArrayList<>();
+            addresses.add("127.0.0.1");
+            discoveryVmIpFinder.setAddresses(addresses);
+            discoveryVmIpFinder.setShared(false);
+            spi.setIpFinder(discoveryVmIpFinder);
+        }
         igniteConfiguration.setDiscoverySpi(spi);
         return igniteConfiguration;
+
+
     }
 
     private DataRegionConfiguration[] getDataRegionConfigurations(IgniteCacheRegion[] values) {
@@ -180,7 +200,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         for (int i = 0; i < values.length; i++) {
             regionConfigurations[i] = new DataRegionConfiguration()
                     .setName(values[i].getRegionName())
-                                    .setPersistenceEnabled(values[i].persistence());
+                    .setPersistenceEnabled(values[i].persistence());
         }
         return regionConfigurations;
     }
