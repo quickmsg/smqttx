@@ -33,7 +33,7 @@ public class AclDeletePolicyActor extends AbstractHttpActor {
                 .asString(StandardCharsets.UTF_8)
                 .map(this.toJson(PolicyModel.class))
                 .doOnNext(policyModel ->
-                        ContextHolder.getReceiveContext().getAclManager().delete(policyModel.getSubject(), policyModel.getSource(), policyModel.getAction())
+                        ContextHolder.getReceiveContext().getAclManager().delete(policyModel.getSubject(), policyModel.getSource(), policyModel.getAction(),policyModel.getAclType())
                 ).then(response.sendString(Mono.just("success")).then());
     }
 }
