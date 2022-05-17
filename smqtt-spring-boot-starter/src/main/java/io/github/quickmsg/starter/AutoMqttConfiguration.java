@@ -32,8 +32,6 @@ public class AutoMqttConfiguration {
                 .httpConfig(springBootstrapConfig.getHttp())
                 .websocketConfig(springBootstrapConfig.getWs())
                 .clusterConfig(springBootstrapConfig.getCluster())
-                .redisConfig(springBootstrapConfig.getRedis())
-                .databaseConfig(springBootstrapConfig.getDb())
                 .ruleChainDefinitions(springBootstrapConfig.getRules())
                 .sourceDefinitions(springBootstrapConfig.getSources())
                 .meterConfig(springBootstrapConfig.getMeter())

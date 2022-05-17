@@ -35,7 +35,8 @@ public class AclAddPolicyActor extends AbstractHttpActor {
                 .map(this.toJson(PolicyModel.class))
                 .doOnNext(policyModel -> {
                             if (policyModel.getAction() == AclAction.ALL) {
-                                ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), AclAction.SUBSCRIBE,policyModel.getAclType());
+                                ContextHolder.getReceiveContext().getAclManager().add
+                                        (policyModel.getSubject(), policyModel.getSource(), AclAction.SUBSCRIBE,policyModel.getAclType());
                                 ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), AclAction.PUBLISH,policyModel.getAclType());
                             } else {
                                 ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), policyModel.getAction(),policyModel.getAclType());

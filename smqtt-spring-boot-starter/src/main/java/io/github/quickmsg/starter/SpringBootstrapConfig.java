@@ -63,15 +63,6 @@ public class SpringBootstrapConfig {
      */
     private BootstrapConfig.MeterConfig meter;
 
-
-    /**
-     * 数据库配置
-     */
-    private BootstrapConfig.DatabaseConfig db;
-    /**
-     * redis配置
-     */
-    private BootstrapConfig.RedisConfig redis;
     /**
      * 规则定义
      */

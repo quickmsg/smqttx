@@ -54,17 +54,6 @@ public interface AbstractConfiguration extends Configuration {
 
 
 
-    /**
-     * 获取环境参数
-     *
-     * @return {@link Map}
-     */
-    Map<Object, Object> getEnvironmentMap();
-
-
-
-
-
 
 
 

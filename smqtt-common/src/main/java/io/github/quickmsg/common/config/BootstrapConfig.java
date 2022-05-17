@@ -74,17 +74,6 @@ public class BootstrapConfig {
         @JsonProperty("cluster")
         private ClusterConfig clusterConfig;
 
-
-        /**
-         * 数据库配置
-         */
-        @JsonProperty("db")
-        private DatabaseConfig databaseConfig;
-        /**
-         * redis配置
-         */
-        @JsonProperty("redis")
-        private RedisConfig redisConfig;
         /**
          * 规则定义
          */
@@ -268,87 +257,6 @@ public class BootstrapConfig {
         private String workDirectory;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class DatabaseConfig {
-        /**
-         * 数据库连接
-         */
-        private String jdbcUrl;
-        /**
-         * 用户名
-         */
-        private String username;
-        /**
-         * 密码
-         */
-        private String password;
-
-        private Boolean dataSourceCachePrepStmts;
-        private Integer dataSourcePrepStmtCacheSize;
-        private Integer dataSourcePrepStmtCacheSqlLimit;
-        private Boolean dataSourceUseServerPrepStmts;
-        private Boolean dataSourceUseLocalSessionState;
-        private Boolean dataSourceRewriteBatchedStatements;
-        private Boolean dataSourceCacheResultSetMetadata;
-        private Boolean dataSourceCacheServerConfiguration;
-        private Boolean dataSourceElideSetAutoCommits;
-        private Boolean dataSourceMaintainTimeStats;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RedisConfig {
-
-        /**
-         * 单机模式：single 哨兵模式：sentinel 集群模式：cluster
-         */
-        private String mode;
-        /**
-         * 数据库
-         */
-        private Integer database;
-        /**
-         * 密码
-         */
-        private String password;
-        /**
-         * 超时时间
-         */
-        private Integer timeout;
-        /**
-         * 最小空闲数
-         */
-        private Integer poolMinIdle;
-        /**
-         * 连接超时时间(毫秒)
-         */
-        private Integer poolConnTimeout;
-        /**
-         * 连接池大小
-         */
-        private Integer poolSize;
-
-        /**
-         * redis单机配置
-         */
-        private RedisSingle single;
-
-        /**
-         * redis集群模式配置
-         */
-        private RedisCluster cluster;
-
-        /**
-         * redis哨兵模式配置
-         */
-        private RedisSentinel sentinel;
-
-    }
 
 
     @Data
@@ -384,50 +292,6 @@ public class BootstrapConfig {
          * 本地曝光port
          */
         private Integer port;
-    }
-
-
-    /**
-     * redis单机配置
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RedisSingle {
-        /**
-         * 地址
-         */
-        private String address;
-    }
-
-    /**
-     * redis集群模式配置
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RedisCluster {
-        private Integer scanInterval;
-        private String nodes;
-        private String readMode;
-        private Integer retryAttempts;
-        private Integer slaveConnectionPoolSize;
-        private Integer masterConnectionPoolSize;
-        private Integer retryInterval;
-    }
-
-    /**
-     * redis哨兵模式配置
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RedisSentinel {
-        private String master;
-        private String nodes;
     }
 
     /**

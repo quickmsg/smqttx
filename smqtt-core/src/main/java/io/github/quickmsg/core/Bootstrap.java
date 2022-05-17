@@ -45,10 +45,6 @@ public class Bootstrap {
 
     private BootstrapConfig.ClusterConfig clusterConfig;
 
-    private BootstrapConfig.RedisConfig redisConfig;
-
-    private BootstrapConfig.DatabaseConfig databaseConfig;
-
     private BootstrapConfig.MeterConfig meterConfig;
 
     private List<RuleChainDefinition> ruleChainDefinitions;
@@ -106,10 +102,6 @@ public class Bootstrap {
         mqttConfiguration.setChildOptions(tcpConfig.getChildOptions());
         mqttConfiguration.setRuleChainDefinitions(ruleChainDefinitions);
         mqttConfiguration.setSourceDefinitions(sourceDefinitions);
-        Map<Object, Object> environmentMap = new HashMap<>();
-        environmentMap.put(BootstrapConfig.RedisConfig.class, this.redisConfig);
-        environmentMap.put(BootstrapConfig.DatabaseConfig.class, this.databaseConfig);
-        mqttConfiguration.setEnvironmentMap(environmentMap);
         return mqttConfiguration;
     }
 
