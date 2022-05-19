@@ -15,6 +15,7 @@ import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
 import org.casbin.jcasbin.model.Model;
 import org.casbin.jcasbin.persist.file_adapter.FileAdapter;
+import org.casbin.jcasbin.util.BuiltInFunctions;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +39,7 @@ public class JCasBinAclManager implements AclManager {
             model.addDef("p", "p", " sub, obj, act, eft");
             model.addDef("g", "g", "_, _");
             model.addDef("e", "e", "some(where (p.eft == allow)) && !some(where (p.eft == deny))");
-            model.addDef("m", "m", "r.act == p.act && topic(r.obj,p.obj)  && filter(r.sub, p.sub)");
+            model.addDef("m", "m", "r.act == p.act && keyMatch2(r.obj,p.obj)  && filter(r.sub, p.sub)");
             if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
                 AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
                 Objects.requireNonNull(jdbcAclConfig);
@@ -58,7 +59,7 @@ public class JCasBinAclManager implements AclManager {
             List<String> actions = enforcer.getAllActions();
             for (int i = 0; i < objects.size(); i++) {
                 Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
-                allObjects.add(TopicRegexUtils.regexTopic(objects.get(i)));
+                allObjects.add(objects.get(i));
             }
         }
     }
@@ -67,7 +68,7 @@ public class JCasBinAclManager implements AclManager {
     public boolean check(MqttChannel mqttChannel, String source, AclAction action) {
         try {
             boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
-                    .map(objects -> objects.stream().anyMatch(source::matches))
+                    .map(objects -> objects.stream().anyMatch(topic->BuiltInFunctions.keyMatch2(source,topic)))
                     .orElse(false);
             if (isCheckAcl) {
                 String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
