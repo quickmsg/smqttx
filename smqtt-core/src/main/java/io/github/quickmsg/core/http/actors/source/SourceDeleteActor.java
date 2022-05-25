@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 @AllowCors
 public class SourceDeleteActor extends AbstractHttpActor {
 
+
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
         return request.receive().asString(StandardCharsets.UTF_8).map(this.toList(SourceDefinition.class)).doOnNext(message -> {
