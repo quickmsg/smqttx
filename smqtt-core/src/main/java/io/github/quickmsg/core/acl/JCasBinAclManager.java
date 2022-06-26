@@ -8,8 +8,6 @@ import io.github.quickmsg.common.acl.filter.AclFunction;
 import io.github.quickmsg.common.acl.model.PolicyModel;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.AclConfig;
-import io.github.quickmsg.common.context.ContextHolder;
-import io.github.quickmsg.common.utils.TopicRegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
@@ -28,9 +26,12 @@ public class JCasBinAclManager implements AclManager {
 
     private Enforcer enforcer;
 
-    private Map<String, Set<String>> filterAclTopicActions = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> filterAclTopicActions = new ConcurrentHashMap<>();
 
-    private String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
+    private final String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
+
+
+    private boolean isOpen;
 
     public JCasBinAclManager(AclConfig aclConfig) {
         if (aclConfig != null) {
@@ -61,6 +62,7 @@ public class JCasBinAclManager implements AclManager {
                 Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
                 allObjects.add(objects.get(i));
             }
+            isOpen = true;
         }
     }
 
@@ -68,48 +70,48 @@ public class JCasBinAclManager implements AclManager {
     public boolean check(MqttChannel mqttChannel, String source, AclAction action) {
         try {
             boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
-                    .map(objects -> objects.stream().anyMatch(topic->BuiltInFunctions.keyMatch2(source,topic)))
+                    .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
                     .orElse(false);
             if (isCheckAcl) {
                 String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
-                        , mqttChannel.getAddress());
+                        , mqttChannel.getAddress().split(":")[0]);
                 return Optional.ofNullable(enforcer)
                         .map(ef -> ef.enforce(subject, source, action.name()))
                         .orElse(true);
             }
 
         } catch (Exception e) {
-            log.error("acl check error",e);
+            log.error("acl check error", e);
         }
-        return true;
-    }
-
-    @Override
-    public boolean auth(String sub, String source, AclAction action) {
-        return Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.enforce(sub, source, action.name()))
-                .orElse(true);
+        return isOpen;
     }
 
     @Override
     public boolean add(String sub, String source, AclAction action, AclType type) {
-        return Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.addNamedPolicy("p", sub, source, action.name(),type.getDesc()))
-                .orElse(true);
-
+        return isOpen?Optional.ofNullable(enforcer)
+                .map(ef -> enforcer.addNamedPolicy("p", sub, source, action.name(), type.getDesc()))
+                .orElse(true):false;
     }
 
     @Override
-    public boolean delete(String sub, String source, AclAction action,AclType type) {
-        return Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(),type.getDesc()))
-                .orElse(true);
+    public boolean delete(String sub, String source, AclAction action, AclType type) {
+        return isOpen ? Optional.ofNullable(enforcer)
+                .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(), type.getDesc()))
+                .orElse(true) : false;
     }
 
     @Override
     public List<List<String>> get(PolicyModel policyModel) {
+        if(!isOpen){
+            return Collections.emptyList();
+        }
         return Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.getFilteredNamedPolicy("p", 0, policyModel.getSubject(), policyModel.getSource(), policyModel.getAction() == null || AclAction.ALL == policyModel.getAction() ? "" : policyModel.getAction().name()))
+                .map(ef -> enforcer
+                        .getFilteredNamedPolicy("p", 0,
+                                policyModel.getSubject(), policyModel.getSource(),
+                                policyModel.getAction() == null || AclAction.ALL == policyModel.getAction() ? "" : policyModel.getAction().name(),
+                                policyModel.getAclType() == null || AclType.ALLOW == policyModel.getAclType() ? "" : policyModel.getAclType().getDesc())
+                )
                 .orElse(Collections.emptyList());
     }
 

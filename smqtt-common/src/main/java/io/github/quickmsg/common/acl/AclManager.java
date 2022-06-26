@@ -12,10 +12,7 @@ public interface AclManager {
 
     boolean check(MqttChannel mqttChannel, String source, AclAction action);
 
-    boolean auth(String sub,String source,AclAction action);
-
     boolean add(String sub,String source,AclAction action,AclType type);
-
 
     boolean delete(String sub,String source,AclAction action,AclType type);
 
