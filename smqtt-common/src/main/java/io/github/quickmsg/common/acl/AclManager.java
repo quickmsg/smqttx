@@ -17,5 +17,4 @@ public interface AclManager {
     boolean delete(String sub,String source,AclAction action,AclType type);
 
     List<List<String>> get(PolicyModel policyModel);
-
 }

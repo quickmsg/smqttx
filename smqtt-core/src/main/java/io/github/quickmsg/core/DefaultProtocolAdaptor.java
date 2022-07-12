@@ -22,23 +22,23 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
     public DefaultProtocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         this.acceptor = Sinks.many().multicast().onBackpressureBuffer(businessQueueSize);
         DynamicLoader.findAll(Protocol.class).forEach(protocol ->
-                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor",threadSize))
+                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor", threadSize))
                         .ofType(protocol.getClassType()).subscribe(msg -> {
-            Message message = (Message) msg;
-            Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
-            ReceiveContext<?> receiveContext = message.getContext();
-            messageProtocol.doParseProtocol(message, message.getMqttChannel())
-                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext()))
-                    .subscribe(receiveContext::submitEvent);
-        }));
+                            Message message = (Message) msg;
+                            Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
+                            ReceiveContext<?> receiveContext = message.getContext();
+                            messageProtocol.doParseProtocol(message, message.getMqttChannel())
+                                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext()))
+                                    .subscribe(receiveContext::submitEvent);
+                        }));
     }
 
     @Override
     public void chooseProtocol(Message message) {
         try {
             acceptor.emitNext(message, RetryFailureHandler.RETRY_NON_SERIALIZED);
-        }catch (Exception e){
-            log.error("protocol emitNext error",e);
+        } catch (Exception e) {
+            log.error("protocol emitNext error", e);
         }
     }
 }

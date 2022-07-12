@@ -6,7 +6,7 @@ import lombok.Getter;
  * @author luxurong
  */
 public enum AclType {
-
+    ALL(""),
     ALLOW("allow"),
     DENY("deny");
 
@@ -16,4 +16,15 @@ public enum AclType {
     AclType(String desc) {
         this.desc = desc;
     }
+
+
+    public static AclType fromDesc(String desc) {
+        for (AclType type : AclType.values()) {
+            if (type.desc.equals(desc)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
 }

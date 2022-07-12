@@ -43,7 +43,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
                         .then(Mono.empty());
             }
-            if (!aclManager.auth(mqttChannel.getConnectMessage().getClientId(), message.getTopic(), AclAction.PUBLISH)) {
+            if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
                 log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectMessage(), message.getTopic());
                 return Mono.empty();
             }
