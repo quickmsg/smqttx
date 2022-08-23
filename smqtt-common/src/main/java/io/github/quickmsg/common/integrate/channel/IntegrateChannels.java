@@ -2,6 +2,7 @@ package io.github.quickmsg.common.integrate.channel;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.IntegrateGetter;
+import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 
 import java.util.Collection;
 
@@ -11,20 +12,14 @@ import java.util.Collection;
 public interface IntegrateChannels extends IntegrateGetter {
 
 
-    /**
-     * 关闭通道
-     *
-     * @param mqttChannel {@link MqttChannel}
-     */
-    void close(MqttChannel mqttChannel);
 
     /**
      * 注册通道
      *
      * @param clientIdentifier 客户端id
-     * @param mqttChannel      {@link MqttChannel}
+     * @param mqttChannel      {@link MqttChannel old}
      */
-    void registry(String clientIdentifier, MqttChannel mqttChannel);
+    void add(String clientIdentifier, MqttChannel mqttChannel);
 
     /**
      * 判读通道是否存在
@@ -59,4 +54,10 @@ public interface IntegrateChannels extends IntegrateGetter {
      */
     Collection<MqttChannel> getChannels();
 
+
+    /**
+     * 移除说有channel信息
+     *
+     */
+    void remove(MqttChannel mqttChannel);
 }

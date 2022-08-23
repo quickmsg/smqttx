@@ -22,7 +22,7 @@ import java.util.Set;
 // todo 暂不支持qos2
 public class PublishRelProtocol implements Protocol<PublishRelMessage> {
     @Override
-    public Mono<Event> parseProtocol(PublishRelMessage message, MqttChannel mqttChannel, ContextView contextView) {
+    public void parseProtocol(PublishRelMessage message, MqttChannel mqttChannel, ContextView contextView) {
         int id = message.getMessageId();
         /*
          * 判断是不是缓存qos2消息
@@ -54,7 +54,6 @@ public class PublishRelProtocol implements Protocol<PublishRelMessage> {
 //                        .thenReturn(build(EventMsg.PUB_REL_MESSAGE,
 //                                mqttChannel.getClientIdentifier(),
 //                                id)));
-        return Mono.empty();
     }
 
     @Override

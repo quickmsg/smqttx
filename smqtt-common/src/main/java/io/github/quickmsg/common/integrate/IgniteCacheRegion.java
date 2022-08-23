@@ -1,6 +1,7 @@
 package io.github.quickmsg.common.integrate;
 
 import lombok.Getter;
+import org.apache.ignite.cache.CacheMode;
 
 /**
  * @author luxurong
@@ -8,7 +9,7 @@ import lombok.Getter;
 @Getter
 public enum IgniteCacheRegion {
 
-    TOPIC("topic_cache", "topic_data_region") {
+    TOPIC("topic_cache", "topic_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
             return false;
@@ -19,18 +20,7 @@ public enum IgniteCacheRegion {
             return false;
         }
     },
-    MESSAGE("message_cache", "message_data_region") {
-        @Override
-        public boolean persistence() {
-            return true;
-        }
-
-        @Override
-        public boolean local() {
-            return false;
-        }
-    },
-    SESSION("session_message", "session_data_region") {
+    CHANNEL("channel_cache", "channel_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
             return true;
@@ -41,7 +31,7 @@ public enum IgniteCacheRegion {
             return false;
         }
     },
-    RETAIN("retain_message", "retain_data_region") {
+    RETAIN("retain_message", "retain_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
             return true;
@@ -52,18 +42,7 @@ public enum IgniteCacheRegion {
             return false;
         }
     },
-    ACK("ack_message", "ack_data_region") {
-        @Override
-        public boolean persistence() {
-            return false;
-        }
-
-        @Override
-        public boolean local() {
-            return false;
-        }
-    },
-    LOCK("lock", "lock_region") {
+    LOCK("lock", "lock_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
             return false;
@@ -81,13 +60,17 @@ public enum IgniteCacheRegion {
 
     private final String regionName;
 
-    IgniteCacheRegion(String cacheName, String regionName) {
+    private final CacheMode  cacheMode;
+
+    IgniteCacheRegion(String cacheName, String regionName, CacheMode cacheMode) {
         this.cacheName = cacheName;
         this.regionName = regionName;
+        this.cacheMode = cacheMode;
     }
 
     public abstract boolean persistence();
 
     public abstract boolean local();
+
 
 }

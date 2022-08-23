@@ -5,6 +5,7 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.message.Message;
+import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import lombok.Data;
 
@@ -22,19 +23,15 @@ public class SubscribeMessage implements Message {
 
     private long timestamp;
 
+    private String clientId;
+
 
     private List<SubscribeTopic> subscribeTopics;
 
-    @JsonIgnore
-    private MqttChannel mqttChannel;
 
-    @JsonIgnore
-    private ReceiveContext<?> context;
-
-    public SubscribeMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext) {
-        this.context = receiveContext;
-        this.mqttChannel = mqttChannel;
-        MqttSubscribeMessage subscribeMessage = (MqttSubscribeMessage) message;
+    public SubscribeMessage(MqttMessage mqttMessage, String clientId) {
+        MqttSubscribeMessage subscribeMessage = (MqttSubscribeMessage) mqttMessage;
+        this.clientId=clientId;
         this.messageId = subscribeMessage.variableHeader().messageId();
         this.timestamp = System.currentTimeMillis();
         this.subscribeTopics =
@@ -42,7 +39,7 @@ public class SubscribeMessage implements Message {
                         .payload()
                         .topicSubscriptions()
                         .stream()
-                        .map(mqttTopicSubscription -> new SubscribeTopic(mqttTopicSubscription.topicName(), mqttTopicSubscription.qualityOfService(), mqttChannel))
+                        .map(mqttTopicSubscription -> new SubscribeTopic(mqttTopicSubscription.topicName(), mqttTopicSubscription.qualityOfService(), clientId))
                         .collect(Collectors.toList());
     }
 }

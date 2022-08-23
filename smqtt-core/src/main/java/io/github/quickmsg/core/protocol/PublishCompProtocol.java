@@ -16,13 +16,12 @@ public class PublishCompProtocol implements Protocol<PublishCompMessage> {
 
     @Override
     // todo 暂不支持qos2
-    public Mono<Event> parseProtocol(PublishCompMessage message, MqttChannel mqttChannel, ContextView contextView) {
+    public void parseProtocol(PublishCompMessage message, MqttChannel mqttChannel, ContextView contextView) {
 //        int compId = message.getMessageId();
 //        return mqttChannel.cancelRetry(MqttMessageType.PUBREL, compId)
 //                .thenReturn(build(EventMsg.PUB_COMP_MESSAGE,
 //                        mqttChannel.getConnectMessage().getClientId(),
 //                        compId));
-        return Mono.empty();
     }
 
     @Override

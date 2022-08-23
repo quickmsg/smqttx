@@ -1,7 +1,6 @@
 package io.github.quickmsg.common.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.message.SmqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -22,8 +21,11 @@ public interface Protocol<T extends Message> {
      * @return Mono
      * @see MqttMessage
      */
-    default Mono<Event> doParseProtocol(T message, MqttChannel mqttChannel) {
-        return Mono.deferContextual(contextView -> this.parseProtocol(message, mqttChannel, contextView));
+    default Mono<Message> doParseProtocol(T message, MqttChannel mqttChannel) {
+        return Mono.deferContextual(contextView -> {
+            this.parseProtocol(message, mqttChannel, contextView);
+            return Mono.just(message);
+        });
     }
 
 
@@ -36,15 +38,13 @@ public interface Protocol<T extends Message> {
      * @return Mono
      * @see MqttMessage
      */
-    Mono<Event> parseProtocol(T message, MqttChannel mqttChannel, ContextView contextView);
+    void parseProtocol(T message, MqttChannel mqttChannel, ContextView contextView);
 
 
     /**
      * @return Class
      */
     Class<T> getClassType();
-
-
 
 
 }

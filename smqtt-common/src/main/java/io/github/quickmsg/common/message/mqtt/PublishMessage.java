@@ -34,26 +34,16 @@ public class PublishMessage implements Message {
     private long timestamp;
 
 
-
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
-
-
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId) {
         return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
     }
 
     public PublishMessage(){}
 
-    public PublishMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
-        this.context  = receiveContext;
-        this.mqttChannel = mqttChannel;
+    public PublishMessage(Object message, String clientId){
         MqttPublishMessage mqttPublishMessage = (MqttPublishMessage)message;
         this.messageId=mqttPublishMessage.variableHeader().packetId();
-        this.clientId = mqttChannel.getConnectMessage().getClientId();
+        this.clientId = clientId;
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();

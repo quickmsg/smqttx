@@ -18,15 +18,12 @@ public class DisConnectProtocol implements Protocol<DisConnectMessage> {
 
 
     @Override
-    public Mono<Event> parseProtocol(DisConnectMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        return Mono.fromSupplier(() -> {
-            mqttChannel.getConnectMessage().setWill(null);
-            Connection connection;
-            if (!(connection = mqttChannel.getConnection()).isDisposed()) {
-                connection.dispose();
-            }
-            return  new DisconnectEvent(mqttChannel.getConnectMessage().getClientId(), 0, System.currentTimeMillis());
-        });
+    public void parseProtocol(DisConnectMessage message, MqttChannel mqttChannel, ContextView contextView) {
+        mqttChannel.getConnectMessage().setWill(null);
+        Connection connection;
+        if (!(connection = mqttChannel.getConnection()).isDisposed()) {
+            connection.dispose();
+        }
     }
 
     @Override

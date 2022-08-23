@@ -1,7 +1,7 @@
 package io.github.quickmsg.common.integrate;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,23 +20,22 @@ public class SubscribeTopic {
 
     private final MqttQoS qoS;
 
-    @JsonIgnore
-    private MqttChannel mqttChannel;
+    private String clientId;
 
     public SubscribeTopic(String topicFilter, MqttQoS qoS) {
         this.topicFilter = topicFilter;
         this.qoS = qoS;
     }
 
-    public SubscribeTopic(String topicFilter, MqttQoS qoS, MqttChannel mqttChannel) {
+    public SubscribeTopic(String topicFilter, MqttQoS qoS, String clientId) {
         this.topicFilter = topicFilter;
         this.qoS = qoS;
-        this.mqttChannel = mqttChannel;
+        this.clientId = clientId;
     }
 
 
-    public SubscribeTopic setMqttChannel(MqttChannel mqttChannel) {
-        this.mqttChannel = mqttChannel;
+    public SubscribeTopic setMqttChannel(String clientId) {
+        this.clientId = clientId;
         return this;
     }
 
@@ -45,13 +44,12 @@ public class SubscribeTopic {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SubscribeTopic that = (SubscribeTopic) o;
-        return Objects.equals(topicFilter, that.topicFilter) &&
-                Objects.equals(mqttChannel, that.mqttChannel);
+        return Objects.equals(topicFilter, that.topicFilter) && Objects.equals(clientId, that.clientId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(topicFilter, mqttChannel);
+        return Objects.hash(topicFilter, clientId);
     }
 
     public MqttQoS minQos(MqttQoS mqttQoS) {
@@ -59,11 +57,17 @@ public class SubscribeTopic {
     }
 
     public void linkSubscribe() {
-        mqttChannel.getTopics().add(this);
+        MqttChannel mqttChannel = ContextHolder.getReceiveContext().getIntegrate().getChannels().get(this.clientId);
+        if(mqttChannel!=null){
+            mqttChannel.getTopics().add(this);
+        }
     }
 
     public void unLinkSubscribe() {
-        mqttChannel.getTopics().remove(this);
+        MqttChannel mqttChannel = ContextHolder.getReceiveContext().getIntegrate().getChannels().get(this.clientId);
+        if(mqttChannel!=null){
+            mqttChannel.getTopics().remove(this);
+        }
     }
 
     @Override
@@ -71,7 +75,7 @@ public class SubscribeTopic {
         return "SubscribeTopic{" +
                 "topicFilter='" + topicFilter + '\'' +
                 ", qoS=" + qoS +
-                ", mqttChannel=" + mqttChannel +
+                ", clientId=" + clientId +
                 '}';
     }
 }

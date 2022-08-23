@@ -1,13 +1,13 @@
 package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.enums.ChannelStatus;
+import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
+import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IgniteChannels implements IntegrateChannels {
 
 
-    private final ConcurrentHashMap<String, MqttChannel> channelMap;
+    private final ConcurrentHashMap<String, MqttChannel> localChannelCache;
+
+    private final IntegrateCache<String, ConnectMessage> shareChannelCache;
 
     private final IgniteIntegrate integrate;
 
@@ -27,38 +29,47 @@ public class IgniteChannels implements IntegrateChannels {
 
     public IgniteChannels(IgniteIntegrate integrate, ConcurrentHashMap<String, MqttChannel> channelMap) {
         this.integrate = integrate;
-        this.channelMap = channelMap;
+        this.localChannelCache = channelMap;
+        this.shareChannelCache = this.integrate.getCache(IgniteCacheRegion.CHANNEL);
     }
 
 
     @Override
-    public void close(MqttChannel mqttChannel) {
-        Optional.ofNullable(mqttChannel.getConnectMessage().getClientId())
-                .ifPresent(channelMap::remove);
-    }
+    public void add(String clientIdentifier, MqttChannel mqttChannel) {
+        MqttChannel oldChannel = localChannelCache.put(clientIdentifier, mqttChannel);
+        if (oldChannel != null) {
+            oldChannel.close();
+            this.shareChannelCache.put(clientIdentifier, mqttChannel.getConnectMessage());
+        } else {
+            ConnectMessage connectMessage =
+                    this.shareChannelCache.getAndPutIfAbsent(clientIdentifier, mqttChannel.getConnectMessage());
 
-    @Override
-    public void registry(String clientIdentifier, MqttChannel mqttChannel) {
-        channelMap.put(clientIdentifier, mqttChannel);
+            //todo send close message
+        }
     }
 
     @Override
     public boolean exists(String clientIdentifier) {
-        return channelMap.containsKey(clientIdentifier) && channelMap.get(clientIdentifier).getStatus() == ChannelStatus.ONLINE;
+        return localChannelCache.containsKey(clientIdentifier);
     }
 
     @Override
     public MqttChannel get(String clientIdentifier) {
-        return channelMap.get(clientIdentifier);
+        return localChannelCache.get(clientIdentifier);
     }
 
     @Override
     public Integer counts() {
-        return channelMap.size();
+        return localChannelCache.size();
     }
 
     @Override
     public Collection<MqttChannel> getChannels() {
-        return channelMap.values();
+        return localChannelCache.values();
+    }
+
+    @Override
+    public void remove(MqttChannel mqttChannel) {
+         localChannelCache.remove(mqttChannel.getClientId(),mqttChannel);
     }
 }

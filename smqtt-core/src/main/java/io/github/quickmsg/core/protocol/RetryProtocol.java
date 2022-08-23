@@ -15,14 +15,13 @@ import reactor.util.context.ContextView;
 public class RetryProtocol implements Protocol<RetryMessage> {
 
     @Override
-    public Mono<Event> parseProtocol(RetryMessage retryMessage, MqttChannel mqttChannel, ContextView contextView) {
-        return mqttChannel.write(MqttMessageUtils.buildPub(
-                        true,
-                        retryMessage.getMqttQoS(),
-                        retryMessage.getMessageId(),
-                        retryMessage.getTopic(),
-                        PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(retryMessage.getBody())))
-                .then(Mono.empty());
+    public void parseProtocol(RetryMessage retryMessage, MqttChannel mqttChannel, ContextView contextView) {
+        mqttChannel.write(MqttMessageUtils.buildPub(
+                true,
+                retryMessage.getMqttQoS(),
+                retryMessage.getMessageId(),
+                retryMessage.getTopic(),
+                PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(retryMessage.getBody())));
     }
 
     @Override

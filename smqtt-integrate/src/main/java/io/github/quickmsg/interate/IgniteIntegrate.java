@@ -101,7 +101,7 @@ public class IgniteIntegrate implements Integrate {
                         .setCacheMode(cacheMode)
                         .setDataRegionName(igniteCacheRegion.getRegionName())
                         .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
-                        .setCacheMode(CacheMode.PARTITIONED)
+                        .setCacheMode(igniteCacheRegion.getCacheMode())
                         .setBackups(1)
                         .setRebalanceMode(CacheRebalanceMode.ASYNC);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));

@@ -10,16 +10,10 @@ import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteAtomicLong;
-import org.apache.ignite.IgniteCompute;
-import org.apache.ignite.IgniteSet;
-import org.apache.ignite.configuration.CollectionConfiguration;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 /**
@@ -32,18 +26,15 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
 
     private final AtomicLong subscribeNumber = new AtomicLong(0);
 
-    /**
-     * clientId -> topic
-     */
-    private final IntegrateCache<String, IgniteSet<String>> shareCache;
+    // topic -> node
+    private final IntegrateCache<String,Set<String>> shareCache;
+
+    //tree topic count
+    private final Map<String,Integer> treeCount ;
+
+
 
     private final String clusterNode;
-
-
-    private final IgniteCompute igniteCompute;
-
-    private final String PREFIX_SET = "client_sets:";
-
 
 
     public IgniteIntegrateTopics(IgniteIntegrate integrate) {
@@ -51,41 +42,73 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
         this.integrate = integrate;
         this.shareCache = integrate.getCache(IgniteCacheRegion.TOPIC);
         this.clusterNode = integrate.getCluster().getLocalNode();
-        this.igniteCompute=integrate.getIgnite().compute();
+        this.treeCount = new HashMap<>();
     }
 
     @Override
-    public void registryTopic(String topic, SubscribeTopic subscribeTopic) {
-        TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
-        if (filter.addObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic)) {
-            IgniteSet<String> topics=  shareCache.getAndPutIfAbsent(clusterNode,
-                    integrate
-                            .getIgnite()
-                            .set(PREFIX_SET+clusterNode, new CollectionConfiguration().setBackups(1)));
-            if(topics == null){
-                topics =  shareCache.get(clusterNode);
+    public void registryTopic(List<SubscribeTopic> subscribeTopics) {
+        subscribeTopics.forEach(this::registryTopic);
+    }
+
+    @Override
+    public void registryTopic(SubscribeTopic subscribeTopic) {
+        String topic = subscribeTopic.getTopicFilter();
+        TopicFilter<SubscribeTopic> filter = checkFilter(topic);
+        if (filter.addObjectTopic(topic, subscribeTopic)) {
+            if (filter instanceof TreeTopicFilter) {
+                Lock lock =shareCache.lock(topic);
+                try {
+                    lock.lock();
+                    Integer count = this.treeCount.getOrDefault(topic,0);
+                    this.treeCount.put(topic,++count);
+                    Set<String> shareNodes = shareCache.get(topic);
+                    if(shareNodes == null){
+                        shareNodes = new HashSet<>();
+                        shareCache.put(topic,shareNodes);
+                    }
+                    shareNodes.add(clusterNode);
+                    shareCache.put(topic,shareNodes);
+                }finally {
+                    lock.unlock();
+                }
+
             }
-            topics.add(topic);
             subscribeNumber.incrementAndGet();
             subscribeTopic.linkSubscribe();
         }
     }
 
+
     @Override
-    public boolean removeTopic(String topic, SubscribeTopic subscribeTopic) {
-        TopicFilter<SubscribeTopic> filter = checkFilter(subscribeTopic.getTopicFilter());
-        boolean success = filter.removeObjectTopic(subscribeTopic.getTopicFilter(), subscribeTopic);
-        if (success) {
-            filter.removeObjectTopic(topic,subscribeTopic);
-            IgniteSet<String> topics = shareCache.get(clusterNode);
-            if(topics!=null){
-                topics.remove(topic);
+    public void removeTopic(SubscribeTopic subscribeTopic) {
+        String topic = subscribeTopic.getTopicFilter();
+        TopicFilter<SubscribeTopic> filter = checkFilter(topic);
+        if (filter.removeObjectTopic(topic, subscribeTopic)) {
+            if (filter instanceof TreeTopicFilter) {
+                Lock lock =shareCache.lock(topic);
+                try {
+                    lock.lock();
+                    Integer count = this.treeCount.getOrDefault(topic,0);
+                    if(--count<1){
+                        Set<String> shareNodes = shareCache.get(topic);
+                        if(shareNodes != null && shareNodes.size()>0){
+                            shareNodes.remove(clusterNode);
+                            shareCache.put(topic,shareNodes);
+                        }
+                    }
+                }finally {
+                    lock.unlock();
+                }
             }
             subscribeNumber.decrementAndGet();
             subscribeTopic.unLinkSubscribe();
         }
-        return success;
 
+    }
+
+    @Override
+    public void removeTopic(List<SubscribeTopic> topics) {
+        topics.forEach(this::removeTopic);
     }
 
     @Override
@@ -111,15 +134,6 @@ public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic
         return subscribeNumber.get();
     }
 
-    @Override
-    public void clearTopics(String node) {
-        IgniteSet<String> cache = this.shareCache.get(node);
-        if (cache != null) {
-            cache.clear();
-            cache.close();
-            this.shareCache.remove(node);
-        }
-    }
 
     @Override
     public boolean isWildcard(String topic) {

@@ -20,19 +20,12 @@ public class PublishRelMessage implements Message {
 
     private int messageId;
 
+    private String clientId;
+
     private long timestamp;
 
-
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
-
-
-    public PublishRelMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
-        this.context  = receiveContext;
-        this.mqttChannel = mqttChannel;
+    public PublishRelMessage(Object message,String clientId){
+        this.clientId =clientId;
         this.messageId=((MqttMessageIdVariableHeader) ((MqttMessage) message).variableHeader()).messageId();
         this.timestamp = System.currentTimeMillis();
     }

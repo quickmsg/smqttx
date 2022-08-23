@@ -8,6 +8,7 @@ import io.github.quickmsg.common.message.Message;
 /**
  * @author luxurong
  */
+@Deprecated
 public interface EventRegistry {
 
 

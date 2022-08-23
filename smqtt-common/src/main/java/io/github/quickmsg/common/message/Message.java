@@ -16,29 +16,23 @@ public interface Message {
             return 0;
         }
 
-        @Override
-        public MqttChannel getMqttChannel() {
-            return null;
-        }
-
-        @Override
-        public ReceiveContext<?> getContext() {
-            return null;
-        }
 
         @Override
         public long getTimestamp() {
             return System.currentTimeMillis();
         }
 
+        @Override
+        public String getClientId() {
+            return null;
+        }
+
     };
 
     int getMessageId();
 
-    MqttChannel getMqttChannel();
-
-    ReceiveContext<?> getContext();
-
     long getTimestamp();
+
+    String getClientId();
 
 }

@@ -22,7 +22,6 @@ public class RetryMessage implements Message {
 
     private long timestamp;
 
-
     private boolean isRetain;
 
     private String topic;
@@ -31,26 +30,19 @@ public class RetryMessage implements Message {
 
     private byte[] body;
 
+    private String clientId;
 
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
-
-    public RetryMessage(int messageId, long timestamp, boolean isRetain, String topic, MqttQoS mqttQoS, byte[] body, MqttChannel mqttChannel, ReceiveContext<?> context) {
+    public RetryMessage(int messageId, long timestamp, boolean isRetain, String topic, MqttQoS mqttQoS, byte[] body, String clientId) {
         this.messageId = messageId;
+        this.clientId = clientId;
         this.timestamp = timestamp;
         this.isRetain = isRetain;
         this.topic = topic;
         this.mqttQoS = mqttQoS;
         this.body = body;
-        this.mqttChannel = mqttChannel;
-        this.context = context;
     }
 
     public void clear() {
-        this.mqttChannel = null;
-        this.context = null;
         this.body = null;
     }
 

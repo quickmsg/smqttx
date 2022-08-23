@@ -15,11 +15,7 @@ public class PingMessage implements Message {
 
     private long timestamp;
 
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
+    private String clientId;
 
     private PingMessage() {
     }
@@ -31,9 +27,8 @@ public class PingMessage implements Message {
         return 0;
     }
 
-    public PingMessage(MqttChannel mqttChannel, ReceiveContext<?> receiveContext) {
-        this.context = receiveContext;
-        this.mqttChannel = mqttChannel;
+    public PingMessage(String clientId) {
+        this.clientId = clientId;
         this.timestamp = System.currentTimeMillis();
     }
 

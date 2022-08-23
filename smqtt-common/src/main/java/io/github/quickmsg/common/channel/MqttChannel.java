@@ -2,7 +2,6 @@ package io.github.quickmsg.common.channel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.context.ContextHolder;
-import io.github.quickmsg.common.enums.ChannelStatus;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,11 +35,9 @@ public class MqttChannel {
 
     private Connection connection;
 
-    private ChannelStatus status;
-
     private long activeTime;
 
-    private long authTime;
+    private String authTime;
 
     private ConnectMessage connectMessage;
 
@@ -59,7 +55,6 @@ public class MqttChannel {
         mqttChannel.setAtomicInteger(new AtomicInteger(0));
         mqttChannel.setActiveTime(System.currentTimeMillis());
         mqttChannel.setConnection(connection);
-        mqttChannel.setStatus(ChannelStatus.INIT);
         mqttChannel.setAddress(connection.address().toString().substring(1));
         mqttChannel.setId((int) ContextHolder.getReceiveContext().getIntegrate().getGlobalCounter("channel-id").incrementAndGet());
         connection.onReadIdle(2000, connection::dispose);
@@ -67,15 +62,10 @@ public class MqttChannel {
     }
 
 
-    public Mono<Void> close() {
-        return Mono.fromRunnable(() -> {
-            Optional.ofNullable(this.connectMessage)
-                    .filter(ConnectMessage::isCleanSession)
-                    .ifPresent(msg -> this.topics.clear());
-            if (!this.connection.isDisposed()) {
-                this.connection.dispose();
-            }
-        });
+    public void close() {
+        if (!this.connection.isDisposed()) {
+            this.connection.dispose();
+        }
     }
 
     public void registryClose(Consumer<MqttChannel> consumer) {
@@ -124,15 +114,15 @@ public class MqttChannel {
     public void sendPublish(MqttQoS mqttQoS, PublishMessage message) {
         switch (mqttQoS) {
             case AT_MOST_ONCE:
-                this.write(message.buildMqttMessage(mqttQoS, 0)).subscribe();
+                this.write(message.buildMqttMessage(mqttQoS, 0));
                 break;
             case EXACTLY_ONCE:
             case AT_LEAST_ONCE:
             default:
                 int messageId = this.generateMessageId();
-                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(), this, ContextHolder.getReceiveContext());
+                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(),message.getClientId());
                 ContextHolder.getReceiveContext().getRetryManager().doRetry(this, retryMessage);
-                this.write(message.buildMqttMessage(mqttQoS, messageId)).subscribe();
+                this.write(message.buildMqttMessage(mqttQoS, messageId));
                 break;
         }
     }
@@ -144,11 +134,9 @@ public class MqttChannel {
      * @param mqttMessage #{@link MqttMessage}
      * @return mono
      */
-    public Mono<Void> write(MqttMessage mqttMessage) {
+    public void write(MqttMessage mqttMessage) {
         if (this.connection.channel().isActive() && this.connection.channel().isWritable()) {
-            return connection.outbound().sendObject(Mono.just(mqttMessage)).then();
-        } else {
-            return Mono.empty();
+            connection.outbound().sendObject(Mono.just(mqttMessage)).then().subscribe();
         }
     }
 

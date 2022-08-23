@@ -15,11 +15,9 @@ import reactor.util.context.ContextView;
 public class PublishAckProtocol implements Protocol<PublishAckMessage> {
 
     @Override
-    public Mono<Event> parseProtocol(PublishAckMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        return Mono.fromRunnable(() -> contextView.get(ReceiveContext.class)
-                        .getRetryManager().cancelRetry(mqttChannel, message.getMessageId()))
-                .thenReturn(new PublicAckEvent(System.currentTimeMillis(),
-                        mqttChannel.getConnectMessage().getClientId(), message.getMessageId()));
+    public void parseProtocol(PublishAckMessage message, MqttChannel mqttChannel, ContextView contextView) {
+        contextView.get(ReceiveContext.class)
+                .getRetryManager().cancelRetry(mqttChannel, message.getMessageId());
     }
 
     @Override

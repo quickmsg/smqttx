@@ -17,10 +17,8 @@ import reactor.util.context.ContextView;
 public class PingProtocol implements Protocol<PingMessage> {
 
     @Override
-    public Mono<Event> parseProtocol(PingMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        return mqttChannel.write(MqttMessageUtils.buildPongMessage())
-                .then(Mono.fromSupplier(() ->
-                        new PingEvent( mqttChannel.getConnectMessage().getClientId(), System.currentTimeMillis())));
+    public void parseProtocol(PingMessage message, MqttChannel mqttChannel, ContextView contextView) {
+        mqttChannel.write(MqttMessageUtils.buildPongMessage());
     }
 
     @Override

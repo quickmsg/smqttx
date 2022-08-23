@@ -22,6 +22,11 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
     }
 
     @Override
+    public V getAndPut(K k, V v) {
+        return igniteCache.getAndPut(k,v);
+    }
+
+    @Override
     public V getAndPutIfAbsent(K k, V v) {
         return igniteCache.getAndPutIfAbsent(k,v);
     }
@@ -34,6 +39,11 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
     @Override
     public boolean remove(K k) {
         return igniteCache.remove(k);
+    }
+
+    @Override
+    public boolean remove(K k, V v) {
+        return igniteCache.remove(k,v);
     }
 
     @Override

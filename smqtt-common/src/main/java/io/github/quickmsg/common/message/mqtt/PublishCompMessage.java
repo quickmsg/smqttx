@@ -18,17 +18,11 @@ public class PublishCompMessage implements Message {
     private int messageId;
     private long timestamp;
 
-
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
+    private String clientId;
 
 
-    public PublishCompMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext){
-        this.context  = receiveContext;
-        this.mqttChannel = mqttChannel;
+    public PublishCompMessage(Object message, String clientId){
+        this.clientId  = clientId;
         this.messageId=((MqttMessageIdVariableHeader) ((MqttMessage) message).variableHeader()).messageId();
         this.timestamp = System.currentTimeMillis();
     }

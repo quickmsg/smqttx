@@ -24,8 +24,7 @@ public class ClusterMessage implements Message {
 
     private long timestamp;
 
-    @JsonIgnore
-    private ReceiveContext<?> context;
+    private String clientId;
 
 
 
@@ -35,11 +34,6 @@ public class ClusterMessage implements Message {
         return 0;
     }
 
-    @Override
-    @JsonIgnore
-    public MqttChannel getMqttChannel() {
-        return null;
-    }
 
 
     public ClusterMessage(PublishMessage message) {
@@ -48,19 +42,19 @@ public class ClusterMessage implements Message {
         this.qos = message.getQos();
         this.retain = message.isRetain();
         this.body = message.getBody();
-        this.context=message.getContext();
         this.timestamp = System.currentTimeMillis();
+        this.clientId=message.getClientId();
 
     }
 
-    public PublishMessage toPublishMessage(ReceiveContext<?> receiveContext) {
+    public PublishMessage toPublishMessage() {
         PublishMessage publishMessage = new PublishMessage();
         publishMessage.setMessageId(this.messageId );
         publishMessage.setTopic(this.topic);
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);
         publishMessage.setBody(this.body);
-        publishMessage.setContext(receiveContext);
+        publishMessage.setClientId(this.clientId);
         return  publishMessage;
     }
 }

@@ -18,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class ConnectMessage implements Message {
 
-    private boolean logger;
+
+    private String nodeIp;
 
     private String clientId;
 
@@ -32,14 +33,8 @@ public class ConnectMessage implements Message {
 
     private MqttChannel.Auth auth;
 
-
     private MqttChannel.Will will;
 
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @JsonIgnore
-    private ReceiveContext<?> context;
 
     @Override
     public int getMessageId() {
@@ -47,9 +42,7 @@ public class ConnectMessage implements Message {
     }
 
 
-    public ConnectMessage(Object message, MqttChannel mqttChannel, ReceiveContext<?> receiveContext) {
-        this.context = receiveContext;
-        this.mqttChannel = mqttChannel;
+    public ConnectMessage(Object message) {
         MqttConnectVariableHeader variableHeader = ((MqttConnectMessage) message).variableHeader();
         MqttConnectPayload mqttConnectPayload = ((MqttConnectMessage) message).payload();
         if (variableHeader.isWillFlag()) {

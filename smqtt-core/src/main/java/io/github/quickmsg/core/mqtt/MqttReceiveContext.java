@@ -36,25 +36,25 @@ public class MqttReceiveContext extends AbstractReceiveContext<MqttConfiguration
         if (mqttMessage.decoderResult().isSuccess()) {
             switch (fixedHeader.messageType()) {
                 case PUBACK:
-                    return new PublishAckMessage(mqttMessage, mqttChannel, this);
+                    return new PublishAckMessage(mqttMessage, mqttChannel.getClientId());
                 case PUBREC:
-                    return new PublishRecMessage(mqttMessage, mqttChannel, this);
+                    return new PublishRecMessage(mqttMessage, mqttChannel.getClientId());
                 case PUBREL:
-                    return new PublishRelMessage(mqttMessage, mqttChannel, this);
+                    return new PublishRelMessage(mqttMessage, mqttChannel.getClientId());
                 case CONNECT:
-                    return new ConnectMessage(mqttMessage, mqttChannel, this);
+                    return new ConnectMessage(mqttMessage);
                 case PINGREQ:
-                    return new PingMessage(mqttChannel, this);
+                    return new PingMessage(mqttChannel.getClientId());
                 case PUBCOMP:
-                    return new PublishCompMessage(mqttMessage, mqttChannel, this);
+                    return new PublishCompMessage(mqttMessage, mqttChannel.getClientId());
                 case PUBLISH:
-                    return new PublishMessage(mqttMessage, mqttChannel, this);
+                    return new PublishMessage(mqttMessage, mqttChannel.getClientId());
                 case SUBSCRIBE:
-                    return new SubscribeMessage(mqttMessage, mqttChannel, this);
+                    return new SubscribeMessage(mqttMessage, mqttChannel.getClientId());
                 case DISCONNECT:
-                    return new DisConnectMessage(mqttChannel, this);
+                    return new DisConnectMessage(mqttChannel.getClientId());
                 case UNSUBSCRIBE:
-                    return new UnSubscribeMessage(mqttMessage, mqttChannel, this);
+                    return new UnSubscribeMessage(mqttMessage, mqttChannel.getClientId());
                 default:
                     return Message.EMPTY_MESSAGE;
             }

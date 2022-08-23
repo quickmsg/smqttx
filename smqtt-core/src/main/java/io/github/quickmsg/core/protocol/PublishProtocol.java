@@ -31,58 +31,45 @@ public class PublishProtocol implements Protocol<PublishMessage> {
 
 
     @Override
-    public Mono<Event> parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
+    public void parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
         try {
             IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
             AclManager aclManager = receiveContext.getAclManager();
             Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
-            if (mqttChannel == null) {
-                // cluster message
-                return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
-                        .then(Mono.empty());
-            }
+
             if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
                 log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectMessage(), message.getTopic());
-                return Mono.empty();
+                return;
+            }
+            if (mqttChannel == null) {
+                // cluster message
+                send(mqttChannels, message, filterRetainMessage(message, messages));
+                return;
             }
             switch (MqttQoS.valueOf(message.getQos())) {
                 case AT_MOST_ONCE:
-                    return send(mqttChannels, message, messages, filterRetainMessage(message, messages))
-                            .thenReturn(buildEvent(message));
+                    send(mqttChannels, message, filterRetainMessage(message, messages));
+                    break;
                 case EXACTLY_ONCE:
                 case AT_LEAST_ONCE:
-                    return send(mqttChannels, message, messages,
-                            mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))
-                                    .then(filterRetainMessage(message, messages)))
-                            .thenReturn(buildEvent(message));
                 default:
-                    return Mono.empty();
+                    send(mqttChannels, message,Mono.fromRunnable(()->mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))));
+                    break;
             }
         } catch (Exception e) {
             log.error("error ", e);
         } finally {
             if (mqttChannel != null && receiveContext.isCluster()) {
-                receiveContext.getProtocolAdaptor().chooseProtocol(new ClusterMessage(message));
+                receiveContext.getIntegrate().getCluster().sendCluster(new ClusterMessage(message));
             }
         }
-        return Mono.empty();
     }
 
     @Override
     public Class<PublishMessage> getClassType() {
         return PublishMessage.class;
-    }
-
-    private Event buildEvent(PublishMessage message) {
-        return new PublishEvent(
-                System.currentTimeMillis(),
-                message.getClientId(),
-                message.getTopic(),
-                message.getQos(),
-                message.isRetain(),
-                new String(message.getBody()));
     }
 
 
@@ -91,40 +78,19 @@ public class PublishProtocol implements Protocol<PublishMessage> {
      *
      * @param subscribeTopics {@link SubscribeTopic}
      * @param message         {@link PublishMessage}
-     * @param messages        {@link IntegrateMessages}
      * @param other           {@link Mono}
-     * @return Mono
      */
-    private Mono<Void> send(Set<SubscribeTopic> subscribeTopics, PublishMessage message, IntegrateMessages messages, Mono<Void> other) {
-        return Mono.fromRunnable(() ->
-                subscribeTopics.stream()
-                        .filter(subscribeTopic -> filterOfflineSession(subscribeTopic.getMqttChannel(), messages, message))
-                        .forEach(subscribeTopic -> {
-                                    subscribeTopic
-                                            .getMqttChannel()
-                                            .sendPublish(subscribeTopic.minQos(MqttQoS.valueOf(message.getQos())), message);
-                                }
-                        )).then(other);
-
+    private void send(Set<SubscribeTopic> subscribeTopics, PublishMessage message, Mono<Void> other) {
+        subscribeTopics
+                .forEach(subscribeTopic -> {
+                            subscribeTopic
+                                    .getMqttChannel()
+                                    .sendPublish(subscribeTopic.minQos(MqttQoS.valueOf(message.getQos())), message);
+                        }
+                );
+        other.subscribe();
     }
 
-
-    /**
-     * 过滤离线会话消息
-     *
-     * @param mqttChannel {@link MqttChannel}
-     * @param messages    {@link IntegrateMessages}
-     * @param message     {@link PublishMessage}
-     * @return boolean
-     */
-    private boolean filterOfflineSession(MqttChannel mqttChannel, IntegrateMessages messages, PublishMessage message) {
-        if (mqttChannel.getStatus() == ChannelStatus.ONLINE) {
-            return true;
-        } else {
-            messages.saveSessionMessage(SessionMessage.of(mqttChannel.getConnectMessage().getClientId(), message));
-            return false;
-        }
-    }
 
 
     /**

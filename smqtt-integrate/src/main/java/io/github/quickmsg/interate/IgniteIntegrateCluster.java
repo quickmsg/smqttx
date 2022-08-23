@@ -73,7 +73,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     private boolean doRemote(UUID uuid, Object o) {
         ClusterMessage clusterMessage = (ClusterMessage) o;
-        igniteIntegrate.getProtocolAdaptor().chooseProtocol(clusterMessage.toPublishMessage(ContextHolder.getReceiveContext()));
+        igniteIntegrate.getProtocolAdaptor().chooseProtocol(clusterMessage.toPublishMessage());
         return true;
     }
 

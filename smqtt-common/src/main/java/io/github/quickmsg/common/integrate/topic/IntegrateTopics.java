@@ -1,8 +1,10 @@
 package io.github.quickmsg.common.integrate.topic;
 
+import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.IntegrateGetter;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,19 +17,33 @@ public interface IntegrateTopics<T> extends IntegrateGetter {
      * registry topic object
      *
      * @param t     body
-     * @param topic topic
      */
-    void registryTopic(String topic, T t);
+    void registryTopic(List<T> t);
+
+    /**
+     * registry topic object
+     *
+     * @param t     body
+     */
+    void registryTopic(T t);
 
 
     /**
      * remove
      *
      * @param t     body
-     * @param topic topic
      * @return result
      */
-    boolean removeTopic(String topic, T t);
+    void removeTopic( T t);
+
+
+    /**
+     * remove
+     *
+     * @param t     body
+     * @return result
+     */
+    void removeTopic( List<T>  t);
 
 
     /**
@@ -54,11 +70,6 @@ public interface IntegrateTopics<T> extends IntegrateGetter {
      */
     Long counts();
 
-    /**
-     * clear node all count
-     *
-=     */
-    void clearTopics(String node);
 
 
     /**

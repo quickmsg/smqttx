@@ -12,12 +12,6 @@ import java.util.Set;
  */
 public interface IntegrateMessages extends IntegrateGetter {
 
-    Set<SessionMessage> getSessionMessage(String clientIdentifier);
-
-    void deleteSessionMessage(String clientIdentifier);
-
-    boolean saveSessionMessage(SessionMessage of);
-
     void saveRetainMessage(RetainMessage of);
 
     void deleteRetainMessage(String clientIdentifier);

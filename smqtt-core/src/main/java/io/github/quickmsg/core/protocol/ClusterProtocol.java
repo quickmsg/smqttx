@@ -14,11 +14,9 @@ import reactor.util.context.ContextView;
 public class ClusterProtocol implements Protocol<ClusterMessage> {
 
     @Override
-    public Mono<Event> parseProtocol(ClusterMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        return Mono.fromRunnable(()->{
-            ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-            receiveContext.getIntegrate().getCluster().sendCluster(message);
-        }) ;
+    public void parseProtocol(ClusterMessage message, MqttChannel mqttChannel, ContextView contextView) {
+        ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
+        receiveContext.getIntegrate().getCluster().sendCluster(message);
     }
 
     @Override
