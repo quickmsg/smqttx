@@ -4,24 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.quickmsg</groupId>
-    <artifactId>smqtt</artifactId>
+    <artifactId>smqttx</artifactId>
     <version>1.1.0</version>
     <modules>
-        <module>smqtt-common</module>
-        <module>smqtt-core</module>
-        <module>smqtt-bootstrap</module>
-        <module>smqtt-rule</module>
-        <module>smqtt-ui</module>
-        <module>smqtt-metric</module>
-        <module>smqtt-spring-boot-starter</module>
-        <module>smqtt-integrate</module>
+        <module>smqttx-common</module>
+        <module>smqttx-core</module>
+        <module>smqttx-bootstrap</module>
+        <module>smqttx-rule</module>
+        <module>smqttx-ui</module>
+        <module>smqttx-metric</module>
+        <module>smqttx-spring-boot-starter</module>
+        <module>smqttx-integrate</module>
     </modules>
     <packaging>pom</packaging>
 
-    <name>smqtt</name>
+    <name>smqttx</name>
 
-    <url>https://github.com/quickmsg/smqtt</url>
-    <description>mqtt broker</description>
+    <url>https://github.com/quickmsg/smqttx</url>
+    <description>smqttx mqtt broker</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -44,8 +44,8 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/quickmsg/smqtt</url>
-        <connection>https://github.com/quickmsg/smqtt.git</connection>
+        <url>https://github.com/quickmsg/smqttx</url>
+        <connection>https://github.com/quickmsg/smqttx.git</connection>
     </scm>
     <developers>
         <developer>

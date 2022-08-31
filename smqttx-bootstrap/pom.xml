@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>smqttx</artifactId>
+        <groupId>io.github.quickmsg</groupId>
+        <version>1.1.0</version>
+    </parent>
+    <artifactId>smqttx-bootstrap</artifactId>
+    <version>1.1.0</version>
+
+    <name>smqttx-bootstrap</name>
+    <url>http://www.example.com</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.quickmsg</groupId>
+            <artifactId>smqttx-core</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <artifactId>smqttx-ui</artifactId>
+            <groupId>io.github.quickmsg</groupId>
+            <version>1.1.0</version>
+        </dependency>
+    </dependencies>
+    <profiles>
+        <profile>
+            <id>jar</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>io.github.quickmsg.jar.JarStarter</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>docker</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <configuration>
+                            <from>
+                                <image>openjdk:8-jre-alpine</image>
+                            </from>
+                            <to>
+                                <image>1ssqq1lxr/smqtt</image>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <auth>
+                                      <username>1ssqq1lxr</username>
+                                       <password>lxr7293209</password>
+                                </auth>
+                            </to>
+                            <container>
+                                <!--容器相关的属性-->
+                                <mainClass>io.github.quickmsg.docker.DockerStarter</mainClass>
+                                <!--jvm内存参数-->
+                                <!--                                <jvmFlags>-->
+                                <!--                                    <jvmFlag>-Xms4g</jvmFlag>-->
+                                <!--                                    <jvmFlag>-Xmx4g</jvmFlag>-->
+                                <!--                                </jvmFlags>-->
+                                <!--要暴露的端口-->
+                                <!--                                <ports>-->
+                                <!--                                    <port>8083</port>-->
+                                <!--                                </ports>-->
+                                <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+                            </container>
+                            <allowInsecureRegistries>true</allowInsecureRegistries>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+</project>

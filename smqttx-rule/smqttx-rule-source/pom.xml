@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
+    <parent>
+        <artifactId>smqttx-rule</artifactId>
+        <groupId>io.github.quickmsg</groupId>
+        <version>1.1.0</version>
+    </parent>
+
+    <artifactId>smqttx-rule-source</artifactId>
+    <name>smqttx-rule-source</name>
+
+    <modules>
+        <module>smqttx-rule-source-kafka</module>
+        <module>smqttx-rule-source-http</module>
+        <module>smqttx-rule-source-rocketmq</module>
+        <module>smqttx-rule-source-rabbitmq</module>
+        <module>smqttx-rule-source-db</module>
+        <module>smqttx-rule-source-mqtt</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.quickmsg</groupId>
+            <artifactId>smqttx-common</artifactId>
+            <version>1.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+
+</project>
