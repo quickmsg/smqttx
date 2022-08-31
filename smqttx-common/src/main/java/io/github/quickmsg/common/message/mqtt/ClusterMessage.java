@@ -52,7 +52,7 @@ public class ClusterMessage implements Message {
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);
         publishMessage.setBody(this.body);
-        publishMessage.setClientId(this.clientId);
+        publishMessage.setMqttChannel(this.mqttChannel);
         return  publishMessage;
     }
 }

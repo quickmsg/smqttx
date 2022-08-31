@@ -32,7 +32,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                             Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
                             ReceiveContext<?> receiveContext = ContextHolder.getReceiveContext();
                             messageProtocol.doParseProtocol(message, message.getMqttChannel())
-                                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, message.getContext()))
+                                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, ContextHolder.getReceiveContext()))
                                     .onErrorContinue((throwable,obj)-> {
                                         log.error("DefaultProtocolAdaptor",throwable);
                                     })
