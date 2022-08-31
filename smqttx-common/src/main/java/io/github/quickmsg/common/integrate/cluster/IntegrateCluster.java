@@ -2,6 +2,7 @@ package io.github.quickmsg.common.integrate.cluster;
 
 import io.github.quickmsg.common.integrate.IntegrateGetter;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -44,12 +45,26 @@ public interface IntegrateCluster extends IntegrateGetter {
 
 
     /**
+     * 訂閱
+     *
+     * @param topic  mqttTopic
+     */
+    void listenTopic(String topic);
+
+    /**
      * 停止
      *
-     * @param clusterMessage {@link ClusterMessage}
-     * @return {@link Mono}
+     * @param topic  mqttTopic
      */
-    void sendCluster(ClusterMessage clusterMessage);
+    void stopListenTopic(String topic);
 
+
+
+    /**
+     * 集群消息
+     *
+     * @param publishMessage {@link PublishMessage}
+     */
+    void sendCluster(PublishMessage publishMessage);
 
 }

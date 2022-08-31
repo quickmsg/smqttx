@@ -52,7 +52,7 @@ public class IgniteIntegrate implements Integrate {
         this.ignite.cluster().state(ClusterState.ACTIVE);
         this.protocolAdaptor = protocolAdaptor;
         this.igniteChannels = new IgniteChannels(this, new ConcurrentHashMap<>());
-        this.cluster = new IgniteIntegrateCluster(this, ignite.cluster());
+        this.cluster = new IgniteIntegrateCluster(this);
         this.integrateTopics = new IgniteIntegrateTopics(this);
         this.igniteMessages = new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
         this.pipeline = new ReactorPipeline();

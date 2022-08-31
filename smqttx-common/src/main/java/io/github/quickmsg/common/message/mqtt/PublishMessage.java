@@ -31,6 +31,8 @@ public class PublishMessage implements Message {
 
     private long timestamp;
 
+    private String clientId;
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 
@@ -50,6 +52,7 @@ public class PublishMessage implements Message {
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
         this.timestamp = System.currentTimeMillis();
+        this.clientId = mqttChannel.getClientId();
     }
 
 

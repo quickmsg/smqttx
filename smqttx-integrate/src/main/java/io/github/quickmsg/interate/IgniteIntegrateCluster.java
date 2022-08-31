@@ -1,16 +1,19 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import org.apache.ignite.IgniteMessaging;
-import org.apache.ignite.lang.IgniteBiPredicate;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -24,11 +27,12 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     private final org.apache.ignite.IgniteCluster igniteCluster;
 
-    public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate, org.apache.ignite.IgniteCluster igniteCluster) {
+    private Map<String, UUID> fixedListener = new ConcurrentHashMap<>();
+
+    public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate) {
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
-        this.igniteCluster = igniteCluster;
-        message.localListen(this.getLocalNode(), (IgniteBiPredicate<UUID, Object>) this::doRemote);
+        this.igniteCluster = igniteIntegrate.getIgnite().cluster();
     }
 
 
@@ -59,16 +63,23 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     @Override
     public void shutdown() {
-        message.stopLocalListen(this.getLocalNode(),(uuid, o) -> true);
+        message.stopLocalListen(this.getLocalNode(), (uuid, o) -> true);
     }
 
     @Override
-    public void sendCluster(ClusterMessage clusterMessage) {
-        IntegrateTopics<SubscribeTopic> topics = igniteIntegrate.getTopics();
-        String topic = clusterMessage.getTopic();
-        Set<String> otherNodes = topics.isWildcard(topic) ?
-                this.getOtherClusterNode() : topics.getRemoteTopicsContext(topic);
-        otherNodes.forEach(node -> message.send(node, clusterMessage));
+    public void listenTopic(String topic) {
+        fixedListener.computeIfAbsent(topic,tp->message.remoteListen(tp,this::doRemote));
+    }
+
+    @Override
+    public void stopListenTopic(String topic) {
+        Optional.ofNullable(fixedListener.remove(topic))
+                .ifPresent(message::stopRemoteListenAsync);
+    }
+
+    @Override
+    public void sendCluster(PublishMessage publishMessage) {
+        message.send(publishMessage.getTopic(),JacksonUtil.bean2Json(publishMessage));
     }
 
     private boolean doRemote(UUID uuid, Object o) {

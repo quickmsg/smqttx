@@ -61,7 +61,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
             log.error("error ", e);
         } finally {
             if (mqttChannel != null && receiveContext.isCluster()) {
-                receiveContext.getIntegrate().getCluster().sendCluster(new ClusterMessage(message));
+                receiveContext.getIntegrate().getCluster().sendCluster(message);
             }
         }
     }

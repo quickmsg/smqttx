@@ -11,12 +11,13 @@ import reactor.util.context.ContextView;
 /**
  * @author luxurong
  */
+@Deprecated
 public class ClusterProtocol implements Protocol<ClusterMessage> {
 
     @Override
     public void parseProtocol(ClusterMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-        receiveContext.getIntegrate().getCluster().sendCluster(message);
+//        receiveContext.getIntegrate().getCluster().sendCluster(message);
     }
 
     @Override
