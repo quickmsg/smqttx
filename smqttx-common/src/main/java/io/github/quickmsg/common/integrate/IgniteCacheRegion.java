@@ -9,7 +9,7 @@ import org.apache.ignite.cache.CacheMode;
 @Getter
 public enum IgniteCacheRegion {
 
-    TOPIC("topic_cache", "topic_data_region", CacheMode.PARTITIONED) {
+    MQTT_CACHE("mqtt-*", "topic_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
             return false;
@@ -23,7 +23,7 @@ public enum IgniteCacheRegion {
     CHANNEL("channel_cache", "channel_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
-            return true;
+            return false;
         }
 
         @Override
@@ -34,7 +34,7 @@ public enum IgniteCacheRegion {
     RETAIN("retain_message", "retain_data_region", CacheMode.PARTITIONED) {
         @Override
         public boolean persistence() {
-            return true;
+            return false;
         }
 
         @Override

@@ -16,12 +16,15 @@ import io.github.quickmsg.common.topic.FixedTopicFilter;
 import io.github.quickmsg.common.topic.TreeTopicFilter;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteAtomicLong;
+import org.apache.ignite.IgniteSet;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.cache.CacheRebalanceMode;
+import org.apache.ignite.cache.CacheWriteSynchronizationMode;
 import org.apache.ignite.cluster.ClusterState;
 import org.apache.ignite.configuration.CacheConfiguration;
+import org.apache.ignite.configuration.CollectionConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,8 +76,8 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public <K, V> IntegrateCache<K, V> getCache(String cacheName) {
         CacheConfiguration<K, V> configuration =
-                new CacheConfiguration<K, V>()
-                        .setName(cacheName);
+                    new CacheConfiguration<K, V>()
+                                .setName(cacheName);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
 
@@ -87,8 +90,8 @@ public class IgniteIntegrate implements Integrate {
     public <K, V> IntegrateCache<K, V> getLocalCache(String cacheName, boolean local) {
         CacheMode cacheMode = local ? CacheMode.LOCAL : CacheMode.PARTITIONED;
         CacheConfiguration<K, V> configuration =
-                new CacheConfiguration<K, V>()
-                        .setName(cacheName).setCacheMode(cacheMode);
+                    new CacheConfiguration<K, V>()
+                                .setName(cacheName).setCacheMode(cacheMode);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
 
@@ -96,16 +99,18 @@ public class IgniteIntegrate implements Integrate {
     public <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion) {
         CacheMode cacheMode = igniteCacheRegion.local() ? CacheMode.LOCAL : CacheMode.PARTITIONED;
         CacheConfiguration<K, V> configuration =
-                new CacheConfiguration<K, V>()
-                        .setName(igniteCacheRegion.getCacheName())
-                        .setCacheMode(cacheMode)
-                        .setDataRegionName(igniteCacheRegion.getRegionName())
-                        .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
-                        .setCacheMode(igniteCacheRegion.getCacheMode())
-                        .setBackups(1)
-                        .setRebalanceMode(CacheRebalanceMode.ASYNC);
+                    new CacheConfiguration<K, V>()
+                                .setName(igniteCacheRegion.getCacheName())
+                                .setCacheMode(cacheMode)
+                                .setDataRegionName(igniteCacheRegion.getRegionName())
+                                .setCacheMode(igniteCacheRegion.getCacheMode())
+                                .setAtomicityMode(CacheAtomicityMode.ATOMIC)
+                                .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
+                                .setBackups(1)
+                                .setRebalanceMode(CacheRebalanceMode.ASYNC);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
+
 
 
     @Override

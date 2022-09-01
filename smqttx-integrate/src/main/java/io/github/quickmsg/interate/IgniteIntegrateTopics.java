@@ -4,13 +4,17 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.utils.TopicRegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ignite.IgniteSet;
+import org.apache.ignite.cache.CacheAtomicityMode;
+import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.configuration.CollectionConfiguration;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 /**
  * @author luxurong
@@ -35,7 +39,10 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     public IgniteIntegrateTopics(IgniteIntegrate integrate) {
         this.integrate = integrate;
-        this.shareCache = integrate.getIgnite().set("wildcard", new CollectionConfiguration().setBackups(1));
+        this.shareCache = integrate.getIgnite().set("wildcard",
+                    new CollectionConfiguration().setCacheMode(CacheMode.PARTITIONED)
+                                .setAtomicityMode(CacheAtomicityMode.ATOMIC)
+                                .setCollocated(true));
         this.topicSubscribers = new ConcurrentHashMap<>();
     }
 
@@ -46,8 +53,7 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public void registryTopic(MqttChannel mqttChannel, SubscribeTopic subscribeTopic) {
-        Set<SubscribeTopic> subscribeTopicSet =
-                    topicSubscribers.computeIfAbsent(subscribeTopic.getTopicFilter(), topic -> new CopyOnWriteArraySet<>());
+        Set<SubscribeTopic> subscribeTopicSet = topicSubscribers.computeIfAbsent(subscribeTopic.getTopicFilter(), topic -> new CopyOnWriteArraySet<>());
         String topic = subscribeTopic.getTopicFilter();
         if (subscribeTopicSet.add(subscribeTopic)) {
             integrate.getCluster().listenTopic(topic);
@@ -93,7 +99,18 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public Set<SubscribeTopic> getMqttChannelsByTopic(String topic) {
-        return topicSubscribers.get(topic);
+        Set<SubscribeTopic> allSubscribeTopics = topicSubscribers.get(topic);
+        if (!shareCache.isEmpty()) {
+            if (allSubscribeTopics != null) {
+                Set<SubscribeTopic> subscribeTopics = shareCache.stream().filter(topic::matches).flatMap(tp -> topicSubscribers.get(tp).stream()).collect(Collectors.toSet());
+                if (subscribeTopics.size() > 0) {
+                    allSubscribeTopics.addAll(subscribeTopics);
+                }
+            } else {
+                allSubscribeTopics = shareCache.stream().filter(topic::matches).flatMap(tp -> topicSubscribers.get(tp).stream()).collect(Collectors.toSet());
+            }
+        }
+        return allSubscribeTopics;
     }
 
     @Override
@@ -103,8 +120,7 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public boolean isWildcard(String topic) {
-        return topic.contains(ONE_SYMBOL)
-                    || topic.contains(MORE_SYMBOL);
+        return topic.contains(ONE_SYMBOL) || topic.contains(MORE_SYMBOL);
     }
 
     @Override
