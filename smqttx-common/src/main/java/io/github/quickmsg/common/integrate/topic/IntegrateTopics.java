@@ -46,6 +46,10 @@ public interface IntegrateTopics<T> extends IntegrateGetter {
     void removeTopic(MqttChannel mqttChannel,List<T>  t);
 
 
+
+    Set<SubscribeTopic> getMqttChannelsByTopic(String topic);
+
+
     /**
      * get all count
      *

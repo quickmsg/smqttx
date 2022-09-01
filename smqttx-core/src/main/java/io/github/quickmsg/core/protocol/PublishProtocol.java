@@ -33,10 +33,9 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
         try {
             IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
-            IntegrateChannels channels = receiveContext.getIntegrate().getChannels();
             IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
             AclManager aclManager = receiveContext.getAclManager();
-            Set<SubscribeTopic> mqttChannels = topics.getObjectsByTopic(message.getTopic());
+            Set<SubscribeTopic> mqttChannels = topics.getMqttChannelsByTopic(message.getTopic());
 
             if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
                 log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectMessage(), message.getTopic());
@@ -44,17 +43,17 @@ public class PublishProtocol implements Protocol<PublishMessage> {
             }
             if (mqttChannel == null) {
                 // cluster message
-                send(channels, mqttChannels, message, filterRetainMessage(message, messages));
+                send( mqttChannels, message, filterRetainMessage(message, messages));
                 return;
             }
             switch (MqttQoS.valueOf(message.getQos())) {
                 case AT_MOST_ONCE:
-                    send(channels, mqttChannels, message, filterRetainMessage(message, messages));
+                    send( mqttChannels, message, filterRetainMessage(message, messages));
                     break;
                 case EXACTLY_ONCE:
                 case AT_LEAST_ONCE:
                 default:
-                    send(channels, mqttChannels, message, Mono.fromRunnable(() -> mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))));
+                    send(mqttChannels, message, Mono.fromRunnable(() -> mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))));
                     break;
             }
         } catch (Exception e) {
@@ -75,15 +74,14 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     /**
      * 通用发送消息
      *
-     * @param channels
      * @param subscribeTopics {@link SubscribeTopic}
      * @param message         {@link PublishMessage}
      * @param other           {@link Mono}
      */
-    private void send(IntegrateChannels channels, Set<SubscribeTopic> subscribeTopics, PublishMessage message, Mono<Void> other) {
+    private void send( Set<SubscribeTopic> subscribeTopics, PublishMessage message, Mono<Void> other) {
         subscribeTopics
                     .forEach(subscribeTopic -> {
-                                    Optional.ofNullable(channels.get(subscribeTopic.getClientId()))
+                                    Optional.ofNullable(subscribeTopic.getMqttChannel())
                                                 .ifPresent(mqttChannel -> {
                                                     mqttChannel.sendPublish(subscribeTopic.minQos(MqttQoS.valueOf(message.getQos())), message);
 

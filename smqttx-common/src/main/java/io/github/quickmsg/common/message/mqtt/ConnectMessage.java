@@ -21,7 +21,7 @@ public class ConnectMessage implements Message {
 
     private String nodeIp;
 
-    private String clientId;
+    private MqttChannel mqttChannel;
 
     private MqttVersion version;
 
@@ -41,10 +41,15 @@ public class ConnectMessage implements Message {
         return 0;
     }
 
+    @Override
+    public MqttChannel getMqttChannel() {
+        return mqttChannel;
+    }
 
-    public ConnectMessage(Object message) {
-        MqttConnectVariableHeader variableHeader = ((MqttConnectMessage) message).variableHeader();
-        MqttConnectPayload mqttConnectPayload = ((MqttConnectMessage) message).payload();
+
+    public ConnectMessage(MqttConnectMessage message,MqttChannel mqttChannel) {
+        MqttConnectVariableHeader variableHeader = message.variableHeader();
+        MqttConnectPayload mqttConnectPayload = message.payload();
         if (variableHeader.isWillFlag()) {
             this.will = MqttChannel.Will.builder()
                     .willMessage(mqttConnectPayload.willMessageInBytes())
@@ -62,6 +67,6 @@ public class ConnectMessage implements Message {
         this.cleanSession = variableHeader.isCleanSession();
         this.keepalive = variableHeader.keepAliveTimeSeconds();
         this.timestamp = System.currentTimeMillis();
-        this.clientId = mqttConnectPayload.clientIdentifier();
+        this.mqttChannel = mqttChannel;
     }
 }

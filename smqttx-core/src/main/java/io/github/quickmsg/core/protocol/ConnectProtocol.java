@@ -8,6 +8,7 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.message.mqtt.CloseMessage;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.spi.registry.EventRegistry;
@@ -37,15 +38,14 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     @Override
     public void parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
-        EventRegistry eventRegistry = mqttReceiveContext.getEventRegistry();
-        String clientIdentifier = connectMessage.getClientId();
+        String clientIdentifier = mqttChannel.getClientId();
         Integrate integrate = mqttReceiveContext.getIntegrate();
         IntegrateChannels channels = integrate.getChannels();
         IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
         AuthManager aclManager = mqttReceiveContext.getAuthManager();
         /*protocol version support*/
         if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
-                && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
+                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION));
             return;
         }
@@ -54,25 +54,23 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             /*check clientIdentifier exist*/
 
             mqttChannel.setConnectMessage(connectMessage);
-            mqttChannel.setAuthTime(DateFormatUtils.format(new Date(),"yyyy-mm-dd hh:mm:ss"));
+            mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
             mqttChannel.getConnection()
-                    .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
-                            mqttChannel::close);
+                        .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
+                                    mqttChannel::close);
 
             /* registry new channel*/
-            channels.add(mqttChannel.getConnectMessage().getClientId(), mqttChannel);
+            channels.add(mqttChannel.getClientId(), mqttChannel);
 
             /* registry close mqtt channel event*/
             mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext));
 
-            eventRegistry.registry(ChannelEvent.CONNECT, mqttChannel, connectMessage, mqttReceiveContext);
-
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
         } else {
             mqttChannel.write(
-                    MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
+                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
         }
 
     }
@@ -84,21 +82,23 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     }
 
 
-
     private void close(MqttChannel mqttChannel, MqttReceiveContext mqttReceiveContext) {
         mqttReceiveContext.getIntegrate().getChannels().remove(mqttChannel);
-        IntegrateTopics<SubscribeTopic>  topics=mqttReceiveContext.getIntegrate().getTopics();
-        topics.removeTopic(mqttChannel,new ArrayList<>(mqttChannel.getTopics()));
+        IntegrateTopics<SubscribeTopic> topics = mqttReceiveContext.getIntegrate().getTopics();
+        topics.removeTopic(mqttChannel, new ArrayList<>(mqttChannel.getTopics()));
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
+        CloseMessage closeMessage = new CloseMessage();
+        closeMessage.setMqttChannel(mqttChannel);
+        closeMessage.setReason("close");
+        mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(closeMessage);
         Optional.ofNullable(mqttChannel.getConnectMessage().getWill())
-                .ifPresent(will ->
-                        topics.getObjectsByTopic(will.getWillTopic())
-                                .forEach(subscribeTopic -> {
-                                    String clientId = subscribeTopic.getClientId();
-                                    MqttChannel channel =mqttReceiveContext.getIntegrate().getChannels().get(clientId);
-                                    MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
-                                    channel.sendPublish(mqttQoS, will.toPublishMessage());
-                                }));
+                    .ifPresent(will ->
+                                topics.getMqttChannelsByTopic(will.getWillTopic())
+                                            .forEach(subscribeTopic -> {
+                                                MqttChannel channel = subscribeTopic.getMqttChannel();
+                                                MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
+                                                channel.sendPublish(mqttQoS, will.toPublishMessage());
+                                            }));
 
     }
 

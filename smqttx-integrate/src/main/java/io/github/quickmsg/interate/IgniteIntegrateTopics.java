@@ -92,6 +92,11 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
     }
 
     @Override
+    public Set<SubscribeTopic> getMqttChannelsByTopic(String topic) {
+        return topicSubscribers.get(topic);
+    }
+
+    @Override
     public Long counts() {
         return null;
     }

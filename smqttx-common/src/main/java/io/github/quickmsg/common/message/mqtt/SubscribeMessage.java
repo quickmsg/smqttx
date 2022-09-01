@@ -39,7 +39,7 @@ public class SubscribeMessage implements Message {
                         .payload()
                         .topicSubscriptions()
                         .stream()
-                        .map(mqttTopicSubscription -> new SubscribeTopic(mqttTopicSubscription.topicName(), mqttTopicSubscription.qualityOfService(), mqttChannel.getClientId()))
+                        .map(mqttTopicSubscription -> new SubscribeTopic(mqttTopicSubscription.topicName(), mqttTopicSubscription.qualityOfService(), mqttChannel))
                         .collect(Collectors.toList());
     }
 }

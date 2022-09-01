@@ -31,21 +31,20 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
         MetricManagerHolder.metricManager.getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
         IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
-        IntegrateChannels channels = receiveContext.getIntegrate().getChannels();
         AclManager aclManager = receiveContext.getAclManager();
         IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
-        List<SubscribeTopic> subscribeTopics=message.getSubscribeTopics()
-                .stream()
-                .filter(subscribeTopic -> aclManager.check(mqttChannel, subscribeTopic.getTopicFilter(), AclAction.SUBSCRIBE))
-                .peek(subscribeTopic -> this.loadRetainMessage(channels,messages, subscribeTopic)).collect(Collectors.toList());
-        topics.registryTopic(mqttChannel,subscribeTopics);
+        List<SubscribeTopic> subscribeTopics = message.getSubscribeTopics()
+                    .stream()
+                    .filter(subscribeTopic -> aclManager.check(mqttChannel, subscribeTopic.getTopicFilter(), AclAction.SUBSCRIBE))
+                    .peek(subscribeTopic -> this.loadRetainMessage(messages, subscribeTopic)).collect(Collectors.toList());
+        topics.registryTopic(mqttChannel, subscribeTopics);
         mqttChannel.write(
-                MqttMessageUtils.buildSubAck(
-                        message.getMessageId(),
-                        message.getSubscribeTopics()
-                                .stream()
-                                .map(subscribeTopic -> subscribeTopic.getQoS().value())
-                                .collect(Collectors.toList())));
+                    MqttMessageUtils.buildSubAck(
+                                message.getMessageId(),
+                                message.getSubscribeTopics()
+                                            .stream()
+                                            .map(subscribeTopic -> subscribeTopic.getQoS().value())
+                                            .collect(Collectors.toList())));
     }
 
     @Override
@@ -53,15 +52,15 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
         return SubscribeMessage.class;
     }
 
-    private void loadRetainMessage(IntegrateChannels channels, IntegrateMessages messages, SubscribeTopic topic) {
+    private void loadRetainMessage(IntegrateMessages messages, SubscribeTopic topic) {
         messages.getRetainMessage(topic.getTopicFilter())
-                .forEach(retainMessage -> {
-                    Optional.ofNullable(channels.get(topic.getClientId()))
-                                            .ifPresent(mqttChannel -> {
-                                                mqttChannel.sendPublish(topic.minQos(MqttQoS.valueOf(retainMessage.getQos())),
-                                                            retainMessage.toPublishMessage());
-                                            });
-                });
+                    .forEach(retainMessage -> {
+                        Optional.ofNullable(topic.getMqttChannel())
+                                    .ifPresent(mqttChannel -> {
+                                        mqttChannel.sendPublish(topic.minQos(MqttQoS.valueOf(retainMessage.getQos())),
+                                                    retainMessage.toPublishMessage());
+                                    });
+                    });
     }
 
 
