@@ -13,6 +13,8 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 
+import java.util.Optional;
+
 /**
  * @author luxurong
  */
@@ -41,18 +43,20 @@ public class PublishMessage implements Message {
         return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
     }
 
-    public PublishMessage(){}
+    public PublishMessage() {
+    }
 
-    public PublishMessage(Object message, MqttChannel mqttChannel){
-        MqttPublishMessage mqttPublishMessage = (MqttPublishMessage)message;
-        this.mqttChannel=mqttChannel;
-        this.messageId=mqttPublishMessage.variableHeader().packetId();
+    public PublishMessage(Object message, MqttChannel mqttChannel) {
+        MqttPublishMessage mqttPublishMessage = (MqttPublishMessage) message;
+        this.mqttChannel = mqttChannel;
+        this.messageId = mqttPublishMessage.variableHeader().packetId();
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
         this.timestamp = System.currentTimeMillis();
-        this.clientId = mqttChannel.getClientId();
+        this.clientId = Optional.ofNullable(mqttChannel)
+                    .map(MqttChannel::getClientId).orElse(null);
     }
 
 

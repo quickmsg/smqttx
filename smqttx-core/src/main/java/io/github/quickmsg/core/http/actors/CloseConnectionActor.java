@@ -41,7 +41,7 @@ public class CloseConnectionActor extends AbstractHttpActor {
                                     .getChannels()
                                     .get(id);
                             if(mqttChannel!=null){
-                                mqttChannel.close().subscribe();
+                                mqttChannel.close();
                             }
                         });
                     }

@@ -3,7 +3,6 @@ package io.github.quickmsg.core.mqtt;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.message.mqtt.*;
-import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
@@ -54,7 +53,7 @@ public class MqttReceiveContext extends AbstractReceiveContext<MqttConfiguration
                 case SUBSCRIBE:
                     return new SubscribeMessage(mqttMessage, mqttChannel);
                 case DISCONNECT:
-                    return new DisConnectMessage(mqttChannel.getClientId());
+                    return new DisConnectMessage(mqttChannel);
                 case UNSUBSCRIBE:
                     return new UnSubscribeMessage(mqttMessage, mqttChannel);
                 default:

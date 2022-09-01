@@ -32,7 +32,7 @@ public class RetainMessage {
                 .topic(message.getTopic())
                 .qos(message.getQos())
                 .body(message.getBody())
-                .clientId(message.getClientId())
+                .clientId(message.getMqttChannel().getClientId())
                 .retain(message.isRetain())
                 .timestamp(message.getTimestamp())
                 .build();

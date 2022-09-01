@@ -4,7 +4,6 @@ import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.*;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.LazyTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
@@ -39,10 +38,8 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import reactor.netty.resources.LoopResources;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 

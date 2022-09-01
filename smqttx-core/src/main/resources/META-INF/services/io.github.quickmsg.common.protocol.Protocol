@@ -9,7 +9,6 @@ io.github.quickmsg.core.protocol.PingProtocol
 io.github.quickmsg.core.protocol.PublishCompProtocol
 io.github.quickmsg.core.protocol.PublishRecProtocol
 io.github.quickmsg.core.protocol.PublishRelProtocol
-io.github.quickmsg.core.protocol.ClusterProtocol
 io.github.quickmsg.core.protocol.RetryProtocol
 
 

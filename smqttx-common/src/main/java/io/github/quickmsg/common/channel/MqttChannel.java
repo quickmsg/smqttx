@@ -33,6 +33,7 @@ public class MqttChannel {
 
     private String clientId;
 
+
     private Connection connection;
 
     private long activeTime;

@@ -31,7 +31,7 @@ public class JCasBinAclManager implements AclManager {
     private final String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
 
 
-    private boolean isOpen;
+    private boolean isOpen = true;
 
     public JCasBinAclManager(AclConfig aclConfig) {
         if (aclConfig != null) {
@@ -46,73 +46,81 @@ public class JCasBinAclManager implements AclManager {
                 Objects.requireNonNull(jdbcAclConfig);
                 try {
                     enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
-                            jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
+                                jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
+                    this.loadAclCache();
                 } catch (Exception e) {
                     log.error("init acl jdbc error {}", aclConfig, e);
                 }
             } else if (aclConfig.getAclPolicy() == AclPolicy.FILE) {
                 enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
+                this.loadAclCache();
             } else {
-                enforcer = new Enforcer();
+                isOpen = false;
             }
-            enforcer.addFunction("filter", new AclFunction());
-            List<String> objects = enforcer.getAllObjects();
-            List<String> actions = enforcer.getAllActions();
-            for (int i = 0; i < objects.size(); i++) {
-                Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
-                allObjects.add(objects.get(i));
-            }
-            isOpen = true;
+
         }
+    }
+
+
+    private void loadAclCache() {
+        enforcer.addFunction("filter", new AclFunction());
+        List<String> objects = enforcer.getAllObjects();
+        List<String> actions = enforcer.getAllActions();
+        for (int i = 0; i < objects.size(); i++) {
+            Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
+            allObjects.add(objects.get(i));
+        }
+        isOpen = true;
     }
 
     @Override
     public boolean check(MqttChannel mqttChannel, String source, AclAction action) {
         try {
-            boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
-                    .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
-                    .orElse(false);
-            if (isCheckAcl) {
-                String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
-                        , mqttChannel.getAddress().split(":")[0]);
-                return Optional.ofNullable(enforcer)
-                        .map(ef -> ef.enforce(subject, source, action.name()))
-                        .orElse(true);
+            if (isOpen) {
+                boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
+                            .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
+                            .orElse(false);
+                if (isCheckAcl) {
+                    String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
+                                , mqttChannel.getAddress().split(":")[0]);
+                    return Optional.ofNullable(enforcer)
+                                .map(ef -> ef.enforce(subject, source, action.name()))
+                                .orElse(true);
+                }
             }
-
         } catch (Exception e) {
             log.error("acl check error", e);
         }
-        return isOpen;
+        return true;
     }
 
     @Override
     public boolean add(String sub, String source, AclAction action, AclType type) {
-        return isOpen?Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.addNamedPolicy("p", sub, source, action.name(), type.getDesc()))
-                .orElse(true):false;
+        return isOpen ? Optional.ofNullable(enforcer)
+                    .map(ef -> enforcer.addNamedPolicy("p", sub, source, action.name(), type.getDesc()))
+                    .orElse(true) : false;
     }
 
     @Override
     public boolean delete(String sub, String source, AclAction action, AclType type) {
         return isOpen ? Optional.ofNullable(enforcer)
-                .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(), type.getDesc()))
-                .orElse(true) : false;
+                    .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(), type.getDesc()))
+                    .orElse(true) : false;
     }
 
     @Override
     public List<List<String>> get(PolicyModel policyModel) {
-        if(!isOpen){
+        if (!isOpen) {
             return Collections.emptyList();
         }
         return Optional.ofNullable(enforcer)
-                .map(ef -> enforcer
-                        .getFilteredNamedPolicy("p", 0,
-                                policyModel.getSubject(), policyModel.getSource(),
-                                policyModel.getAction() == null || AclAction.ALL == policyModel.getAction() ? "" : policyModel.getAction().name(),
-                                policyModel.getAclType() == null || AclType.ALLOW == policyModel.getAclType() ? "" : policyModel.getAclType().getDesc())
-                )
-                .orElse(Collections.emptyList());
+                    .map(ef -> enforcer
+                                .getFilteredNamedPolicy("p", 0,
+                                            policyModel.getSubject(), policyModel.getSource(),
+                                            policyModel.getAction() == null || AclAction.ALL == policyModel.getAction() ? "" : policyModel.getAction().name(),
+                                            policyModel.getAclType() == null || AclType.ALLOW == policyModel.getAclType() ? "" : policyModel.getAclType().getDesc())
+                    )
+                    .orElse(Collections.emptyList());
     }
 
 }

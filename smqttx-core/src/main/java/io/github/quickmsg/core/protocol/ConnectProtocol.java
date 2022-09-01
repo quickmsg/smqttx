@@ -3,7 +3,6 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.enums.ChannelEvent;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
@@ -11,7 +10,6 @@ import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.CloseMessage;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.protocol.Protocol;
-import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
@@ -23,7 +21,6 @@ import reactor.util.context.ContextView;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Optional;
 
 /**

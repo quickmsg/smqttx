@@ -19,7 +19,7 @@ smqtt:
       key: /user/server.key # 指定ssl文件 默认系统生成
       crt: /user/server.crt # 指定ssl文件 默认系统生成
   acl:
-    aclPolicy: FILE # NONE or FILE or JDBC
+    aclPolicy: NONE # NONE or FILE or JDBC
     filePath: D:\smq-business\config\acl\basic_policy.csv # FILE时配置filePath
     jdbcAclConfig:
       driver: com.mysql.jdbc.Driver
@@ -48,41 +48,6 @@ smqtt:
     addresses: ["127.0.0.1"]
   meter:
     meterType: PROMETHEUS # INFLUXDB , PROMETHEUS
-  db: # 参数值配置参考https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration
-    jdbcUrl: jdbc:mysql://localhost:3306/smqtt
-    username: root
-    password: 123
-    dataSourceCachePrepStmts: false
-    dataSourcePrepStmtCacheSize: 250
-    dataSourcePrepStmtCacheSqlLimit: 2048
-    dataSourceUseServerPrepStmts: true
-    dataSourceUseLocalSessionState: true
-    dataSourceRewriteBatchedStatements: true
-    dataSourceCacheResultSetMetadata: true
-    dataSourceCacheServerConfiguration: true
-    dataSourceElideSetAutoCommits: true
-    dataSourceMaintainTimeStats: false
-  redis: # redis 请参考 https://wiki.smqtt.cc/%E5%85%B6%E4%BB%96/1.store.html 【如果没有引入相关依赖请移除此配置】
-    mode: single
-    database: 0
-    password:
-    timeout: 3000
-    poolMinIdle: 8
-    poolConnTimeout: 3000
-    poolSize: 10
-    single:
-      address: 127.0.0.1:6379
-    cluster:
-      scanInterval: 1000
-      nodes: 127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005
-      readMode: SLAVE
-      retryAttempts: 3
-      slaveConnectionPoolSize: 64
-      masterConnectionPoolSize: 64
-      retryInterval: 1500
-    sentinel:
-      master: mymaster
-      nodes: 127.0.0.1:26379,127.0.0.1:26379,127.0.0.1:26379
 
 
 

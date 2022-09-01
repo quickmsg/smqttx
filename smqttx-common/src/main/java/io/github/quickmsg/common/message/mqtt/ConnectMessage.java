@@ -20,7 +20,7 @@ public class ConnectMessage implements Message {
 
 
     private String nodeIp;
-
+    @JsonIgnore
     private MqttChannel mqttChannel;
 
     private MqttVersion version;
@@ -68,5 +68,6 @@ public class ConnectMessage implements Message {
         this.keepalive = variableHeader.keepAliveTimeSeconds();
         this.timestamp = System.currentTimeMillis();
         this.mqttChannel = mqttChannel;
+        this.mqttChannel.setClientId(mqttConnectPayload.clientIdentifier());
     }
 }

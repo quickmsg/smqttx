@@ -34,8 +34,9 @@ public class DisConnectMessage implements Message {
     }
 
 
-    public DisConnectMessage(  String clientId){
-        this.clientId = clientId;
+    public DisConnectMessage(  MqttChannel mqttChannel){
+        this.clientId = mqttChannel.getClientId();
+        this.mqttChannel=mqttChannel;
     }
 
 

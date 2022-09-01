@@ -19,6 +19,6 @@ public abstract class AbstractHttpActor implements HttpActor {
         ContextHolder
                 .getReceiveContext()
                 .getProtocolAdaptor()
-                .chooseProtocol(new PublishMessage(mqttPublishMessage, "http"));
+                .chooseProtocol(new PublishMessage(mqttPublishMessage, null));
     }
 }
