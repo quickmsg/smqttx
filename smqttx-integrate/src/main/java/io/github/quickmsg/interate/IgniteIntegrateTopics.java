@@ -1,144 +1,105 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.integrate.IgniteCacheRegion;
+import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
-import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-import io.github.quickmsg.common.topic.AbstractTopicAggregate;
-import io.github.quickmsg.common.topic.FixedTopicFilter;
-import io.github.quickmsg.common.topic.TopicFilter;
-import io.github.quickmsg.common.topic.TreeTopicFilter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ignite.IgniteSet;
+import org.apache.ignite.configuration.CollectionConfiguration;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @author luxurong
  */
 @Slf4j
-public class IgniteIntegrateTopics extends AbstractTopicAggregate<SubscribeTopic> implements IntegrateTopics<SubscribeTopic> {
+public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     private final IgniteIntegrate integrate;
 
-    private final AtomicLong subscribeNumber = new AtomicLong(0);
+    private final IgniteSet<String> shareCache;
 
-    // topic -> node
-    private final IntegrateCache<String,Set<String>> shareCache;
+    private final Map<String, Set<SubscribeTopic>> topicSubscribers;
 
-    //tree topic count
-    private final Map<String,Integer> treeCount ;
+    protected static final String ONE_SYMBOL = "+";
+
+    protected static final String MORE_SYMBOL = "#";
 
 
-
-    private final String clusterNode;
-
+    public boolean checkFilter(String topicFilter) {
+        return topicFilter.contains(ONE_SYMBOL);
+    }
 
     public IgniteIntegrateTopics(IgniteIntegrate integrate) {
-        super(new FixedTopicFilter<>(), new TreeTopicFilter<>());
         this.integrate = integrate;
-        this.shareCache = integrate.getCache(IgniteCacheRegion.TOPIC);
-        this.clusterNode = integrate.getCluster().getLocalNode();
-        this.treeCount = new HashMap<>();
+        this.shareCache = integrate.getIgnite().set("wildcard", new CollectionConfiguration().setBackups(1));
+        this.topicSubscribers = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void registryTopic(List<SubscribeTopic> subscribeTopics) {
-        subscribeTopics.forEach(this::registryTopic);
+    public void registryTopic(MqttChannel mqttChannel, List<SubscribeTopic> subscribeTopics) {
+        subscribeTopics.forEach(subscribeTopic -> this.registryTopic(mqttChannel, subscribeTopic));
     }
 
     @Override
-    public void registryTopic(SubscribeTopic subscribeTopic) {
+    public void registryTopic(MqttChannel mqttChannel, SubscribeTopic subscribeTopic) {
+        Set<SubscribeTopic> subscribeTopicSet =
+                    topicSubscribers.computeIfAbsent(subscribeTopic.getTopicFilter(), topic -> new CopyOnWriteArraySet<>());
         String topic = subscribeTopic.getTopicFilter();
-        TopicFilter<SubscribeTopic> filter = checkFilter(topic);
-        if (filter.addObjectTopic(topic, subscribeTopic)) {
-            if (filter instanceof TreeTopicFilter) {
-                Lock lock =shareCache.lock(topic);
-                try {
-                    lock.lock();
-                    Integer count = this.treeCount.getOrDefault(topic,0);
-                    this.treeCount.put(topic,++count);
-                    Set<String> shareNodes = shareCache.get(topic);
-                    if(shareNodes == null){
-                        shareNodes = new HashSet<>();
-                        shareCache.put(topic,shareNodes);
-                    }
-                    shareNodes.add(clusterNode);
-                    shareCache.put(topic,shareNodes);
-                }finally {
-                    lock.unlock();
-                }
-
+        if (subscribeTopicSet.add(subscribeTopic)) {
+            integrate.getCluster().listenTopic(topic);
+            mqttChannel.getTopics().add(subscribeTopic);
+            if (isWildcard(topic)) {
+                shareCache.add(topic);
             }
-            subscribeNumber.incrementAndGet();
-            subscribeTopic.linkSubscribe();
         }
     }
 
 
     @Override
-    public void removeTopic(SubscribeTopic subscribeTopic) {
-        String topic = subscribeTopic.getTopicFilter();
-        TopicFilter<SubscribeTopic> filter = checkFilter(topic);
-        if (filter.removeObjectTopic(topic, subscribeTopic)) {
-            if (filter instanceof TreeTopicFilter) {
-                Lock lock =shareCache.lock(topic);
-                try {
-                    lock.lock();
-                    Integer count = this.treeCount.getOrDefault(topic,0);
-                    if(--count<1){
-                        Set<String> shareNodes = shareCache.get(topic);
-                        if(shareNodes != null && shareNodes.size()>0){
-                            shareNodes.remove(clusterNode);
-                            shareCache.put(topic,shareNodes);
-                        }
+    public void removeTopic(MqttChannel mqttChannel, SubscribeTopic subscribeTopic) {
+        topicSubscribers.compute(subscribeTopic.getTopicFilter(), (topic, subscribeTopicSet) -> {
+            if (subscribeTopicSet == null || subscribeTopicSet.size() < 1) {
+                this.clearCache(subscribeTopic.getTopicFilter());
+            } else {
+                if (subscribeTopicSet.remove(subscribeTopic)) {
+                    if ((subscribeTopicSet.size() < 1)) {
+                        this.clearCache(subscribeTopic.getTopicFilter());
                     }
-                }finally {
-                    lock.unlock();
                 }
             }
-            subscribeNumber.decrementAndGet();
-            subscribeTopic.unLinkSubscribe();
+            mqttChannel.getTopics().remove(subscribeTopic);
+            return subscribeTopicSet;
+        });
+
+    }
+
+    private void clearCache(String topic) {
+        integrate.getCluster().stopListenTopic(topic);
+        if (isWildcard(topic)) {
+            shareCache.remove(topic);
         }
-
     }
 
     @Override
-    public void removeTopic(List<SubscribeTopic> topics) {
-        topics.forEach(this::removeTopic);
-    }
-
-    @Override
-    public Set<SubscribeTopic> getObjectsByTopic(String topicName) {
-        Set<SubscribeTopic> subscribeTopics = this.getFixedTopicFilter().getAllObjectsTopic();
-        subscribeTopics.addAll(this.getTreeTopicFilter().getAllObjectsTopic());
-        return subscribeTopics;
-    }
-
-    @Override
-    public Set<String> getRemoteTopicsContext(String topicName) {
-        return integrate.getCluster()
-                .getOtherClusterNode()
-                .stream()
-                .filter(node -> Optional.ofNullable(shareCache.get(node))
-                        .map(cache -> cache.contains(topicName))
-                        .orElse(false))
-                .collect(Collectors.toSet());
+    public void removeTopic(MqttChannel mqttChannel, List<SubscribeTopic> topics) {
+        for (int i = 0; i < topics.size(); i++) {
+            this.removeTopic(mqttChannel, topics.get(i));
+        }
     }
 
     @Override
     public Long counts() {
-        return subscribeNumber.get();
+        return null;
     }
-
 
     @Override
     public boolean isWildcard(String topic) {
         return topic.contains(ONE_SYMBOL)
-                || topic.contains(MORE_SYMBOL);
+                    || topic.contains(MORE_SYMBOL);
     }
 
     @Override

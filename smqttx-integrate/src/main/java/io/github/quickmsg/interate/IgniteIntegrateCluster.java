@@ -61,10 +61,6 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     }
 
 
-    @Override
-    public void shutdown() {
-        message.stopLocalListen(this.getLocalNode(), (uuid, o) -> true);
-    }
 
     @Override
     public void listenTopic(String topic) {
@@ -74,7 +70,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     @Override
     public void stopListenTopic(String topic) {
         Optional.ofNullable(fixedListener.remove(topic))
-                .ifPresent(message::stopRemoteListenAsync);
+                    .ifPresent(message::stopRemoteListenAsync);
     }
 
     @Override

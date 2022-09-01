@@ -6,6 +6,7 @@ import lombok.Getter;
  * @author luxurong
  */
 @Getter
+@Deprecated
 public abstract class AbstractTopicAggregate<T> {
 
 

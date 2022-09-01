@@ -10,7 +10,7 @@ import lombok.Data;
  * @author luxurong
  */
 @Data
-public class ClusterMessage implements Message {
+public class ClusterMessage{
 
     private int messageId;
 
@@ -24,14 +24,9 @@ public class ClusterMessage implements Message {
 
     private long timestamp;
 
+    private String clientId;
 
-    @JsonIgnore
-    private MqttChannel mqttChannel;
-
-    @Override
-    public int getMessageId() {
-        return 0;
-    }
+    private int channelId;
 
 
 
@@ -42,7 +37,8 @@ public class ClusterMessage implements Message {
         this.retain = message.isRetain();
         this.body = message.getBody();
         this.timestamp = System.currentTimeMillis();
-        this.mqttChannel = message.getMqttChannel();
+        this.channelId= message.getMqttChannel().getId();
+        this.clientId= message.getMqttChannel().getClientId();
     }
 
     public PublishMessage toPublishMessage() {
@@ -52,7 +48,6 @@ public class ClusterMessage implements Message {
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);
         publishMessage.setBody(this.body);
-        publishMessage.setMqttChannel(this.mqttChannel);
         return  publishMessage;
     }
 }

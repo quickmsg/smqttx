@@ -36,13 +36,6 @@ public interface IntegrateCluster extends IntegrateGetter {
     String getLocalNode();
 
 
-    /**
-     * 停止
-     *
-     * @return {@link Mono}
-     */
-    void shutdown();
-
 
     /**
      * 訂閱

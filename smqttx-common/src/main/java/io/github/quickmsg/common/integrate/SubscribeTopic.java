@@ -56,20 +56,6 @@ public class SubscribeTopic {
         return MqttQoS.valueOf(Math.min(mqttQoS.value(), qoS.value()));
     }
 
-    public void linkSubscribe() {
-        MqttChannel mqttChannel = ContextHolder.getReceiveContext().getIntegrate().getChannels().get(this.clientId);
-        if(mqttChannel!=null){
-            mqttChannel.getTopics().add(this);
-        }
-    }
-
-    public void unLinkSubscribe() {
-        MqttChannel mqttChannel = ContextHolder.getReceiveContext().getIntegrate().getChannels().get(this.clientId);
-        if(mqttChannel!=null){
-            mqttChannel.getTopics().remove(this);
-        }
-    }
-
     @Override
     public String toString() {
         return "SubscribeTopic{" +

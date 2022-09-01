@@ -120,7 +120,7 @@ public class MqttChannel {
             case AT_LEAST_ONCE:
             default:
                 int messageId = this.generateMessageId();
-                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(),message.getClientId());
+                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(),this);
                 ContextHolder.getReceiveContext().getRetryManager().doRetry(this, retryMessage);
                 this.write(message.buildMqttMessage(mqttQoS, messageId));
                 break;

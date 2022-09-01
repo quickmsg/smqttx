@@ -38,7 +38,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
                 .stream()
                 .filter(subscribeTopic -> aclManager.check(mqttChannel, subscribeTopic.getTopicFilter(), AclAction.SUBSCRIBE))
                 .peek(subscribeTopic -> this.loadRetainMessage(channels,messages, subscribeTopic)).collect(Collectors.toList());
-        topics.registryTopic(subscribeTopics);
+        topics.registryTopic(mqttChannel,subscribeTopics);
         mqttChannel.write(
                 MqttMessageUtils.buildSubAck(
                         message.getMessageId(),

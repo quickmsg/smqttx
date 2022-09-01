@@ -22,6 +22,7 @@ import reactor.util.context.ContextView;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
 
 /**
@@ -87,7 +88,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     private void close(MqttChannel mqttChannel, MqttReceiveContext mqttReceiveContext) {
         mqttReceiveContext.getIntegrate().getChannels().remove(mqttChannel);
         IntegrateTopics<SubscribeTopic>  topics=mqttReceiveContext.getIntegrate().getTopics();
-        topics.removeTopic(new ArrayList<>(mqttChannel.getTopics()));
+        topics.removeTopic(mqttChannel,new ArrayList<>(mqttChannel.getTopics()));
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
         Optional.ofNullable(mqttChannel.getConnectMessage().getWill())
                 .ifPresent(will ->

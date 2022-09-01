@@ -22,7 +22,7 @@ public class UnSubscribeProtocol implements Protocol<UnSubscribeMessage> {
                         contextView.get(ReceiveContext.class)
                                 .getIntegrate()
                                 .getTopics()
-                                .removeTopic(new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel)));
+                                .removeTopic(mqttChannel,new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel.getClientId())));
         mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.getMessageId()));
     }
 
