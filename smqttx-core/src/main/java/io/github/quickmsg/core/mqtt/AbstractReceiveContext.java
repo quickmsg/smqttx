@@ -158,30 +158,28 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
         igniteConfiguration.setGridLogger(new Slf4jLogger());
-        if(StringUtils.isNotEmpty(configuration.getClusterConfig().getWorkDirectory())){
-            igniteConfiguration.setWorkDirectory(configuration.getClusterConfig().getWorkDirectory());
+        if(StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())){
+            igniteConfiguration.setWorkDirectory(clusterConfig.getWorkDirectory());
         }
         igniteConfiguration.setClientMode(false);
+        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
+        if(clusterConfig.getAddresses()!=null){
+            // ip集群
+            ipFinder.setAddresses(clusterConfig.getAddresses());
+        }
+        else{
+            // 组播
+            String multicastGroup = clusterConfig.getMulticastGroup();
+            if(multicastGroup!=null){
+                ipFinder.setMulticastGroup(multicastGroup);
+            }
+            Integer multicastPort = clusterConfig.getMulticastPort();
+            if(multicastPort!=null){
+                ipFinder.setMulticastPort(multicastPort);
+            }
+        }
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
-        if(clusterConfig.isEnable()){
-            TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-            if(StringUtils.isNotEmpty(configuration.getClusterConfig().getMulticastGroup())){
-                ipFinder.setMulticastGroup(configuration.getClusterConfig().getMulticastGroup());
-            }
-            if(configuration.getClusterConfig().getMulticastPort()!=null){
-                ipFinder.setMulticastPort(configuration.getClusterConfig().getMulticastPort());
-            }
-            ipFinder.setAddresses(configuration.getClusterConfig().getAddresses());
-            spi.setIpFinder(ipFinder);
-        }
-        else {
-            TcpDiscoveryVmIpFinder discoveryVmIpFinder = new TcpDiscoveryVmIpFinder();
-            ArrayList<String> addresses=new ArrayList<>();
-            addresses.add("127.0.0.1");
-            discoveryVmIpFinder.setAddresses(addresses);
-            discoveryVmIpFinder.setShared(false);
-            spi.setIpFinder(discoveryVmIpFinder);
-        }
+        spi.setIpFinder(ipFinder);
         igniteConfiguration.setDiscoverySpi(spi);
         return igniteConfiguration;
 
