@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.event;
 
+import io.github.quickmsg.common.message.Message;
 import reactor.core.publisher.Flux;
 
 import java.util.function.Consumer;
@@ -7,8 +8,8 @@ import java.util.function.Consumer;
 /**
  * @author luxurong
  */
-public interface Pipeline  extends Consumer<Event> {
+public interface Pipeline  extends Consumer<Message> {
 
-    <M extends Event> Flux<M> handle(Class<M > tClass);
+    <M extends Message> Flux<M> handle(Class<M > tClass);
 
 }

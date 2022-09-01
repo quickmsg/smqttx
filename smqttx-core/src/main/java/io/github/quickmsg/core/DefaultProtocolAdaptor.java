@@ -7,6 +7,7 @@ import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.github.quickmsg.common.utils.RetryFailureHandler;
+import io.github.quickmsg.core.mqtt.AbstractReceiveContext;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -24,20 +25,22 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
     public DefaultProtocolAdaptor(Integer businessQueueSize, Integer threadSize) {
         this.acceptor = Sinks.many().multicast().onBackpressureBuffer(businessQueueSize);
         DynamicLoader.findAll(Protocol.class).forEach(protocol ->
-                acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor", threadSize))
-                        .doOnError(throwable -> log.error("DefaultProtocolAdaptor consumer",throwable))
-                        .onErrorResume(throwable -> Mono.empty())
-                        .ofType(protocol.getClassType()).subscribe(msg -> {
-                            Message message = (Message) msg;
-                            Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
-                            ReceiveContext<?> receiveContext = ContextHolder.getReceiveContext();
-                            messageProtocol.doParseProtocol(message, message.getMqttChannel())
-                                    .contextWrite(context -> context.putNonNull(ReceiveContext.class, ContextHolder.getReceiveContext()))
-                                    .onErrorContinue((throwable,obj)-> {
-                                        log.error("DefaultProtocolAdaptor",throwable);
-                                    })
-                                    .subscribe();
-                        }));
+                    acceptor.asFlux().publishOn(Schedulers.newParallel("message-acceptor", threadSize))
+                                .doOnError(throwable -> log.error("DefaultProtocolAdaptor consumer", throwable))
+                                .onErrorResume(throwable -> Mono.empty())
+                                .ofType(protocol.getClassType()).subscribe(msg -> {
+                                    Message message = (Message) msg;
+                                    Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
+                                    ReceiveContext<?> receiveContext = ContextHolder.getReceiveContext();
+                                    messageProtocol.doParseProtocol(message, message.getMqttChannel())
+                                                .contextWrite(context -> context.putNonNull(ReceiveContext.class, ContextHolder.getReceiveContext()))
+                                                .onErrorContinue((throwable, obj) -> {
+                                                    log.error("DefaultProtocolAdaptor", throwable);
+                                                })
+                                                .subscribe();
+                                    ((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor()
+                                                .executeRule(message);
+                                }));
     }
 
     @Override

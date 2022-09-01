@@ -1,6 +1,7 @@
 package io.github.quickmsg.common.rule;
 
 import io.github.quickmsg.common.event.Event;
+import io.github.quickmsg.common.message.Message;
 
 /**
  * @author luxurong
@@ -9,9 +10,9 @@ public interface DslExecutor {
 
     /**
      * 执行
-     * @param event {@link  Event}
+     * @param message {@link  Message}
 =     */
-    void executeRule(Event event);
+    void executeRule(Message message);
 
 
     /**

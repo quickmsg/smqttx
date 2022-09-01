@@ -21,10 +21,10 @@ public interface Protocol<T extends Message> {
      * @return Mono
      * @see MqttMessage
      */
-    default Mono<Message> doParseProtocol(T message, MqttChannel mqttChannel) {
+    default Mono<Void> doParseProtocol(T message, MqttChannel mqttChannel) {
         return Mono.deferContextual(contextView -> {
             this.parseProtocol(message, mqttChannel, contextView);
-            return Mono.just(message);
+            return Mono.empty();
         });
     }
 

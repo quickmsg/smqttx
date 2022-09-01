@@ -17,12 +17,11 @@ import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.retry.RetryManager;
 import io.github.quickmsg.common.retry.TimeAckManager;
-import io.github.quickmsg.common.rule.RuleDslAcceptor;
-import io.github.quickmsg.common.spi.registry.EventRegistry;
 import io.github.quickmsg.common.transport.Transport;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
 import io.github.quickmsg.core.acl.JCasBinAclManager;
 import io.github.quickmsg.core.auth.AuthManagerFactory;
+import io.github.quickmsg.dsl.RuleDslExecutor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
 import io.github.quickmsg.metric.InfluxDbMetricFactory;
@@ -63,9 +62,6 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final ProtocolAdaptor protocolAdaptor;
 
-    private final EventRegistry eventRegistry;
-
-    private final RuleDslAcceptor ruleDslAcceptor;
 
     private final MetricManager metricManager;
 
@@ -79,18 +75,19 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final AuthManager authManager;
 
+    private final RuleDslExecutor ruleDslExecutor;
+
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
         this.configuration = configuration;
         this.transport = transport;
-        this.eventRegistry = eventRegistry();
         this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(), abstractConfiguration.getBusinessThreadSize());
         this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.integrate = integrateBuilder().newIntegrate(initConfig(abstractConfiguration.getClusterConfig()));
         RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
-        this.ruleDslAcceptor = new RuleDslAcceptor(integrate.getPipeline(), ruleDslParser.executor());
+        this.ruleDslExecutor = ruleDslParser.executor();
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
@@ -125,10 +122,6 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     public interface AuthManagerProvider {
         AuthManagerFactory provider(AuthConfig authConfig);
 
-    }
-
-    private EventRegistry eventRegistry() {
-        return ChannelEvent::sender;
     }
 
 
