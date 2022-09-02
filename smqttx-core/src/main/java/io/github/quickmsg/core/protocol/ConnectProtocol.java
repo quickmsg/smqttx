@@ -50,7 +50,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         if (aclManager.auth(connectMessage.getAuth().getUsername(), connectMessage.getAuth().getPassword(), clientIdentifier)) {
             /*check clientIdentifier exist*/
 
-            mqttChannel.setConnectMessage(connectMessage);
+            mqttChannel.setConnectCache(connectMessage.getCache());
             mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
@@ -88,7 +88,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         closeMessage.setMqttChannel(mqttChannel);
         closeMessage.setReason("close");
         mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(closeMessage);
-        Optional.ofNullable(mqttChannel.getConnectMessage().getWill())
+        Optional.ofNullable(mqttChannel.getConnectCache().getWill())
                     .ifPresent(will ->
                                 topics.getMqttChannelsByTopic(will.getWillTopic())
                                             .forEach(subscribeTopic -> {

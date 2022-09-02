@@ -1,13 +1,20 @@
 package io.github.quickmsg.common.message.mqtt;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.utils.ServerUtils;
 import io.netty.handler.codec.mqtt.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * @author luxurong
@@ -18,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class ConnectMessage implements Message {
 
+    private String clientAddress;
 
     private String nodeIp;
     @JsonIgnore
@@ -29,7 +37,7 @@ public class ConnectMessage implements Message {
 
     private boolean cleanSession;
 
-    private long timestamp;
+    private String connectTime;
 
     private MqttChannel.Auth auth;
 
@@ -40,6 +48,7 @@ public class ConnectMessage implements Message {
     public int getMessageId() {
         return 0;
     }
+
 
     @Override
     public MqttChannel getMqttChannel() {
@@ -66,8 +75,25 @@ public class ConnectMessage implements Message {
         this.version = MqttVersion.fromProtocolNameAndLevel(variableHeader.name(), (byte) variableHeader.version());
         this.cleanSession = variableHeader.isCleanSession();
         this.keepalive = variableHeader.keepAliveTimeSeconds();
-        this.timestamp = System.currentTimeMillis();
+        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.mqttChannel = mqttChannel;
         this.mqttChannel.setClientId(mqttConnectPayload.clientIdentifier());
+        this.clientAddress = mqttChannel.getAddress();
     }
+
+
+    public ConnectCache getCache(){
+        ConnectCache cache = new ConnectCache();
+        cache.setAuth(this.auth);
+        cache.setKeepalive(this.keepalive);
+        cache.setVersion(this.version);
+        cache.setWill(this.will);
+        cache.setCleanSession(this.cleanSession);
+        cache.setClientId(this.mqttChannel.getClientId());
+        cache.setConnectTime(this.connectTime);
+        cache.setNodeIp(ServerUtils.serverIp);
+        cache.setClientAddress(this.clientAddress);
+        return cache;
+    }
+
 }

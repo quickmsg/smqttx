@@ -3,6 +3,7 @@ package io.github.quickmsg.common.channel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
@@ -40,7 +41,7 @@ public class MqttChannel {
 
     private String authTime;
 
-    private ConnectMessage connectMessage;
+    private ConnectCache connectCache;
 
     private String address;
 

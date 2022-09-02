@@ -3,6 +3,7 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
@@ -18,7 +19,7 @@ public class IgniteChannels implements IntegrateChannels {
 
     private final ConcurrentHashMap<String, MqttChannel> localChannelCache;
 
-    private final IntegrateCache<String, ConnectMessage> shareChannelCache;
+    private final IntegrateCache<String, ConnectCache> shareChannelCache;
 
     private final IgniteIntegrate integrate;
 
@@ -46,6 +47,7 @@ public class IgniteChannels implements IntegrateChannels {
 
             //todo send close message
         }
+        this.shareChannelCache.put(clientIdentifier, mqttChannel.getConnectCache());
     }
 
     @Override

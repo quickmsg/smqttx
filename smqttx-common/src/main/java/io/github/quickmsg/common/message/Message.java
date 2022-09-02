@@ -14,10 +14,9 @@ public interface Message {
             return 0;
         }
 
-
         @Override
-        public long getTimestamp() {
-            return System.currentTimeMillis();
+        public String getConnectTime() {
+            return null;
         }
 
         @Override
@@ -29,7 +28,7 @@ public interface Message {
 
     int getMessageId();
 
-    long getTimestamp();
+    String getConnectTime();
 
     MqttChannel getMqttChannel();
 
