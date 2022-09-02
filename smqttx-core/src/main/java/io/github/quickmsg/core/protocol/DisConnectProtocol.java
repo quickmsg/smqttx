@@ -19,7 +19,7 @@ public class DisConnectProtocol implements Protocol<DisConnectMessage> {
 
     @Override
     public void parseProtocol(DisConnectMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        mqttChannel.getConnectMessage().setWill(null);
+        mqttChannel.getConnectCache().setWill(null);
         Connection connection;
         if (!(connection = mqttChannel.getConnection()).isDisposed()) {
             connection.dispose();

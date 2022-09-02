@@ -1,5 +1,7 @@
 package io.github.quickmsg.common.message.mqtt;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
@@ -7,6 +9,7 @@ import io.github.quickmsg.common.message.Message;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,7 +20,7 @@ import java.util.List;
 public class UnSubscribeMessage implements Message {
 
     private int messageId;
-    private long timestamp;
+    private String connectTime;
 
     private List<String> topics;
 
@@ -29,6 +32,6 @@ public class UnSubscribeMessage implements Message {
         MqttUnsubscribeMessage unsubscribeMessage = (MqttUnsubscribeMessage) message;
         this.messageId = unsubscribeMessage.variableHeader().messageId();
         this.topics = unsubscribeMessage.payload().topics();
-        this.timestamp = System.currentTimeMillis();
+        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
 }

@@ -37,7 +37,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
             AclManager aclManager = receiveContext.getAclManager();
             Set<SubscribeTopic> mqttChannels = topics.getMqttChannelsByTopic(message.getTopic());
             if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
-                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectMessage(), message.getTopic());
+                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectCache(), message.getTopic());
                 return;
             }
             if (mqttChannel == null) {

@@ -1,8 +1,6 @@
 package io.github.quickmsg.common.integrate;
 
-import com.sun.istack.internal.NotNull;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ContextHolder;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Getter;
 import lombok.Setter;

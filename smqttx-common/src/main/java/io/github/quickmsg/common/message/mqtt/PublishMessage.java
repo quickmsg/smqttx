@@ -1,5 +1,7 @@
 package io.github.quickmsg.common.message.mqtt;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
@@ -13,6 +15,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -31,7 +34,7 @@ public class PublishMessage implements Message {
 
     private byte[] body;
 
-    private long timestamp;
+    private String connectTime;
 
     private String clientId;
 
@@ -54,10 +57,9 @@ public class PublishMessage implements Message {
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
-        this.timestamp = System.currentTimeMillis();
+        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.clientId = Optional.ofNullable(mqttChannel)
                     .map(MqttChannel::getClientId).orElse(null);
     }
-
 
 }

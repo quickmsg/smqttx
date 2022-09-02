@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class RetryMessage implements Message {
+public class RetryMessage {
 
     private int count;
 
@@ -49,7 +49,7 @@ public class RetryMessage implements Message {
     }
 
     public void retry() {
-        ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(this);
+//        ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(this);
         count++;
     }
 }

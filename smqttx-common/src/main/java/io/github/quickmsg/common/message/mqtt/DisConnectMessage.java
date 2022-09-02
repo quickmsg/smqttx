@@ -1,10 +1,14 @@
 package io.github.quickmsg.common.message.mqtt;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author luxurong
@@ -16,7 +20,7 @@ public class DisConnectMessage implements Message {
     private String clientId;
 
 
-    private long timestamp;
+    private String connectTime;
 
 
     @JsonIgnore
@@ -37,6 +41,8 @@ public class DisConnectMessage implements Message {
     public DisConnectMessage(  MqttChannel mqttChannel){
         this.clientId = mqttChannel.getClientId();
         this.mqttChannel=mqttChannel;
+        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+
     }
 
 

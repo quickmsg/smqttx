@@ -25,7 +25,7 @@ public class RetainMessage {
 
     private byte[] body;
 
-    private long timestamp;
+    private String connectTime;
 
     public static RetainMessage of(PublishMessage message) {
         return RetainMessage.builder()
@@ -34,7 +34,7 @@ public class RetainMessage {
                 .body(message.getBody())
                 .clientId(message.getMqttChannel().getClientId())
                 .retain(message.isRetain())
-                .timestamp(message.getTimestamp())
+                .connectTime(message.getConnectTime())
                 .build();
     }
 
