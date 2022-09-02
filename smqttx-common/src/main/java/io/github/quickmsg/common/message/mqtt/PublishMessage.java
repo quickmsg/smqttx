@@ -4,13 +4,10 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.handler.codec.mqtt.MqttMessage;
-import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
@@ -44,6 +41,10 @@ public class PublishMessage implements Message {
 
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId) {
         return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
+    }
+
+    public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId,boolean isDup) {
+        return MqttMessageUtils.buildPub(isDup, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
     }
 
     public PublishMessage() {

@@ -5,6 +5,10 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +34,6 @@ public class RetryMessage {
 
     private byte[] body;
 
-    @JsonIgnore
     private MqttChannel mqttChannel;
 
 
@@ -49,7 +52,14 @@ public class RetryMessage {
     }
 
     public void retry() {
-//        ContextHolder.getReceiveContext().getProtocolAdaptor().chooseProtocol(this);
         count++;
+        mqttChannel.sendRetry(this);
     }
+
+    public MqttMessage buildMqttMessage() {
+        return MqttMessageUtils.buildPub(true, mqttQoS, this.isRetain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
+
+    }
+
+
 }

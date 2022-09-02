@@ -7,7 +7,11 @@ import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
+import io.github.quickmsg.common.retry.RetryManager;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
@@ -33,6 +37,8 @@ public class MqttChannel {
     private Integer id;
 
     private String clientId;
+
+    private static final int MAX_MESSAGE_ID = 65535;
 
 
     private Connection connection;
@@ -76,7 +82,17 @@ public class MqttChannel {
 
 
     public int generateMessageId() {
-        return atomicInteger.incrementAndGet();
+        int index = atomicInteger.incrementAndGet();
+        if (index > MAX_MESSAGE_ID) {
+            synchronized (this) {
+                index = atomicInteger.incrementAndGet();
+                if (index > MAX_MESSAGE_ID) {
+                    index = 1;
+                    atomicInteger.set(index);
+                }
+            }
+        }
+        return index;
     }
 
 
@@ -122,11 +138,18 @@ public class MqttChannel {
             case AT_LEAST_ONCE:
             default:
                 int messageId = this.generateMessageId();
+                RetryManager retryManager = ContextHolder.getReceiveContext().getRetryManager();
                 RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(),this);
-                ContextHolder.getReceiveContext().getRetryManager().doRetry(this, retryMessage);
+                retryManager.doRetry(this, retryMessage);
                 this.write(message.buildMqttMessage(mqttQoS, messageId));
                 break;
         }
+    }
+
+
+
+    public void sendRetry(RetryMessage retryMessage) {
+        this.write(retryMessage.buildMqttMessage());
     }
 
 
