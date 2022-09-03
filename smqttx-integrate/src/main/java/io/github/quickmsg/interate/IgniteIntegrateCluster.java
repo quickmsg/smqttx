@@ -1,5 +1,6 @@
 package io.github.quickmsg.interate;
 
+import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
@@ -7,6 +8,7 @@ import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.JacksonUtil;
+import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.ignite.IgniteMessaging;
 
 import java.util.Map;
@@ -74,13 +76,17 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
     }
 
     @Override
-    public void sendCluster(PublishMessage publishMessage) {
-        message.send(publishMessage.getTopic(),JacksonUtil.bean2Json(publishMessage));
+    public void sendCluster(String topic,ClusterMessage clusterMessage) {
+        message.send(topic,clusterMessage);
     }
 
     private boolean doRemote(UUID uuid, Object o) {
         ClusterMessage clusterMessage = (ClusterMessage) o;
-        igniteIntegrate.getProtocolAdaptor().chooseProtocol(clusterMessage.toPublishMessage());
+        Set<SubscribeTopic> channels =igniteIntegrate.getTopics()
+                    .getMqttChannelsByTopic(clusterMessage.getTopic());
+        for(SubscribeTopic subscribeTopic:channels){
+            subscribeTopic.getMqttChannel().sendPublish(MqttQoS.valueOf(clusterMessage.getQos()),clusterMessage.toPublishMessage());
+        }
         return true;
     }
 

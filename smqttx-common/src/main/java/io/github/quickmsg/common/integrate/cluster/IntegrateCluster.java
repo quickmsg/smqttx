@@ -56,8 +56,8 @@ public interface IntegrateCluster extends IntegrateGetter {
     /**
      * 集群消息
      *
-     * @param publishMessage {@link PublishMessage}
+     * @param clusterMessage {@link ClusterMessage}
      */
-    void sendCluster(PublishMessage publishMessage);
+    void sendCluster(String topic,ClusterMessage clusterMessage);
 
 }

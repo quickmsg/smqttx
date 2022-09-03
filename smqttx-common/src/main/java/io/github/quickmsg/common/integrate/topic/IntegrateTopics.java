@@ -65,4 +65,5 @@ public interface IntegrateTopics<T> extends IntegrateGetter {
      =     */
     boolean isWildcard(String topic);
 
+    Set<String> getWildcardTopics(String topic);
 }

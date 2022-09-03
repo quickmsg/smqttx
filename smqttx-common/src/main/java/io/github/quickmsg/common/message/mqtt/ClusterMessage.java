@@ -12,38 +12,34 @@ import lombok.Data;
 @Data
 public class ClusterMessage{
 
-    private int messageId;
-
-    private String topic;
-
     private int qos;
 
     private boolean retain;
 
     private byte[] body;
 
-    private long timestamp;
+    private String connectTime;
 
     private String clientId;
+
+    private String topic;
 
     private int channelId;
 
 
 
     public ClusterMessage(PublishMessage message) {
-        this.messageId = message.getMessageId();
         this.topic = message.getTopic();
         this.qos = message.getQos();
         this.retain = message.isRetain();
         this.body = message.getBody();
-        this.timestamp = System.currentTimeMillis();
+        this.connectTime = message.getConnectTime();
         this.channelId= message.getMqttChannel().getId();
         this.clientId= message.getMqttChannel().getClientId();
     }
 
     public PublishMessage toPublishMessage() {
         PublishMessage publishMessage = new PublishMessage();
-        publishMessage.setMessageId(this.messageId );
         publishMessage.setTopic(this.topic);
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);

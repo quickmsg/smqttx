@@ -99,18 +99,7 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public Set<SubscribeTopic> getMqttChannelsByTopic(String topic) {
-        Set<SubscribeTopic> allSubscribeTopics = topicSubscribers.get(topic);
-        if (!shareCache.isEmpty()) {
-            if (allSubscribeTopics != null) {
-                Set<SubscribeTopic> subscribeTopics = shareCache.stream().filter(topic::matches).flatMap(tp -> topicSubscribers.get(tp).stream()).collect(Collectors.toSet());
-                if (subscribeTopics.size() > 0) {
-                    allSubscribeTopics.addAll(subscribeTopics);
-                }
-            } else {
-                allSubscribeTopics = shareCache.stream().filter(topic::matches).flatMap(tp -> topicSubscribers.get(tp).stream()).collect(Collectors.toSet());
-            }
-        }
-        return allSubscribeTopics;
+        return topicSubscribers.get(topic);
     }
 
     @Override
@@ -121,6 +110,11 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
     @Override
     public boolean isWildcard(String topic) {
         return topic.contains(ONE_SYMBOL) || topic.contains(MORE_SYMBOL);
+    }
+
+    @Override
+    public Set<String> getWildcardTopics(String topic) {
+        return shareCache.stream().filter(topic::matches).collect(Collectors.toSet());
     }
 
     @Override

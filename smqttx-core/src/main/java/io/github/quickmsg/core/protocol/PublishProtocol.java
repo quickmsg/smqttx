@@ -6,6 +6,7 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
+import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.RetainMessage;
@@ -31,37 +32,28 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     @Override
     public void parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-        try {
-            IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
-            IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
-            AclManager aclManager = receiveContext.getAclManager();
-            Set<SubscribeTopic> mqttChannels = topics.getMqttChannelsByTopic(message.getTopic());
-            if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
-                log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectCache(), message.getTopic());
-                return;
-            }
-            if (mqttChannel == null) {
-                // cluster message
-                send(mqttChannels, message, filterRetainMessage(message, messages));
-                return;
-            }
-            switch (MqttQoS.valueOf(message.getQos())) {
-                case AT_MOST_ONCE:
-                    send(mqttChannels, message, filterRetainMessage(message, messages));
-                    break;
-                case EXACTLY_ONCE:
-                case AT_LEAST_ONCE:
-                default:
-                    send(mqttChannels, message, Mono.fromRunnable(() -> mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()))));
-                    break;
-            }
-        } catch (Exception e) {
-            log.error("error ", e);
-        } finally {
-            if (mqttChannel != null && receiveContext.isCluster()) {
-                receiveContext.getIntegrate().getCluster().sendCluster(message);
-            }
+
+        IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
+        IntegrateCluster integrateCluster = receiveContext.getIntegrate().getCluster();
+        IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
+        AclManager aclManager = receiveContext.getAclManager();
+        Set<SubscribeTopic> mqttChannels = topics.getMqttChannelsByTopic(message.getTopic());
+        if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
+            log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectCache(), message.getTopic());
+            return;
         }
+        if (message.isRetain()) {
+            messages.saveRetainMessage(RetainMessage.of(message));
+        }
+        ClusterMessage clusterMessage = new ClusterMessage(message);
+        integrateCluster.sendCluster(clusterMessage.getTopic(), clusterMessage);
+        Set<String> wildcardTopics = topics.getWildcardTopics(clusterMessage.getTopic());
+        if (wildcardTopics != null && wildcardTopics.size() > 0) {
+            wildcardTopics.forEach(tp -> {
+                integrateCluster.sendCluster(tp, clusterMessage);
+            });
+        }
+
     }
 
     @Override
