@@ -11,6 +11,7 @@ import io.github.quickmsg.common.utils.JacksonUtil;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.ignite.IgniteMessaging;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author luxurong
  */
-public class IgniteIntegrateCluster implements IntegrateCluster {
+public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
 
     private final IgniteIntegrate igniteIntegrate;
 
@@ -31,10 +32,12 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     private Map<String, UUID> fixedListener = new ConcurrentHashMap<>();
 
+    private final ClusterHandler clusterHandler;
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate) {
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteIntegrate.getIgnite().cluster();
+        this.clusterHandler=new ClusterHandler();
     }
 
 
@@ -66,7 +69,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
 
     @Override
     public void listenTopic(String topic) {
-        fixedListener.computeIfAbsent(topic,tp->message.remoteListen(tp,this::doRemote));
+        fixedListener.computeIfAbsent(topic,tp->message.remoteListen(tp,clusterHandler::doRemote));
     }
 
     @Override
@@ -80,20 +83,10 @@ public class IgniteIntegrateCluster implements IntegrateCluster {
         message.send(topic,clusterMessage);
     }
 
-    private boolean doRemote(UUID uuid, Object o) {
-        ClusterMessage clusterMessage = (ClusterMessage) o;
-        Set<SubscribeTopic> channels =igniteIntegrate.getTopics()
-                    .getMqttChannelsByTopic(clusterMessage.getTopic());
-        for(SubscribeTopic subscribeTopic:channels){
-            subscribeTopic.getMqttChannel().sendPublish(MqttQoS.valueOf(clusterMessage.getQos()),clusterMessage.toPublishMessage());
-        }
-        return true;
-    }
 
     @Override
     public Integrate getIntegrate() {
         return this.igniteIntegrate;
     }
-
 
 }
