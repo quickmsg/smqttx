@@ -24,12 +24,16 @@ public class ClusterMessage{
 
     private String topic;
 
+
+    private String originTopic;
+
     private int channelId;
 
 
 
     public ClusterMessage(PublishMessage message) {
         this.topic = message.getTopic();
+        this.originTopic = message.getTopic();
         this.qos = message.getQos();
         this.retain = message.isRetain();
         this.body = message.getBody();
@@ -40,7 +44,7 @@ public class ClusterMessage{
 
     public PublishMessage toPublishMessage() {
         PublishMessage publishMessage = new PublishMessage();
-        publishMessage.setTopic(this.topic);
+        publishMessage.setTopic(this.originTopic);
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);
         publishMessage.setBody(this.body);

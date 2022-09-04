@@ -114,7 +114,7 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public Set<String> getWildcardTopics(String topic) {
-        return shareCache.stream().filter(topic::matches).collect(Collectors.toSet());
+        return shareCache.stream().filter(tp->topic.matches(TopicRegexUtils.regexTopic(tp))).collect(Collectors.toSet());
     }
 
     @Override

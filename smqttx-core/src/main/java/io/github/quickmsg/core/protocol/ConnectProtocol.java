@@ -41,8 +41,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
         AuthManager aclManager = mqttReceiveContext.getAuthManager();
         /*protocol version support*/
-        if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion()
-                    && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
+        if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion() && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION));
             return;
         }
@@ -54,9 +53,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
-            mqttChannel.getConnection()
-                        .onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1,
-                                    mqttChannel::close);
+            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, mqttChannel::close);
 
             /* registry new channel*/
             channels.add(mqttChannel.getClientId(), mqttChannel);
@@ -66,8 +63,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
         } else {
-            mqttChannel.write(
-                        MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
+            mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
         }
 
     }
@@ -88,14 +84,11 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         closeMessage.setMqttChannel(mqttChannel);
         closeMessage.setReason("close");
         mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(closeMessage);
-        Optional.ofNullable(mqttChannel.getConnectCache().getWill())
-                    .ifPresent(will ->
-                                topics.getMqttChannelsByTopic(will.getWillTopic())
-                                            .forEach(subscribeTopic -> {
-                                                MqttChannel channel = subscribeTopic.getMqttChannel();
-                                                MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
-                                                channel.sendPublish(mqttQoS, will.toPublishMessage());
-                                            }));
+        Optional.ofNullable(mqttChannel.getConnectCache().getWill()).ifPresent(will -> Optional.ofNullable(topics.getMqttChannelsByTopic(will.getWillTopic())).ifPresent(subscribeTopics -> subscribeTopics.forEach(subscribeTopic -> {
+            MqttChannel channel = subscribeTopic.getMqttChannel();
+            MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
+            channel.sendPublish(mqttQoS, will.toPublishMessage());
+        })));
 
     }
 

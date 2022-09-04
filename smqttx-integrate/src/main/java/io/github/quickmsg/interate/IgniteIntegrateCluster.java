@@ -48,8 +48,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
                 .stream()
                 .map(clusterNode -> clusterNode.consistentId().toString())
                 .collect(Collectors.toSet());
-    }
-
+}
     @Override
     public Set<String> getOtherClusterNode() {
         return igniteCluster

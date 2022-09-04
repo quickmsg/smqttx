@@ -37,7 +37,6 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         IntegrateCluster integrateCluster = receiveContext.getIntegrate().getCluster();
         IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
         AclManager aclManager = receiveContext.getAclManager();
-        Set<SubscribeTopic> mqttChannels = topics.getMqttChannelsByTopic(message.getTopic());
         if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
             log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectCache(), message.getTopic());
             return;
@@ -50,6 +49,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         Set<String> wildcardTopics = topics.getWildcardTopics(clusterMessage.getTopic());
         if (wildcardTopics != null && wildcardTopics.size() > 0) {
             wildcardTopics.forEach(tp -> {
+                clusterMessage.setTopic(tp);
                 integrateCluster.sendCluster(tp, clusterMessage);
             });
         }
