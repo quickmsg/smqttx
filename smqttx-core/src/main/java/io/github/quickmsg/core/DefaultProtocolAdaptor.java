@@ -8,6 +8,7 @@ import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
 import io.github.quickmsg.common.utils.RetryFailureHandler;
 import io.github.quickmsg.core.mqtt.AbstractReceiveContext;
+import io.github.quickmsg.dsl.RuleDslExecutor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -38,8 +39,10 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                                                     log.error("DefaultProtocolAdaptor", throwable);
                                                 })
                                                 .subscribe();
-                                    ((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor()
-                                                .executeRule(message);
+                                    RuleDslExecutor executor =((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor();
+                                    if(executor.isExecute()){
+                                        executor.executeRule(message);
+                                    }
                                 }));
     }
 

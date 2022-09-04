@@ -80,10 +80,6 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         IntegrateTopics<SubscribeTopic> topics = mqttReceiveContext.getIntegrate().getTopics();
         topics.removeTopic(mqttChannel, new ArrayList<>(mqttChannel.getTopics()));
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
-        CloseMessage closeMessage = new CloseMessage();
-        closeMessage.setMqttChannel(mqttChannel);
-        closeMessage.setReason("close");
-        mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(closeMessage);
         Optional.ofNullable(mqttChannel.getConnectCache().getWill()).ifPresent(will -> Optional.ofNullable(topics.getMqttChannelsByTopic(will.getWillTopic())).ifPresent(subscribeTopics -> subscribeTopics.forEach(subscribeTopic -> {
             MqttChannel channel = subscribeTopic.getMqttChannel();
             MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());

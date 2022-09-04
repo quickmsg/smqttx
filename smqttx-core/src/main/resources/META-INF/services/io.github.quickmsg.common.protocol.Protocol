@@ -3,7 +3,6 @@ io.github.quickmsg.core.protocol.PublishAckProtocol
 io.github.quickmsg.core.protocol.PublishProtocol
 io.github.quickmsg.core.protocol.SubscribeProtocol
 io.github.quickmsg.core.protocol.UnSubscribeProtocol
-io.github.quickmsg.core.protocol.CloseProtocol
 io.github.quickmsg.core.protocol.DisConnectProtocol
 io.github.quickmsg.core.protocol.PingProtocol
 io.github.quickmsg.core.protocol.PublishCompProtocol
