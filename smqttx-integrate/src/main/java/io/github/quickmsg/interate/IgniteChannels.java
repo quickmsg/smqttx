@@ -42,8 +42,8 @@ public class IgniteChannels implements IntegrateChannels {
             oldChannel.close();
 //            this.shareChannelCache.put(clientIdentifier, mqttChannel.getConnectMessage());
         } else {
-//            ConnectMessage connectMessage =
-//                    this.shareChannelCache.getAndPutIfAbsent(clientIdentifier, mqttChannel.getConnectMessage());
+            ConnectMessage connectMessage =
+                    this.shareChannelCache.getAndPutIfAbsent(clientIdentifier, mqttChannel.getConnectMessage());
 
             //todo send close message
         }
