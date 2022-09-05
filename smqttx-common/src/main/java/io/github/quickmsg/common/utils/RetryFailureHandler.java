@@ -15,6 +15,7 @@ public class RetryFailureHandler implements Sinks.EmitFailureHandler {
     public RetryFailureHandler() {
     }
 
+    @Override
     public boolean onEmitFailure(SignalType signalType, Sinks.EmitResult emitResult) {
         LockSupport.parkNanos(10);
         return emitResult == Sinks.EmitResult.FAIL_NON_SERIALIZED;

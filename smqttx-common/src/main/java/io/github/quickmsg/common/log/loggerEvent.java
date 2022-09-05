@@ -5,10 +5,17 @@ package io.github.quickmsg.common.log;
  */
 public enum loggerEvent {
 
-    READ("read"),
-    WRITE("write"),
-    CLUSTER("cluster"),
-    MESSAGE("message"),
+    PUBLISH("PUBLISH"),
+    WRITE("WRITE"),
+    CLUSTER("CLUSTER"),
+    CONNECT("CONNECT"),
+    CLOSE("CLOSE"),
+    SUBSCRIBE("SUBSCRIBE"),
+    UNSUBSCRIBE("UNSUBSCRIBE"),
+    BRIDGE("BRIDGE"),
+    DISCONNECT("DISCONNECT"),
+    RETRY("RETRY"),
+
     ;
 
 

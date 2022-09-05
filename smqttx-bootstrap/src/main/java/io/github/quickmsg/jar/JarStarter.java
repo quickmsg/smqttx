@@ -18,6 +18,5 @@ public class JarStarter extends AbstractStarter {
         } else {
             start(null);
         }
-
     }
 }

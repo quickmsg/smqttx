@@ -13,6 +13,7 @@ import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     @Override
     public void parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
+        log.info("publish:"+ JacksonUtil.bean2Json(message));
 
         IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
         IntegrateCluster integrateCluster = receiveContext.getIntegrate().getCluster();

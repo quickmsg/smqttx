@@ -1,5 +1,5 @@
 smqtt:
-  logLevel: DEBUG # 系统日志
+  logLevel: INFO # 系统日志
   tcp: # tcp配置
     port: 1883 # mqtt端口号
     wiretap: false  # 二进制日志 前提是 smqtt.logLevel = DEBUG

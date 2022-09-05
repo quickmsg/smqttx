@@ -7,9 +7,9 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-import io.github.quickmsg.common.message.mqtt.CloseMessage;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.github.quickmsg.core.mqtt.MqttReceiveContext;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
@@ -34,6 +34,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     @Override
     public void parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
+        log.info("connect:"+ JacksonUtil.bean2Json(connectMessage.getCache()));
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
         String clientIdentifier = mqttChannel.getClientId();
         Integrate integrate = mqttReceiveContext.getIntegrate();
