@@ -11,6 +11,9 @@ public interface JobExecutor {
 
     <R> Collection<R> callBroadcast(JobCaller<R> callable);
 
+    <INPUT,OUT> Collection<OUT> callBroadcast(JobClosure<INPUT,OUT> callable,INPUT input);
+
+
     <R> R call(JobCaller<R> callable);
 
 }

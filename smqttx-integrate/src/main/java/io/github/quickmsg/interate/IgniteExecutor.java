@@ -2,6 +2,7 @@ package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.integrate.job.Job;
 import io.github.quickmsg.common.integrate.job.JobCaller;
+import io.github.quickmsg.common.integrate.job.JobClosure;
 import io.github.quickmsg.common.integrate.job.JobExecutor;
 import org.apache.ignite.IgniteCompute;
 import org.apache.ignite.lang.IgniteCallable;
@@ -35,6 +36,11 @@ public class IgniteExecutor implements JobExecutor {
     public <R> Collection<R> callBroadcast(JobCaller<R> callable) {
         IgniteCallable<R> igniteCallable = callable::call;
         return igniteCompute.broadcast(igniteCallable);
+    }
+
+    @Override
+    public <INPUT, OUT> Collection<OUT> callBroadcast(JobClosure<INPUT, OUT> callable,INPUT input) {
+        return this.igniteCompute.broadcast(callable,input);
     }
 
     @Override

@@ -30,17 +30,17 @@ public class TransmitRuleNode implements RuleNode {
 
     @Override
     public void execute(ContextView contextView) {
-        Message message = contextView.get(Message.class);
-        Map<String, Object> param;
-        if (script != null) {
-            Object obj = triggerTemplate(script, context -> heapMqttMessage.getKeyMap().forEach(context::set));
-            param = JacksonUtil.json2Map(obj.toString(), String.class, Object.class);
-
-        } else {
-            param = heapMqttMessage.getKeyMap();
-        }
-        SourceManager.getSourceBean(source).transmit(param);
-        executeNext(contextView);
+//        Message message = contextView.get(Message.class);
+//        Map<String, Object> param;
+////        if (script != null) {
+////            Object obj = triggerTemplate(script, context -> heapMqttMessage.getKeyMap().forEach(context::set));
+////            param = JacksonUtil.json2Map(obj.toString(), String.class, Object.class);
+////
+////        } else {
+////            param = heapMqttMessage.getKeyMap();
+////        }
+//        SourceManager.getSourceBean(source).transmit(param);
+//        executeNext(contextView);
     }
 
     @Override
