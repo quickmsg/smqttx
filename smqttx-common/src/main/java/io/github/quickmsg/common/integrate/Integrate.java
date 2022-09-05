@@ -6,7 +6,6 @@ import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.job.JobExecutor;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-import io.github.quickmsg.common.event.Pipeline;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteAtomicLong;
@@ -91,17 +90,9 @@ public interface Integrate {
 
 
     /**
-     * get  Pipeline
+     * get  getGlobalCounter
      *
-     * @return {@link Pipeline get event pipeline  }
-     */
-    Pipeline   getPipeline();
-
-
-    /**
-     * get  Pipeline
-     *
-     * @return {@link Pipeline get event pipeline  }
+     * @return {@link IgniteAtomicLong }
      */
     IgniteAtomicLong getGlobalCounter(String name);
 

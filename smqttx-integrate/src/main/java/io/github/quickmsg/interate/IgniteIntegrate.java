@@ -1,7 +1,5 @@
 package io.github.quickmsg.interate;
 
-import io.github.quickmsg.common.event.Pipeline;
-import io.github.quickmsg.common.event.ReactorPipeline;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
@@ -46,8 +44,6 @@ public class IgniteIntegrate implements Integrate {
 
     private final IgniteMessages igniteMessages;
 
-    private final ReactorPipeline pipeline;
-
     private final IgniteExecutor igniteExecutor;
 
     public IgniteIntegrate(IgniteConfiguration configuration, ProtocolAdaptor protocolAdaptor) {
@@ -58,7 +54,6 @@ public class IgniteIntegrate implements Integrate {
         this.cluster = new IgniteIntegrateCluster(this);
         this.integrateTopics = new IgniteIntegrateTopics(this);
         this.igniteMessages = new IgniteMessages(new FixedTopicFilter<>(), new TreeTopicFilter<>(), this);
-        this.pipeline = new ReactorPipeline();
         this.igniteExecutor = new IgniteExecutor(ignite.compute(ignite.cluster()));
     }
 
@@ -136,11 +131,6 @@ public class IgniteIntegrate implements Integrate {
     @Override
     public Ignite getIgnite() {
         return this.ignite;
-    }
-
-    @Override
-    public Pipeline getPipeline() {
-        return this.pipeline;
     }
 
     @Override

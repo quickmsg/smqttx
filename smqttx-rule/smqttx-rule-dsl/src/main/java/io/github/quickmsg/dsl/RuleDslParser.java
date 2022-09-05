@@ -11,8 +11,6 @@ import java.util.List;
 public class RuleDslParser {
 
     private final RuleChain ruleChain = RuleChain.INSTANCE;
-
-
     private final List<RuleChainDefinition> ruleChainDefinitions;
 
     public RuleDslParser(List<RuleChainDefinition> ruleChainDefinitions) {

@@ -2,7 +2,6 @@ package io.github.quickmsg.dsl;
 
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.common.rule.DslExecutor;
 import io.github.quickmsg.rule.RuleChain;

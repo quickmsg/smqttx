@@ -1,6 +1,5 @@
 package io.github.quickmsg.common.rule;
 
-import io.github.quickmsg.common.event.Event;
 import io.github.quickmsg.common.message.Message;
 
 /**
