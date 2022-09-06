@@ -45,7 +45,7 @@ public class JCasBinAclManager implements AclManager {
                 AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
                 Objects.requireNonNull(jdbcAclConfig);
                 try {
-                    enforcer = new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
+                    enforcer= new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
                                 jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
                     this.loadAclCache();
                 } catch (Exception e) {
@@ -55,6 +55,7 @@ public class JCasBinAclManager implements AclManager {
                 enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
                 this.loadAclCache();
             } else {
+                enforcer = new Enforcer();
                 isOpen = false;
             }
 
