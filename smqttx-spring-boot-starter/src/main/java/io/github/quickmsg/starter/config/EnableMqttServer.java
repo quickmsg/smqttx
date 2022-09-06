@@ -1,4 +1,4 @@
-package io.github.quickmsg.starter;
+package io.github.quickmsg.starter.config;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Import;

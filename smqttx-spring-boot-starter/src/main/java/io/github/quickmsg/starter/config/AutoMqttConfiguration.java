@@ -1,8 +1,9 @@
-package io.github.quickmsg.starter;
+package io.github.quickmsg.starter.config;
 
 import ch.qos.logback.classic.Level;
 import io.github.quickmsg.common.utils.IPUtils;
 import io.github.quickmsg.core.Bootstrap;
+import io.github.quickmsg.starter.SpringBootstrapConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
