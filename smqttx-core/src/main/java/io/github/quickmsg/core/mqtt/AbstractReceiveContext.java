@@ -10,6 +10,7 @@ import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.IntegrateBuilder;
+import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.metric.MetricManager;
 import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
@@ -17,6 +18,7 @@ import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.retry.RetryManager;
 import io.github.quickmsg.common.retry.TimeAckManager;
 import io.github.quickmsg.common.transport.Transport;
+import io.github.quickmsg.common.utils.ServerUtils;
 import io.github.quickmsg.core.DefaultProtocolAdaptor;
 import io.github.quickmsg.core.acl.JCasBinAclManager;
 import io.github.quickmsg.core.auth.AuthManagerFactory;
@@ -72,15 +74,18 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final AuthManager authManager;
 
+    private final LogManager logManager;
+
     private final RuleDslExecutor ruleDslExecutor;
 
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
+        this.logManager = new LogManager(ServerUtils.serverIp);
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
         this.configuration = configuration;
         this.transport = transport;
         this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(), abstractConfiguration.getBusinessThreadSize());
-        this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
+        this.loopResources = LoopResources.create("smqttx-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.integrate = integrateBuilder().newIntegrate(initConfig(abstractConfiguration.getClusterConfig()));
         RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
