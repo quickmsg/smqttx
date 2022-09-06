@@ -1,3 +1,0 @@
-smqtt:
-  tcp:
-     port: 7000

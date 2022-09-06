@@ -1,0 +1,86 @@
+<!--
+        ~ Copyright (c) 2011-Present VMware, Inc. or its affiliates, All Rights Reserved.
+        ~
+        ~ Licensed under the Apache License, Version 2.0 (the "License");
+        ~ you may not use this file except in compliance with the License.
+        ~ You may obtain a copy of the License at
+        ~
+        ~       https://www.apache.org/licenses/LICENSE-2.0
+        ~
+        ~ Unless required by applicable law or agreed to in writing, software
+        ~ distributed under the License is distributed on an "AS IS" BASIS,
+        ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        ~ See the License for the specific language governing permissions and
+        ~ limitations under the License.
+        -->
+
+<configuration scanPeriod="10 seconds" debug="false">
+
+
+    <appender name="mqttInfo" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>logs/smqtt-info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 滚动分割保存日志文件名称定义 -->
+            <fileNamePattern>logs/smqtt-info-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 日志文件保留天数，超过默认删除 -->
+            <MaxHistory>3</MaxHistory>
+            <!-- 文件大小分割，超过配置大小就建当天新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <!--  表示不输出ERROR及以上日志-->
+            <onMatch>DENY</onMatch>
+            <!--  表示输出ERROR以下日志-->
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="mqttError" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+
+        <file>logs/smqtt-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 滚动分割保存日志文件名称定义 -->
+            <fileNamePattern>logs/smqtt-error-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 日志文件保留天数，超过默认删除 -->
+            <MaxHistory>3</MaxHistory>
+            <!-- 文件大小分割，超过配置大小就建当天新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+    </appender>
+
+
+    <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+        <!-- 指定异步写入名称为 logfile 的 appender，这里最多只能添加一个 appender-ref -->
+        <appender-ref ref="mqttInfo"/>
+    </appender>
+
+    <logger name="reactor.netty" level="info"/>
+    <logger name="reactor.netty.http.client.HttpClient" level="debug"/>
+    <logger name="reactor.netty.channel.FluxReceive" level="info"/>
+    <logger name="reactor.netty.http.server.HttpServer" level="debug"/>
+
+    <root level="info">
+        <appender-ref ref="async"/>
+        <appender-ref ref="mqttError"/>
+    </root>
+
+</configuration>

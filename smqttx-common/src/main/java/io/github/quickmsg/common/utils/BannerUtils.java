@@ -24,7 +24,7 @@ public class BannerUtils {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String line = "";
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
+                log.info(line);
             }
         } catch (Exception e) {
             log.error("banner file not exists");

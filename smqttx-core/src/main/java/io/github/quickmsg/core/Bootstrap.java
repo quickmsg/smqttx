@@ -133,6 +133,7 @@ public class Bootstrap {
      */
     public Mono<Bootstrap> start() {
         System.getProperties().put("IGNITE_QUIET","false");
+        System.getProperties().put("IGNITE_QUIET","false");
         BannerUtils.banner();
         MqttConfiguration mqttConfiguration = initMqttConfiguration();
         MqttTransportFactory mqttTransportFactory = new MqttTransportFactory();
