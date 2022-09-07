@@ -35,7 +35,6 @@ public class IntegrateProxy<T> implements MethodInterceptor {
     @Override
 
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-
         return methodProxy.invoke(source, objects);
     }
 }

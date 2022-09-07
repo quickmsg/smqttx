@@ -6,9 +6,7 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
-import io.github.quickmsg.common.integrate.job.JobCaller;
-import io.github.quickmsg.common.message.mqtt.ConnectMessage;
-import io.github.quickmsg.interate.job.CloseConnectJob;
+import io.github.quickmsg.common.integrate.job.CloseJob;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +23,7 @@ public class IgniteChannels implements IntegrateChannels {
 
     private final IgniteIntegrate integrate;
 
-    private final CloseConnectJob closeConnectJob = new CloseConnectJob();
+    private final CloseJob closeConnectJob = new CloseJob();
 
     @Override
     public Integrate getIntegrate() {

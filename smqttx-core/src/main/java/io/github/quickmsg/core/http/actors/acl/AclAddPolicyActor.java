@@ -8,6 +8,7 @@ import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Router;
 import io.github.quickmsg.common.http.enums.HttpType;
+import io.github.quickmsg.common.integrate.job.JobClosure;
 import io.github.quickmsg.core.http.AbstractHttpActor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -16,6 +17,7 @@ import reactor.netty.http.server.HttpServerRequest;
 import reactor.netty.http.server.HttpServerResponse;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 /**
  * @author luxurong
@@ -29,19 +31,27 @@ public class AclAddPolicyActor extends AbstractHttpActor {
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration configuration) {
-        return request
-                .receive()
-                .asString(StandardCharsets.UTF_8)
-                .map(this.toJson(PolicyModel.class))
-                .doOnNext(policyModel -> {
-                            if (policyModel.getAction() == AclAction.ALL) {
-                                ContextHolder.getReceiveContext().getAclManager().add
-                                        (policyModel.getSubject(), policyModel.getSource(), AclAction.SUBSCRIBE,policyModel.getAclType());
-                                ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), AclAction.PUBLISH,policyModel.getAclType());
-                            } else {
-                                ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), policyModel.getAction(),policyModel.getAclType());
-                            }
-                        }
-                ).then(response.sendString(Mono.just("success")).then());
+        return request.receive().asString(StandardCharsets.UTF_8).map(this.toJson(PolicyModel.class)).doOnNext(policyModel -> {
+            Collection<Boolean> objects = ContextHolder.getReceiveContext().getIntegrate().getJobExecutor().callBroadcast(new JobClosure<PolicyModel, Boolean>() {
+                @Override
+                public String getJobName() {
+                    return "add-acl";
+                }
+
+                @Override
+                public Boolean isBroadcast() {
+                    return true;
+                }
+                @Override
+                public Boolean apply(PolicyModel model) {
+                    if (policyModel.getAction() == AclAction.ALL) {
+                        return ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), AclAction.SUBSCRIBE, policyModel.getAclType()) && ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), AclAction.PUBLISH, policyModel.getAclType());
+                    } else {
+                        return ContextHolder.getReceiveContext().getAclManager().add(policyModel.getSubject(), policyModel.getSource(), policyModel.getAction(), policyModel.getAclType());
+                    }
+                }
+            }, policyModel);
+
+        }).then(response.sendString(Mono.just("success")).then());
     }
 }

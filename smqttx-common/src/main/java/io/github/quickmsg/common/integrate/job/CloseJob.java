@@ -1,19 +1,15 @@
-package io.github.quickmsg.interate.job;
+package io.github.quickmsg.common.integrate.job;
 
-import cn.hutool.core.collection.CollectionUtil;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
-import io.github.quickmsg.common.integrate.job.JobClosure;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
-
-import java.util.ArrayList;
 
 /**
  * @author luxurong
  */
-public class CloseConnectJob implements JobClosure<String,Boolean> {
+public class CloseJob implements JobClosure<String,Boolean> {
 
     @Override
     public String getJobName() {

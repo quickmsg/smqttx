@@ -26,12 +26,12 @@ public class JCasBinAclManager implements AclManager {
 
     private Enforcer enforcer;
 
+
+    //  pub -> topic
     private final Map<String, Set<String>> filterAclTopicActions = new ConcurrentHashMap<>();
 
     private final String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
 
-
-    private boolean isOpen = true;
 
     public JCasBinAclManager(AclConfig aclConfig) {
         if (aclConfig != null) {
@@ -56,7 +56,6 @@ public class JCasBinAclManager implements AclManager {
                 this.loadAclCache();
             } else {
                 enforcer = new Enforcer();
-                isOpen = false;
             }
 
         }
@@ -71,23 +70,20 @@ public class JCasBinAclManager implements AclManager {
             Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
             allObjects.add(objects.get(i));
         }
-        isOpen = true;
     }
 
     @Override
     public boolean check(MqttChannel mqttChannel, String source, AclAction action) {
         try {
-            if (isOpen) {
-                boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
-                            .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
-                            .orElse(false);
-                if (isCheckAcl) {
-                    String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
-                                , mqttChannel.getAddress().split(":")[0]);
-                    return Optional.ofNullable(enforcer)
-                                .map(ef -> ef.enforce(subject, source, action.name()))
-                                .orElse(true);
-                }
+            boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
+                        .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
+                        .orElse(false);
+            if (isCheckAcl) {
+                String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
+                            , mqttChannel.getAddress().split(":")[0]);
+                return Optional.ofNullable(enforcer)
+                            .map(ef -> ef.enforce(subject, source, action.name()))
+                            .orElse(true);
             }
         } catch (Exception e) {
             log.error("acl check error", e);
@@ -97,23 +93,20 @@ public class JCasBinAclManager implements AclManager {
 
     @Override
     public boolean add(String sub, String source, AclAction action, AclType type) {
-        return isOpen ? Optional.ofNullable(enforcer)
+        return Optional.ofNullable(enforcer)
                     .map(ef -> enforcer.addNamedPolicy("p", sub, source, action.name(), type.getDesc()))
-                    .orElse(true) : false;
+                    .orElse(true);
     }
 
     @Override
     public boolean delete(String sub, String source, AclAction action, AclType type) {
-        return isOpen ? Optional.ofNullable(enforcer)
+        return Optional.ofNullable(enforcer)
                     .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(), type.getDesc()))
-                    .orElse(true) : false;
+                    .orElse(true);
     }
 
     @Override
     public List<List<String>> get(PolicyModel policyModel) {
-        if (!isOpen) {
-            return Collections.emptyList();
-        }
         return Optional.ofNullable(enforcer)
                     .map(ef -> enforcer
                                 .getFilteredNamedPolicy("p", 0,
