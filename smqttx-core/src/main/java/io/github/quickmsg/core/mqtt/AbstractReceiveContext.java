@@ -34,6 +34,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ignite.configuration.CollectionConfiguration;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
@@ -94,7 +95,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
-        this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
+        this.aclManager = new JCasBinAclManager(integrate.getCache(IgniteCacheRegion.CONFIG));
         this.authManager = authManagerFactory().provider(abstractConfiguration.getAuthConfig()).getAuthManager();
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 

@@ -8,7 +8,9 @@ import io.github.quickmsg.common.acl.filter.AclFunction;
 import io.github.quickmsg.common.acl.model.PolicyModel;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.AclConfig;
+import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ignite.IgniteSet;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
 import org.casbin.jcasbin.model.Model;
@@ -33,32 +35,14 @@ public class JCasBinAclManager implements AclManager {
     private final String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
 
 
-    public JCasBinAclManager(AclConfig aclConfig) {
-        if (aclConfig != null) {
-            Model model = new Model();
-            model.addDef("r", "r", "sub, obj, act");
-            model.addDef("p", "p", " sub, obj, act, eft");
-            model.addDef("g", "g", "_, _");
-            model.addDef("e", "e", "some(where (p.eft == allow)) && !some(where (p.eft == deny))");
-            model.addDef("m", "m", "r.act == p.act && keyMatch2(r.obj,p.obj)  && filter(r.sub, p.sub)");
-            if (aclConfig.getAclPolicy() == AclPolicy.JDBC) {
-                AclConfig.JdbcAclConfig jdbcAclConfig = aclConfig.getJdbcAclConfig();
-                Objects.requireNonNull(jdbcAclConfig);
-                try {
-                    enforcer= new Enforcer(model, new JDBCAdapter(jdbcAclConfig.getDriver(), jdbcAclConfig.getUrl(),
-                                jdbcAclConfig.getUsername(), jdbcAclConfig.getPassword()));
-                    this.loadAclCache();
-                } catch (Exception e) {
-                    log.error("init acl jdbc error {}", aclConfig, e);
-                }
-            } else if (aclConfig.getAclPolicy() == AclPolicy.FILE) {
-                enforcer = new Enforcer(model, new FileAdapter(aclConfig.getFilePath()));
-                this.loadAclCache();
-            } else {
-                enforcer = new Enforcer();
-            }
-
-        }
+    public JCasBinAclManager(IntegrateCache<String,Object> cache) {
+        Model model = new Model();
+        model.addDef("r", "r", "sub, obj, act");
+        model.addDef("p", "p", " sub, obj, act, eft");
+        model.addDef("g", "g", "_, _");
+        model.addDef("e", "e", "some(where (p.eft == allow)) && !some(where (p.eft == deny))");
+        model.addDef("m", "m", "r.act == p.act && keyMatch2(r.obj,p.obj)  && filter(r.sub, p.sub)");
+        enforcer = new Enforcer(model, new IgniteAdaptor(cache));
     }
 
 
