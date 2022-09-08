@@ -26,6 +26,8 @@ public class PublishRelMessage implements Message {
 
     private String connectTime;
 
+    private String event = "pubAck";
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 

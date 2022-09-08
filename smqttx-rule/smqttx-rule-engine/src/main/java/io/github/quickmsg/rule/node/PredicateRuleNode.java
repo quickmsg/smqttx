@@ -1,5 +1,6 @@
 package io.github.quickmsg.rule.node;
 
+import io.github.quickmsg.common.message.Message;
 import io.github.quickmsg.rule.RuleNode;
 import reactor.util.context.ContextView;
 
@@ -31,11 +32,11 @@ public class PredicateRuleNode implements RuleNode {
     @Override
 
     public void execute(ContextView contextView) {
-//        if ((Boolean) triggerScript(script, context -> {
-//            Event event = contextView.get(Event.class);
-//            context.set("$",event);
-//        })) {
-//            executeNext(contextView);
-//        }
+        if ((Boolean) triggerScript(script, context -> {
+            Message message = contextView.get(Message.class);
+            context.set("$",message);
+        })) {
+            executeNext(contextView);
+        }
     }
 }

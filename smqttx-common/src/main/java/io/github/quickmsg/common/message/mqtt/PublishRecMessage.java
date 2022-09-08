@@ -22,6 +22,9 @@ public class PublishRecMessage implements Message {
 
     private String connectTime;
 
+    private String event = "pubAck";
+
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 

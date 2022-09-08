@@ -22,6 +22,7 @@ public class DisConnectMessage implements Message {
 
     private String connectTime;
 
+    private String event = "disconnect";
 
     @JsonIgnore
     private MqttChannel mqttChannel;

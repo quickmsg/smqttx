@@ -2,11 +2,13 @@ package io.github.quickmsg.common.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,21 @@ public class JacksonUtil {
             return "";
         }
     }
+
+
+    public static Map<String,Object> bean2Map(Object data) {
+        return  mapper.convertValue(data, new TypeReference<Map<String, Object>>() {
+            @Override
+            public Type getType() {
+                return super.getType();
+            }
+        });
+    }
+
+
+
+
+
 
     public static <T> T json2Bean(String jsonData, Class<T> beanType) {
         try {

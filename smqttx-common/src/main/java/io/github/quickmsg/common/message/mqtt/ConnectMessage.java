@@ -41,6 +41,8 @@ public class ConnectMessage implements Message {
 
     private MqttChannel.Will will;
 
+    private String event = "connect";
+
 
     @Override
     public int getMessageId() {

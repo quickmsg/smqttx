@@ -22,6 +22,8 @@ public class UnSubscribeMessage implements Message {
     private int messageId;
     private String connectTime;
 
+    private String event = "unsubscribe";
+
     private List<String> topics;
 
     @JsonIgnore

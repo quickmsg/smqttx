@@ -22,6 +22,9 @@ public class PublishCompMessage implements Message {
     private int messageId;
     private String connectTime;
 
+    private String event = "pubAck";
+
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 

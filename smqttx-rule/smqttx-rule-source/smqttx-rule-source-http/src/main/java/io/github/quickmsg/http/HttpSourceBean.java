@@ -45,7 +45,7 @@ public class HttpSourceBean implements SourceBean {
     @Override
     public void transmit(Map<String, Object> object) {
         if (httpParam.getAdditions() != null && httpParam.getAdditions().size() > 0) {
-            httpParam.getAdditions().forEach(object::put);
+            object.putAll(httpParam.getAdditions());
         }
         httpClient
                 .post()

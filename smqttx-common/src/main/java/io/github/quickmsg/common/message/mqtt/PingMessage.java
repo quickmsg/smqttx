@@ -19,6 +19,7 @@ public class PingMessage implements Message {
 
     private String connectTime;
 
+    private String event = "ping";
 
     @JsonIgnore
     private MqttChannel mqttChannel;

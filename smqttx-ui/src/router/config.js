@@ -58,6 +58,17 @@ const options = {
               path: 'acl',
               name: '访问控制',
               component: () => import('@/pages/dashboard/acl'),
+            },
+            {
+              path: 'rule',
+              name: '规则管控',
+              component: () => import('@/pages/dashboard/acl'),
+            }
+            ,
+            {
+              path: 'datasource',
+              name: '数据源管控',
+              component: () => import('@/pages/dashboard/acl'),
             }
 
           ]

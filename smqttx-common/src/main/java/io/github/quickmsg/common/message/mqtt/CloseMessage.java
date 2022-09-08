@@ -9,6 +9,8 @@ import io.github.quickmsg.common.message.Message;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author luxurong
@@ -23,6 +25,8 @@ public class CloseMessage implements Message {
 
     @JsonIgnore
     private MqttChannel mqttChannel;
+
+    private String event = "close";
 
 
     public CloseMessage(){

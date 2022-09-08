@@ -23,6 +23,8 @@ public class SubscribeMessage implements Message {
 
     private int messageId;
 
+    private String event = "subscribe";
+
     private String connectTime;
 
     @JsonIgnore

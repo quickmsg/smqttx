@@ -72,8 +72,6 @@ public class MqttSourceBean implements SourceBean {
                         if (throwable != null) {
                             // handle failure
                             log.error("mqtt client connect error", throwable);
-                        } else {
-                            // setup subscribes or start publishing
                         }
                     });
 
