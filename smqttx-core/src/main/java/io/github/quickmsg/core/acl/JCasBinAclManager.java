@@ -29,46 +29,34 @@ public class JCasBinAclManager implements AclManager {
     private Enforcer enforcer;
 
 
-    //  pub -> topic
-    private final Map<String, Set<String>> filterAclTopicActions = new ConcurrentHashMap<>();
-
     private final String REQUEST_SUBJECT_TEMPLATE = "%s:%s";
 
 
-    public JCasBinAclManager(IntegrateCache<String,Object> cache) {
+    public JCasBinAclManager(IntegrateCache<String, Object> cache) {
         Model model = new Model();
         model.addDef("r", "r", "sub, obj, act");
         model.addDef("p", "p", " sub, obj, act, eft");
         model.addDef("g", "g", "_, _");
         model.addDef("e", "e", "some(where (p.eft == allow)) && !some(where (p.eft == deny))");
-        model.addDef("m", "m", "r.act == p.act && keyMatch2(r.obj,p.obj)  && filter(r.sub, p.sub)");
+        model.addDef("m", "m", "r.act == p.act && keyMatch(r.obj,p.obj)  && filter(r.sub, p.sub)");
         enforcer = new Enforcer(model, new IgniteAdaptor(cache));
+//        this.loadAclCache();
     }
 
 
     private void loadAclCache() {
-        enforcer.addFunction("filter", new AclFunction());
-        List<String> objects = enforcer.getAllObjects();
-        List<String> actions = enforcer.getAllActions();
-        for (int i = 0; i < objects.size(); i++) {
-            Set<String> allObjects = filterAclTopicActions.computeIfAbsent(actions.get(i), a -> new HashSet<>());
-            allObjects.add(objects.get(i));
-        }
+        this.add("all", "*", AclAction.PUBLISH, AclType.ALLOW);
+        this.add("all", "*", AclAction.SUBSCRIBE, AclType.ALLOW);
     }
 
     @Override
     public boolean check(MqttChannel mqttChannel, String source, AclAction action) {
         try {
-            boolean isCheckAcl = Optional.ofNullable(filterAclTopicActions.get(action.name()))
-                        .map(objects -> objects.stream().anyMatch(topic -> BuiltInFunctions.keyMatch2(source, topic)))
-                        .orElse(false);
-            if (isCheckAcl) {
-                String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
-                            , mqttChannel.getAddress().split(":")[0]);
-                return Optional.ofNullable(enforcer)
-                            .map(ef -> ef.enforce(subject, source, action.name()))
-                            .orElse(true);
-            }
+            String subject = String.format(REQUEST_SUBJECT_TEMPLATE, mqttChannel.getClientId()
+                        , mqttChannel.getAddress().split(":")[0]);
+            return Optional.ofNullable(enforcer)
+                        .map(ef -> ef.enforce(subject, source, action.name()))
+                        .orElse(true);
         } catch (Exception e) {
             log.error("acl check error", e);
         }
@@ -84,7 +72,7 @@ public class JCasBinAclManager implements AclManager {
 
     @Override
     public boolean delete(String sub, String source, AclAction action, AclType type) {
-        return Optional.ofNullable(enforcer)
+        return  Optional.ofNullable(enforcer)
                     .map(ef -> enforcer.removeNamedPolicy("p", sub, source, action.name(), type.getDesc()))
                     .orElse(true);
     }
@@ -96,7 +84,7 @@ public class JCasBinAclManager implements AclManager {
                                 .getFilteredNamedPolicy("p", 0,
                                             policyModel.getSubject(), policyModel.getSource(),
                                             policyModel.getAction() == null || AclAction.ALL == policyModel.getAction() ? "" : policyModel.getAction().name(),
-                                            policyModel.getAclType() == null || AclType.ALLOW == policyModel.getAclType() ? "" : policyModel.getAclType().getDesc())
+                                            policyModel.getAclType() == null || AclType.ALL == policyModel.getAclType() ? "" : policyModel.getAclType().getDesc())
                     )
                     .orElse(Collections.emptyList());
     }

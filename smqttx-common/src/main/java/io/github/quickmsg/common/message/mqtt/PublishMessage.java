@@ -23,6 +23,8 @@ public class PublishMessage implements Message {
 
     private int messageId;
 
+    private String event = "publish";
+
     private String topic;
 
     private int qos;
