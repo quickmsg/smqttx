@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 public class PingMessage implements Message {
 
-    private String connectTime;
+    private String time;
 
     private String event = "ping";
 
@@ -36,7 +36,7 @@ public class PingMessage implements Message {
 
     public PingMessage(MqttChannel mqttChannel) {
         this.mqttChannel = mqttChannel;
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
 
 }

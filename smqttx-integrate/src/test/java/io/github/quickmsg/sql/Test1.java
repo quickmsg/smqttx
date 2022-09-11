@@ -99,7 +99,7 @@ public class Test1 {
 
 
         long time1 = System.currentTimeMillis();
-        SqlFieldsQuery query = new SqlFieldsQuery("select * from Person where age >1 ").setLocal(true);
+        SqlFieldsQuery query = new SqlFieldsQuery("select * from Person where age >1 lit").setLocal(true);
 //         Iterate over the result set.
         try (QueryCursor<List<?>> cursor=cache2.query(query)) {
             for (List<?> row : cursor)

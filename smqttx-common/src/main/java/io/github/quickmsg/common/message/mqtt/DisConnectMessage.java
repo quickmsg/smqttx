@@ -20,7 +20,7 @@ public class DisConnectMessage implements Message {
     private String clientId;
 
 
-    private String connectTime;
+    private String time;
 
     private String event = "disconnect";
 
@@ -42,7 +42,7 @@ public class DisConnectMessage implements Message {
     public DisConnectMessage(  MqttChannel mqttChannel){
         this.clientId = mqttChannel.getClientId();
         this.mqttChannel=mqttChannel;
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
 
     }
 

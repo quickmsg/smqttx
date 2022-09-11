@@ -20,7 +20,7 @@ import java.util.List;
 public class UnSubscribeMessage implements Message {
 
     private int messageId;
-    private String connectTime;
+    private String time;
 
     private String event = "unsubscribe";
 
@@ -34,6 +34,6 @@ public class UnSubscribeMessage implements Message {
         MqttUnsubscribeMessage unsubscribeMessage = (MqttUnsubscribeMessage) message;
         this.messageId = unsubscribeMessage.variableHeader().messageId();
         this.topics = unsubscribeMessage.payload().topics();
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
 }

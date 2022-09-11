@@ -22,7 +22,7 @@ public interface Message {
         }
 
         @Override
-        public String getConnectTime() {
+        public String getTime() {
             return null;
         }
 
@@ -36,7 +36,7 @@ public interface Message {
 
     int getMessageId();
 
-    String getConnectTime();
+    String getTime();
 
     MqttChannel getMqttChannel();
 

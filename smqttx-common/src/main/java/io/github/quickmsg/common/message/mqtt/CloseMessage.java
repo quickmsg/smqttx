@@ -19,7 +19,7 @@ import java.util.Map;
 public class CloseMessage implements Message {
 
     private int messageId;
-    private String connectTime;
+    private String time;
 
     private String reason;
 
@@ -30,7 +30,7 @@ public class CloseMessage implements Message {
 
 
     public CloseMessage(){
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
 
 }

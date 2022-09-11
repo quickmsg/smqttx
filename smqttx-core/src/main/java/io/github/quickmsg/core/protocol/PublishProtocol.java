@@ -9,6 +9,9 @@ import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.log.LogEvent;
+import io.github.quickmsg.common.log.LogManager;
+import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
@@ -30,20 +33,20 @@ public class PublishProtocol implements Protocol<PublishMessage> {
 
     @Override
     public void parseProtocol(PublishMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
-        log.error("publish:"+ JacksonUtil.bean2Json(message));
-
+        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        LogManager logManager = receiveContext.getLogManager();
         IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();
         IntegrateCluster integrateCluster = receiveContext.getIntegrate().getCluster();
         IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
         AclManager aclManager = receiveContext.getAclManager();
         if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
-            log.warn("mqtt【{}】publish topic 【{}】 acl not authorized ", mqttChannel.getConnectCache(), message.getTopic());
+            logManager.printWarn(mqttChannel, LogEvent.PUBLISH, LogStatus.FAILED," acl not authorized "+ JacksonUtil.bean2Json(message));
             return;
         }
         if (message.isRetain()) {
             messages.saveRetainMessage(RetainMessage.of(message));
         }
+        logManager.printInfo(mqttChannel, LogEvent.PUBLISH, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
         ClusterMessage clusterMessage = new ClusterMessage(message);
         integrateCluster.sendCluster(clusterMessage.getTopic(), clusterMessage);
         Set<String> wildcardTopics = topics.getWildcardTopics(clusterMessage.getTopic());

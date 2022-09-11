@@ -18,6 +18,10 @@ public enum LogEvent {
     UNSUBSCRIBE("UNSUBSCRIBE"),
     BRIDGE("BRIDGE"),
     DISCONNECT("DISCONNECT"),
+    PING("PING"),
+
+    PUBLISH_ACK("PUBLISH_ACK"),
+
     RETRY("RETRY"),
 
     ;

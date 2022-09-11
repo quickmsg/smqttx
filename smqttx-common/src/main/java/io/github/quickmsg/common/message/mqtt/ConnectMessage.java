@@ -35,7 +35,7 @@ public class ConnectMessage implements Message {
 
     private boolean cleanSession;
 
-    private String connectTime;
+    private String time;
 
     private MqttChannel.Auth auth;
 
@@ -75,7 +75,7 @@ public class ConnectMessage implements Message {
         this.version = MqttVersion.fromProtocolNameAndLevel(variableHeader.name(), (byte) variableHeader.version());
         this.cleanSession = variableHeader.isCleanSession();
         this.keepalive = variableHeader.keepAliveTimeSeconds();
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.mqttChannel = mqttChannel;
         this.mqttChannel.setClientId(mqttConnectPayload.clientIdentifier());
         this.clientAddress = mqttChannel.getAddress();
@@ -90,7 +90,7 @@ public class ConnectMessage implements Message {
         cache.setWill(this.will);
         cache.setCleanSession(this.cleanSession);
         cache.setClientId(this.mqttChannel.getClientId());
-        cache.setConnectTime(this.connectTime);
+        cache.setConnectTime(this.time);
         cache.setNodeIp(ServerUtils.serverIp);
         cache.setClientAddress(this.clientAddress);
         return cache;

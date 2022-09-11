@@ -7,6 +7,9 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.log.LogEvent;
+import io.github.quickmsg.common.log.LogManager;
+import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
@@ -34,7 +37,8 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     @Override
     public void parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
-        log.info("connect:"+ JacksonUtil.bean2Json(connectMessage.getCache()));
+        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        LogManager logManager = receiveContext.getLogManager();
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
         String clientIdentifier = mqttChannel.getClientId();
         Integrate integrate = mqttReceiveContext.getIntegrate();
@@ -49,8 +53,10 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         /*password check*/
         if (aclManager.auth(connectMessage.getAuth().getUsername(), connectMessage.getAuth().getPassword(), clientIdentifier)) {
             /*check clientIdentifier exist*/
-
             mqttChannel.setConnectCache(connectMessage.getCache());
+
+            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(connectMessage.getCache()));
+
             mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
@@ -64,6 +70,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
         } else {
+            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.FAILED, JacksonUtil.bean2Json(connectMessage.getCache()));
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
         }
 

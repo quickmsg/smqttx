@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.context;
 
+import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.retry.RetryManager;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.config.Configuration;
@@ -69,6 +70,13 @@ public interface ReceiveContext<T extends Configuration> extends Consumer<Messag
      * @return {@link  AclManager}
      */
     AclManager getAclManager();
+
+
+    /**
+     * get Log Manager
+     * @return {@link  LogManager}
+     */
+    LogManager getLogManager();
 
 
 

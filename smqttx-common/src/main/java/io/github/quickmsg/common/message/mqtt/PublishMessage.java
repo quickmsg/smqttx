@@ -33,7 +33,7 @@ public class PublishMessage implements Message {
 
     private byte[] body;
 
-    private String connectTime;
+    private String time;
 
     private String clientId;
 
@@ -60,7 +60,7 @@ public class PublishMessage implements Message {
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.clientId = Optional.ofNullable(mqttChannel)
                     .map(MqttChannel::getClientId).orElse(null);
     }
