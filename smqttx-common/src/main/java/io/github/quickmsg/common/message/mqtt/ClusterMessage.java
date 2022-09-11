@@ -37,7 +37,7 @@ public class ClusterMessage{
         this.qos = message.getQos();
         this.retain = message.isRetain();
         this.body = message.getBody();
-        this.connectTime = message.getConnectTime();
+        this.connectTime = message.getTime();
         this.channelId= message.getMqttChannel().getId();
         this.clientId= message.getMqttChannel().getClientId();
     }
