@@ -36,7 +36,6 @@ smqtt:
     port: 8999 # 端口
     path: /mqtt # ws 的访问path mqtt.js请设置此选项
   cluster: # 集群配置
-    enable: false # 集群开关
     addresses: ["127.0.0.1"]
   meter:
     meterType: PROMETHEUS # INFLUXDB , PROMETHEUS

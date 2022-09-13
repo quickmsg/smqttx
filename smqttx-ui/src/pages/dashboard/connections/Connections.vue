@@ -19,23 +19,19 @@
 </template>
 
 <script>
-import moment from "moment";
 import {connections} from '@/services/smqtt'
 import StandardTable from '@/components/table/StandardTable'
 
 const columns = [
         {
             title: 'ID',
-            width: '100px',
             customRender: (text, record, index) => index + 1
         },
         {   title: '设备IP',
-            dataIndex: 'clientAddress',
-            width: "200px"
+            dataIndex: 'clientAddress'
         },
        {   title: '节点IP',
-                dataIndex: 'nodeIp',
-                width: "200px"
+                dataIndex: 'nodeIp'
             },
         {
             title: '设备id',
@@ -58,8 +54,9 @@ const columns = [
         {
             title: '遗嘱消息',
             dataIndex: 'will',
-            scopedSlots: {customRender: 'will'},
-            width: "100px"
+            customRender: (text, record) => record.will ?   record.will.willTopic: "无"
+
+          // scopedSlots: {customRender: 'will'}
         },
         {
             title: '心跳时间',
@@ -81,7 +78,7 @@ const columns = [
         methods: {
             getConnections() {
                 connections().then(res => {
-                    this.dataSource = res.data
+                    this.dataSource = res.data.content
                 })
             }
         }
