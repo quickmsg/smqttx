@@ -2,8 +2,7 @@
     <standard-table
             :columns="columns"
             :dataSource="dataSource"
-            :row-key="(r,i)=>{i.toString()}"
-    >
+            :row-key="(r,i)=>{i.toString()}">
         <template slot="connection" slot-scope="{text,record}">
             <a-tag v-if="record.connection.size===0"> 空</a-tag>
             <a-tag v-else v-for="(v,k) in record.connection" :key="k" style="margin-top: 1px">{{ k }}:{{ v }}</a-tag>
@@ -15,7 +14,7 @@
         <template slot="topics" slot-scope="{text,record}">
             <span v-if="record.topics.size===0"> 空 </span>
             <a-tag v-else v-for="(item,index) in record.topics" :key="index" style="margin-top: 1px">{{item}}</a-tag>
-        </template>
+    </template>
     </standard-table>
 </template>
 
@@ -30,53 +29,31 @@ const columns = [
             width: '100px',
             customRender: (text, record, index) => index + 1
         },
-        {   title: 'IP',
-            dataIndex: 'address',
+        {   title: '设备IP',
+            dataIndex: 'clientAddress',
             width: "200px"
         },
+       {   title: '节点IP',
+                dataIndex: 'nodeIp',
+                width: "200px"
+            },
         {
             title: '设备id',
-            dataIndex: 'clientIdentifier'
+            dataIndex: 'clientId'
         },
         {
-            title: '连接',
-            dataIndex: 'connection',
-            scopedSlots: {customRender: 'connection'},
-            width: "100px"
-        },
-        {
-            title: '状态',
-            dataIndex: 'status',
-            customRender: (text, record) => {
-                switch (record.status) {
-                    case 'OFFLINE':
-                        return '离线';
-                    case 'ONLINE':
-                        return '在线';
-                    default:
-                        return '初始化';
+            title: '连接时间',
+            dataIndex: 'connectTime'
 
-                }
-            }
-        },
-        {
-            title: '激活时间',
-            dataIndex: 'activeTime',
-            customRender: (text, record) => moment(record.activeTime).format('YYYY-MM-DD HH:mm:ss')
-        },
-        {
-            title: '认证时间',
-            dataIndex: 'authTime',
-            customRender: (text, record) => moment(record.authTime).format('YYYY-MM-DD HH:mm:ss')
         },
         {
             title: '是否持久化',
-            dataIndex: 'sessionPersistent',
+            dataIndex: 'cleanSession',
             customRender: (text, record) => record.sessionPersistent ? "是" : "否"
         },
         {
             title: '用戶名',
-            dataIndex: 'username'
+            dataIndex: 'auth.username'
         },
         {
             title: '遗嘱消息',

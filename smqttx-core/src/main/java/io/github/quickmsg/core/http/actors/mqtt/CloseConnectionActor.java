@@ -1,4 +1,4 @@
-package io.github.quickmsg.core.http.actors;
+package io.github.quickmsg.core.http.actors.mqtt;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.Configuration;

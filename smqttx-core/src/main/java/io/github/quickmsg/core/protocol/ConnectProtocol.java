@@ -60,7 +60,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
-            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, mqttChannel::close);
+            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, ()->this.logHeartClose(logManager,mqttChannel));
 
             /* registry new channel*/
             channels.add(mqttChannel.getClientId(), mqttChannel);
@@ -74,6 +74,10 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
         }
 
+    }
+
+    private void logHeartClose(LogManager logManager, MqttChannel mqttChannel) {
+        logManager.printInfo(mqttChannel,LogEvent.HEART_TIMEOUT,LogStatus.SUCCESS,JacksonUtil.bean2Json(mqttChannel.getConnectCache()));
     }
 
 

@@ -5,6 +5,7 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.utils.TopicRegexUtils;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ignite.IgniteSet;
 import org.apache.ignite.cache.CacheAtomicityMode;
@@ -26,6 +27,7 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     private final IgniteSet<String> shareCache;
 
+    @Getter
     private final Map<String, Set<SubscribeTopic>> topicSubscribers;
 
     protected static final String ONE_SYMBOL = "+";

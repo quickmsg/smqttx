@@ -1,4 +1,4 @@
-package io.github.quickmsg.core.http.actors;
+package io.github.quickmsg.core.http.actors.mqtt;
 
 import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Router;

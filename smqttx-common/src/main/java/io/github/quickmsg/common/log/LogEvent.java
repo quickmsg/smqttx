@@ -14,8 +14,11 @@ public enum LogEvent {
     CLUSTER("CLUSTER"),
     CONNECT("CONNECT"),
     CLOSE("CLOSE"),
+
     SUBSCRIBE("SUBSCRIBE"),
+
     UNSUBSCRIBE("UNSUBSCRIBE"),
+
     BRIDGE("BRIDGE"),
     DISCONNECT("DISCONNECT"),
     PING("PING"),
@@ -23,6 +26,9 @@ public enum LogEvent {
     PUBLISH_ACK("PUBLISH_ACK"),
 
     RETRY("RETRY"),
+
+    HEART_TIMEOUT("HEART_TIMEOUT"),
+
 
     ;
 

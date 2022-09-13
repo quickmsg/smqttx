@@ -38,9 +38,11 @@ public class MqttChannel {
 
     private String clientId;
 
+    @JsonIgnore
     private static final int MAX_MESSAGE_ID = 65535;
 
 
+    @JsonIgnore
     private Connection connection;
 
     private long activeTime;
@@ -72,6 +74,7 @@ public class MqttChannel {
 
     public void close() {
         if (!this.connection.isDisposed()) {
+
             this.connection.dispose();
         }
     }
