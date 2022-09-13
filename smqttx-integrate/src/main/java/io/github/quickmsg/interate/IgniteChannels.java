@@ -91,12 +91,15 @@ public class IgniteChannels implements IntegrateChannels {
     public PageResult<ConnectCache> queryConnectionSql(ConnectionQueryModel model) {
         List<Condition> conditionList = new ArrayList<>();
         List<Object> params = new ArrayList<>();
+        List<Object> countParams = new ArrayList<>();
+
         if (model.getClientId() != null) {
             Condition condition = new Condition();
             condition.setField("clientId");
             condition.setOperator("=");
             condition.setValue("clientId");
             params.add(model.getClientId());
+            countParams.add(model.getClientId());
             conditionList.add(condition);
         }
         if (model.getClientIp() != null) {
@@ -105,6 +108,8 @@ public class IgniteChannels implements IntegrateChannels {
             condition.setOperator("=");
             condition.setValue("clientAddress");
             params.add(model.getClientIp());
+            countParams.add(model.getClientIp());
+
             conditionList.add(condition);
         }
 
@@ -114,6 +119,7 @@ public class IgniteChannels implements IntegrateChannels {
             condition.setOperator("=");
             condition.setValue("nodeIp");
             params.add(model.getNodeIp());
+            countParams.add(model.getNodeIp());
             conditionList.add(condition);
         }
         params.add(model.getPageSize());
@@ -121,7 +127,12 @@ public class IgniteChannels implements IntegrateChannels {
         Condition[] cons = conditionList.toArray(new Condition[0]);
         Object[] objects = params.toArray(new Object[0]);
         String sql = SqlBuilder.create().select().from("ConnectCache").where(cons).append(" limit ? offset ?").build();
+        String countSql = SqlBuilder.create().select("COUNT(*)").from("ConnectCache").where(cons).build();
+
         SqlFieldsQuery query = new SqlFieldsQuery(sql).setArgs(objects);
+
+        SqlFieldsQuery countQuery = new SqlFieldsQuery(countSql).setArgs(countParams.toArray(new Object[0]));
+
         PageResult<ConnectCache> pageResult = new PageResult<>();
         pageResult.setPageNumber(model.getPageNumber());
         pageResult.setPageSize(model.getPageSize());
@@ -140,8 +151,14 @@ public class IgniteChannels implements IntegrateChannels {
                 cache.setWill((MqttChannel.Will) row.get(8));
                 connectCaches.add(cache);
             }
+            int total = 0 ;
+            try (QueryCursor<List<?>> countCursor = shareChannelCache.getOriginCache().query(countQuery)){
+                for (List<?> row : countCursor) {
+                    total = ((Long)row.get(0)).intValue();
+                    break;
+                }
+            }
             pageResult.setContent(connectCaches);
-            int total = shareChannelCache.getOriginCache().size(CachePeekMode.ALL);
             pageResult.setTotalSize(total);
             int pages = total % model.getPageSize() == 0 ? total / model.getPageSize() : total / model.getPageSize() + 1;
             pageResult.setTotalPages(pages);
