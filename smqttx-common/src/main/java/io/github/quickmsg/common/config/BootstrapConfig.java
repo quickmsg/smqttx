@@ -95,12 +95,6 @@ public class BootstrapConfig {
         /**
          * acl
          */
-        @JsonProperty("acl")
-        private AclConfig aclConfig;
-
-        /**
-         * acl
-         */
         @JsonProperty("auth")
         private AuthConfig authConfig;
 

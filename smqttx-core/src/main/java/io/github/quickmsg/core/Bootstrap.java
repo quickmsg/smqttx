@@ -51,8 +51,6 @@ public class Bootstrap {
 
     private List<SourceDefinition> sourceDefinitions;
 
-    private AclConfig aclConfig;
-
     private AuthConfig authConfig;
 
 
@@ -86,7 +84,6 @@ public class Bootstrap {
         Optional.ofNullable(tcpConfig.getMessageMaxSize()).ifPresent(mqttConfiguration::setMessageMaxSize);
         Optional.ofNullable(clusterConfig).ifPresent(mqttConfiguration::setClusterConfig);
         Optional.ofNullable(meterConfig).ifPresent(mqttConfiguration::setMeterConfig);
-        Optional.ofNullable(aclConfig).ifPresent(mqttConfiguration::setAclConfig);
         Optional.ofNullable(authConfig).ifPresent(mqttConfiguration::setAuthConfig);
 
 

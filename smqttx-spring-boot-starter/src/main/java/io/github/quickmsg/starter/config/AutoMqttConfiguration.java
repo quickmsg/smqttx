@@ -36,7 +36,6 @@ public class AutoMqttConfiguration {
                 .ruleChainDefinitions(springBootstrapConfig.getRules())
                 .sourceDefinitions(springBootstrapConfig.getSources())
                 .meterConfig(springBootstrapConfig.getMeter())
-                .aclConfig(springBootstrapConfig.getAclConfig())
                 .authConfig(springBootstrapConfig.getAuthConfig())
                 .meterConfig(springBootstrapConfig.getMeter())
                 .build()
