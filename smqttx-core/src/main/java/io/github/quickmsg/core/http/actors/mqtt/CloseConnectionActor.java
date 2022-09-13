@@ -7,6 +7,8 @@ import io.github.quickmsg.common.http.annotation.AllowCors;
 import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Router;
 import io.github.quickmsg.common.http.enums.HttpType;
+import io.github.quickmsg.common.integrate.job.JobCaller;
+import io.github.quickmsg.common.integrate.job.JobClosure;
 import io.github.quickmsg.core.http.AbstractHttpActor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import reactor.netty.http.server.HttpServerResponse;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author luxurong
@@ -36,13 +39,25 @@ public class CloseConnectionActor extends AbstractHttpActor {
                 .doOnNext(close -> {
                     if(CollectionUtils.isNotEmpty(close.getIds())){
                         close.getIds().forEach(id->{
-                            MqttChannel mqttChannel=ContextHolder.getReceiveContext()
-                                    .getIntegrate()
-                                    .getChannels()
-                                    .get(id);
-                            if(mqttChannel!=null){
-                                mqttChannel.close();
-                            }
+                            ContextHolder.getReceiveContext()
+                                    .getIntegrate().getJobExecutor()
+                                    .callBroadcast(new JobClosure<String,Void>() {
+
+                                        @Override
+                                        public Void apply(String clientId) {
+                                           Optional.ofNullable(ContextHolder.getReceiveContext()
+                                                   .getIntegrate()
+                                                   .getChannels()
+                                                   .get(id))
+                                                   .ifPresent(MqttChannel::close);
+                                            return null;
+                                        }
+
+                                        @Override
+                                        public String getJobName() {
+                                            return "close-connection";
+                                        }
+                                    },id);
                         });
                     }
                 }).then();

@@ -16,10 +16,6 @@ public class CloseJob implements JobClosure<String,Boolean> {
         return "close-connect";
     }
 
-    @Override
-    public Boolean isBroadcast() {
-        return true;
-    }
 
 
     @Override
