@@ -23,8 +23,7 @@ smqtt:
     filePath: D:\smq-business\config\acl\basic_policy.csv # FILE时配置filePath
     jdbcAclConfig:
       driver: com.mysql.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/smqtt\='[//+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}“”“”“”“”“”“”“”}}}}“}}}}
-    }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}】】】】
+      url: jdbc:mysql://localhost:3306/smqtt
       username: root
       password: 123
   auth:

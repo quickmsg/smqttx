@@ -34,7 +34,7 @@ public class RetainMessage {
                 .body(message.getBody())
                 .clientId(message.getMqttChannel().getClientId())
                 .retain(message.isRetain())
-                .connectTime(message.getConnectTime())
+                .connectTime(message.getTime())
                 .build();
     }
 

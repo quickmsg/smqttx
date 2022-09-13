@@ -34,10 +34,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ignite.configuration.CollectionConfiguration;
-import org.apache.ignite.configuration.DataRegionConfiguration;
-import org.apache.ignite.configuration.DataStorageConfiguration;
-import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.configuration.*;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
@@ -160,6 +157,8 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+        igniteConfiguration.setLocalHost(ServerUtils.serverIp);
+        igniteConfiguration.setConnectorConfiguration(new ConnectorConfiguration().setHost(ServerUtils.serverIp));
         igniteConfiguration.setGridLogger(new Slf4jLogger());
         if(StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())){
             igniteConfiguration.setWorkDirectory(clusterConfig.getWorkDirectory());

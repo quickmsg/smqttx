@@ -1,4 +1,4 @@
-import {CLUSTERS, CONNECTIONS, SUBSCRIBES, ISCLUESTER, PUBLISH,ACLACTION} from '@/services/api'
+import {CLUSTERS, CONNECTIONS, ISCLUESTER, PUBLISH,ACLACTION} from '@/services/api'
 import {request, METHOD} from '@/utils/request'
 
 export function addPolicyAction(params) {
@@ -29,12 +29,6 @@ export async function clusters() {
     return request(CLUSTERS, METHOD.POST, {})
 }
 
-/**
- * 获取当前订阅信息
- */
-export async function subscribes() {
-    return request(SUBSCRIBES, METHOD.POST, {})
-}
 
 /**
  * 是否是集群

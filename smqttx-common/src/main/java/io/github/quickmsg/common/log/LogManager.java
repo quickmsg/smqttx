@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class LogManager {
-    public volatile static boolean logAll = false;
+    public volatile static boolean logAll = true;
 
     private ConcurrentHashSet<String> debugClientIds = new ConcurrentHashSet<>();
 

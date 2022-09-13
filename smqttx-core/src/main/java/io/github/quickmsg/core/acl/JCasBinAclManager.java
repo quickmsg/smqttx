@@ -40,7 +40,7 @@ public class JCasBinAclManager implements AclManager {
         model.addDef("e", "e", "some(where (p.eft == allow)) && !some(where (p.eft == deny))");
         model.addDef("m", "m", "r.act == p.act && keyMatch(r.obj,p.obj)  && filter(r.sub, p.sub)");
         enforcer = new Enforcer(model, new IgniteAdaptor(cache));
-//        this.loadAclCache();
+        this.loadAclCache();
     }
 
 
