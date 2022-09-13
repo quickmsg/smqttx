@@ -11,6 +11,7 @@ public enum LogEvent {
 
     PUBLISH("PUBLISH"),
     WRITE("WRITE"),
+
     CLUSTER("CLUSTER"),
     CONNECT("CONNECT"),
     CLOSE("CLOSE"),
@@ -29,6 +30,7 @@ public enum LogEvent {
 
     HEART_TIMEOUT("HEART_TIMEOUT"),
 
+    SYSTEM("SYSTEM"),
 
     ;
 

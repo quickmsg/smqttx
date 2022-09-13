@@ -20,6 +20,11 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
     }
 
     @Override
+    public IgniteCache<K, V> getOriginCache() {
+        return this.igniteCache;
+    }
+
+    @Override
     public void forEach(Consumer<Cache.Entry<K, V>> consumer) {
         igniteCache.forEach(consumer);
     }

@@ -4,6 +4,8 @@ import cn.hutool.core.collection.ConcurrentHashSet;
 import io.github.quickmsg.common.channel.MqttChannel;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Optional;
+
 /**
  * @author luxurong
  */
@@ -49,8 +51,8 @@ public class LogManager {
         if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
             log.info("{}|{}|{}|{}|{}|{}",
                         nodeIp,
-                        mqttChannel.getAddress(),
-                        mqttChannel.getClientId(),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
                         type.getName(),
                         LogStatus.FAILED.getName(),
                         message);

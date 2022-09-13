@@ -2,7 +2,11 @@ package io.github.quickmsg.common.integrate.channel;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.integrate.IntegrateGetter;
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.sql.ConnectionQueryModel;
+import io.github.quickmsg.common.sql.PageRequest;
+import io.github.quickmsg.common.sql.PageResult;
 
 import java.util.Collection;
 
@@ -60,4 +64,7 @@ public interface IntegrateChannels extends IntegrateGetter {
      *
      */
     void remove(MqttChannel mqttChannel);
+
+
+    PageResult<ConnectCache> queryConnectionSql(ConnectionQueryModel model);
 }

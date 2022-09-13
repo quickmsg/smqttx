@@ -33,6 +33,12 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-db</artifactId>
+            <version>5.7.22</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -17,10 +17,6 @@ import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.SqlConfiguration;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -99,7 +95,7 @@ public class Test1 {
 
 
         long time1 = System.currentTimeMillis();
-        SqlFieldsQuery query = new SqlFieldsQuery("select * from Person where age >1 lit").setLocal(true);
+        SqlFieldsQuery query = new SqlFieldsQuery("select * from Person where age >1").setLocal(true);
 //         Iterate over the result set.
         try (QueryCursor<List<?>> cursor=cache2.query(query)) {
             for (List<?> row : cursor)
