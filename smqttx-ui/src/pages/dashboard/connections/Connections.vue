@@ -47,7 +47,7 @@ const columns = [
 
         },
         {
-            title: '是否持久化',
+            title: '保持会话',
             dataIndex: 'cleanSession',
             customRender: (text, record) => record.sessionPersistent ? "是" : "否"
         },
