@@ -1,9 +1,11 @@
 package io.github.quickmsg.interate;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.utils.TopicRegexUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +60,8 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
         Set<SubscribeTopic> subscribeTopicSet = topicSubscribers.computeIfAbsent(subscribeTopic.getTopicFilter(), topic -> new CopyOnWriteArraySet<>());
         String topic = subscribeTopic.getTopicFilter();
         if (subscribeTopicSet.add(subscribeTopic)) {
+            ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).increment();
+            ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
             integrate.getCluster().listenTopic(topic);
             mqttChannel.getTopics().add(subscribeTopic);
             if (isWildcard(topic)) {
@@ -74,6 +78,8 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
                 this.clearCache(subscribeTopic.getTopicFilter());
             } else {
                 if (subscribeTopicSet.remove(subscribeTopic)) {
+                    ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).decrement();
+                    ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.UN_SUBSCRIBE_EVENT).increment();
                     if ((subscribeTopicSet.size() < 1)) {
                         this.clearCache(subscribeTopic.getTopicFilter());
                     }

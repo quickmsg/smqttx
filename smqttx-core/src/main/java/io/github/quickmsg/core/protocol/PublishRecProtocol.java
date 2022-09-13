@@ -6,6 +6,7 @@ import io.github.quickmsg.common.log.LogEvent;
 import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.PublishRecMessage;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import reactor.util.context.ContextView;
@@ -21,6 +22,7 @@ public class PublishRecProtocol implements Protocol<PublishRecMessage> {
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
         logManager.printWarn(mqttChannel, LogEvent.PUBLISH_ACK, LogStatus.SUCCESS,"unSupport qos2 "+JacksonUtil.bean2Json(message));
+        receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
 
 //        int messageId = message.getMessageId();
 //        return mqttChannel.cancelRetry(MqttMessageType.PUBLISH, messageId)

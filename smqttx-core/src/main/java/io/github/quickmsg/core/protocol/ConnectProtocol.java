@@ -11,6 +11,7 @@ import io.github.quickmsg.common.log.LogEvent;
 import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
@@ -69,6 +70,10 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext));
 
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
+
+            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT).increment();
+            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT_EVENT).increment();
+
         } else {
             logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.FAILED, JacksonUtil.bean2Json(connectMessage.getCache()));
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));

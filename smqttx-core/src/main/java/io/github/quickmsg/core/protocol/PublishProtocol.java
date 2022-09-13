@@ -15,6 +15,7 @@ import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.RetainMessage;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -46,6 +47,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         if (message.isRetain()) {
             messages.saveRetainMessage(RetainMessage.of(message));
         }
+        receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
         logManager.printInfo(mqttChannel, LogEvent.PUBLISH, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
         ClusterMessage clusterMessage = new ClusterMessage(message);
         integrateCluster.sendCluster(clusterMessage.getTopic(), clusterMessage);

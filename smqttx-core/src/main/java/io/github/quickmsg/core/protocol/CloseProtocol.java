@@ -6,6 +6,7 @@ import io.github.quickmsg.common.log.LogEvent;
 import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.CloseMessage;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import reactor.util.context.ContextView;
@@ -20,6 +21,8 @@ public class CloseProtocol implements Protocol<CloseMessage> {
     public void parseProtocol(CloseMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
+        receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT).decrement();
+        receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CLOSE_EVENT).increment();
         logManager.printInfo(mqttChannel, LogEvent.CLOSE, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
 
     }
