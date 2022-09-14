@@ -40,7 +40,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         IntegrateCluster integrateCluster = receiveContext.getIntegrate().getCluster();
         IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
         AclManager aclManager = receiveContext.getAclManager();
-        if (!aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
+        if (mqttChannel!=null && !aclManager.check(mqttChannel, message.getTopic(), AclAction.PUBLISH)) {
             logManager.printWarn(mqttChannel, LogEvent.PUBLISH, LogStatus.FAILED," acl not authorized "+ JacksonUtil.bean2Json(message));
             return;
         }

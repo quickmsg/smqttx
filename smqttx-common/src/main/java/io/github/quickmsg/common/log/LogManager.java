@@ -36,8 +36,8 @@ public class LogManager {
         if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
             log.info("{}|{}|{}|{}|{}|{}",
                         nodeIp,
-                        mqttChannel.getAddress(),
-                        mqttChannel.getClientId(),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
                         type.getName(),
                         eventStatus.getName(),
                         message);
@@ -68,8 +68,8 @@ public class LogManager {
         if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
             log.info("{}|{}|{}|{}|{}|{}",
                         nodeIp,
-                        mqttChannel.getAddress(),
-                        mqttChannel.getClientId(),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
+                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
                         type.getName(),
                         logStatus.getName(),
                         message);
