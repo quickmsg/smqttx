@@ -30,7 +30,7 @@
         <div style="margin-top: 30px;font-size: medium">系统信息</div>
         <div style="display: flex">
             <a-card size="small" :bordered="false" style="margin-top: 15px;width:50%;height: 100%">
-                <div slot="title">SMQTT 信息（Ver {{jvmInfo["smqtt"] || "-"}}）</div>
+                <div slot="title">SMQTTX 信息（Ver {{jvmInfo["smqtt"] || "-"}}）</div>
                 <span slot="extra"><img src="@/assets/img/jvm.png" width="32"/></span>
               <a-row style="height: 50%" v-if="Object.keys(jvmInfo).length>0">
                 <a-col :span="12">
