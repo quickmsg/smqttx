@@ -6,6 +6,8 @@ import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
 import lombok.Data;
 
+import java.util.Optional;
+
 /**
  * @author luxurong
  */
@@ -38,8 +40,8 @@ public class ClusterMessage{
         this.retain = message.isRetain();
         this.body = message.getBody();
         this.connectTime = message.getTime();
-        this.channelId= message.getMqttChannel().getId();
-        this.clientId= message.getMqttChannel().getClientId();
+        this.channelId= Optional.ofNullable(message.getMqttChannel()).map(MqttChannel::getId).orElse(0);
+        this.clientId= message.getClientId();
     }
 
     public PublishMessage toPublishMessage() {
