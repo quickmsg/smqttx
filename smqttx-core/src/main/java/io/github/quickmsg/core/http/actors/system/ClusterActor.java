@@ -30,10 +30,10 @@ public class ClusterActor implements HttpActor {
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
-        // ContextHolder.getReceiveContext()
-        //                        .getIntegrate().getIgnite().cluster().nodes().stream().flatMap(clusterNode -> clusterNode.addresses().stream()).collect(Collectors.toList()
+
         return request
                 .receive()
-                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(Collections.emptyList()))).then());
+                .then(response.sendString(Mono.just(JacksonUtil.bean2Json(ContextHolder.getReceiveContext()
+                            .getIntegrate().getIgnite().cluster().nodes().stream().flatMap(clusterNode -> clusterNode.addresses().stream()).collect(Collectors.toList())))).then());
     }
 }
