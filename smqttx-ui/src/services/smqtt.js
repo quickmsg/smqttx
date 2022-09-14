@@ -18,8 +18,8 @@ export async function  queryPolicyAction(params) {
 /**
  * 获取当前连接信息
  */
-export async function connections() {
-    return request(CONNECTIONS, METHOD.POST, {})
+export async function connections(params) {
+    return request(CONNECTIONS, METHOD.POST, params)
 
 }
 /**
