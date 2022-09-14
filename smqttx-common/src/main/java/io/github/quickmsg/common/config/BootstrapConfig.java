@@ -229,6 +229,13 @@ public class BootstrapConfig {
          * 开启集群
          */
         private boolean enable;
+
+        /**
+         * 本地ip
+         */
+        private String localAddress;
+
+
         /**
          * 集群ip集合
          */

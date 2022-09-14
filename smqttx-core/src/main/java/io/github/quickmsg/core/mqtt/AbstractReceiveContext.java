@@ -157,8 +157,9 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
-        igniteConfiguration.setLocalHost(ServerUtils.serverIp);
-        igniteConfiguration.setConnectorConfiguration(new ConnectorConfiguration().setHost(ServerUtils.serverIp));
+        String localAddress= Optional.ofNullable(clusterConfig.getLocalAddress()).orElse(ServerUtils.serverIp);
+        igniteConfiguration.setLocalHost(localAddress);
+        igniteConfiguration.setConnectorConfiguration(new ConnectorConfiguration().setHost(localAddress));
         igniteConfiguration.setGridLogger(new Slf4jLogger());
         if(StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())){
             igniteConfiguration.setWorkDirectory(clusterConfig.getWorkDirectory());
