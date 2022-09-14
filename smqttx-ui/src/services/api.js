@@ -6,6 +6,7 @@ module.exports = {
   LOGIN: `http://${IP}:60000/auth/login`,
   CLUSTERS: `http://${IP}:60000/smqtt/cluster`,
   CONNECTIONS: `http://${IP}:60000/smqtt/connection`,
+  DELETE_CONNECTIONS: `http://${IP}:60000/smqtt/close/connection`,
   ISCLUESTER:`http://${IP}:60000/smqtt/is/cluster`,
   PUBLISH:`http://${IP}:60000/smqtt/publish`,
   ROUTES: `${BASE_URL}/routes`,

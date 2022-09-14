@@ -1,4 +1,4 @@
-import {CLUSTERS, CONNECTIONS, ISCLUESTER, PUBLISH,ACLACTION} from '@/services/api'
+import {CLUSTERS, CONNECTIONS, ISCLUESTER, PUBLISH, ACLACTION, DELETE_CONNECTIONS} from '@/services/api'
 import {request, METHOD} from '@/utils/request'
 
 export function addPolicyAction(params) {
@@ -22,6 +22,15 @@ export async function connections(params) {
     return request(CONNECTIONS, METHOD.POST, params)
 
 }
+/**
+ * 删除当前连接信息
+ */
+export async function deleteConnections(params) {
+    return request(DELETE_CONNECTIONS, METHOD.POST, params)
+
+}
+
+
 /**
  * 获取当前集群信息
  */

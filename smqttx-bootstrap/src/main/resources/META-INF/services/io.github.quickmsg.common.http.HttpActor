@@ -1,5 +1,6 @@
 io.github.quickmsg.core.http.actors.mqtt.PublishActor
 io.github.quickmsg.core.http.actors.mqtt.ConnectionActor
+io.github.quickmsg.core.http.actors.mqtt.CloseConnectionActor
 io.github.quickmsg.core.http.actors.system.ClusterActor
 io.github.quickmsg.core.http.actors.resource.IndexResourceActor
 io.github.quickmsg.core.http.actors.resource.StaticResourceActor
