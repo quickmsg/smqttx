@@ -311,7 +311,7 @@ export default {
                 this.dataSource = res.data
                 // 设置默认的展示节点数据
                 this.optionsList =[...res.data]
-                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['nodeIp']
+                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['httpUrl']
                 this.nodeInfo = res.data.slice(0,1) || []
                 //如果单机nodeInfo不发生变化，watch不会调用接口请求
                 if(this.nodeInfo.length===0){
