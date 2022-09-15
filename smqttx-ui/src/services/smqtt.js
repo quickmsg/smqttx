@@ -35,7 +35,7 @@ export async function deleteConnections(params) {
  * 获取当前集群信息
  */
 export async function clusters() {
-    return request(CLUSTERS, METHOD.POST, {})
+    return request(CLUSTERS, METHOD.GET, {})
 }
 
 
