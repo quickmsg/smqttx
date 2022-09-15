@@ -21,8 +21,8 @@
                     @change="handleChange"
                     @focus="handleFocus"
                 >
-                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.nodeIp">
-                        {{ it.nodeIp }}
+                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.httpUrl">
+                        {{ it.httpUrl }}
                     </a-select-option>
                 </a-select>
             </div>
@@ -142,17 +142,17 @@
 
     const columns = [
     {
-        title: 'ClusterId',
+        title: '集群ID',
         dataIndex: 'clusterId',
         key: 'clusterId',
     },
     {
-        title: 'NodeIp',
+        title: '节点IP',
         dataIndex: 'nodeIp',
         key:'nodeIp'
     },
     {
-        title: 'Http',
+        title: 'HTTP端口',
         dataIndex: 'httpUrl',
         key:'httpUrl'
     }
@@ -315,7 +315,7 @@ export default {
                 this.nodeInfo = res.data.slice(0,1) || []
                 //如果单机nodeInfo不发生变化，watch不会调用接口请求
                 if(this.nodeInfo.length===0){
-                  this.getConsoleInfo(defaultNode)
+                  this.getConsoleInfo(this.defaultNode)
                 }
             })
         },
