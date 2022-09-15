@@ -144,21 +144,23 @@ public class Bootstrap {
 
 
     private Mono<Void> startHttp() {
-        return httpConfig != null && httpConfig.isEnable() ? new HttpTransportFactory().createTransport(this.buildHttpConfiguration()).start().doOnSuccess(transports::add).doOnError(throwable -> log.error("start http error", throwable)).then() : Mono.empty();
+        return httpConfig != null? new HttpTransportFactory().createTransport(this.buildHttpConfiguration()).start().doOnSuccess(transports::add).doOnError(throwable -> log.error("start http error", throwable)).then() : Mono.empty();
     }
 
     private HttpConfiguration buildHttpConfiguration() {
         HttpConfiguration httpConfiguration = new HttpConfiguration();
         httpConfiguration.setAccessLog(this.httpConfig.isAccessLog());
         httpConfiguration.setSslContext(this.httpConfig.getSsl());
+        Optional.ofNullable(this.getHttpConfig().getPort())
+                                .ifPresent(httpConfiguration::setPort);
+        Optional.ofNullable(this.getHttpConfig().getHost())
+                    .ifPresent(httpConfiguration::setHost);
         BootstrapConfig.HttpAdmin httpAdmin = this.httpConfig.getAdmin();
-        if (httpAdmin != null && httpAdmin.isEnable()) {
+        if (httpAdmin != null) {
             httpConfiguration.setEnableAdmin(true);
             httpConfiguration.setUsername(httpAdmin.getUsername());
             httpConfiguration.setPassword(httpAdmin.getPassword());
 
-        } else {
-            httpConfiguration.setEnableAdmin(false);
         }
         return httpConfiguration;
     }

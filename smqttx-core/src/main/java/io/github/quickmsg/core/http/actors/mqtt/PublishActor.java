@@ -26,8 +26,6 @@ public class PublishActor extends AbstractHttpActor {
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
-        Charset charset = Charset.defaultCharset();
-        log.info("Charset is {}",charset);
         return request
                 .receive()
                 .asString(StandardCharsets.UTF_8)

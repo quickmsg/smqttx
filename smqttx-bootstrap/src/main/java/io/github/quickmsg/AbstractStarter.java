@@ -71,7 +71,7 @@ public abstract class AbstractStarter {
     public static void printUiUrl(Bootstrap bootstrap) {
         String start = "\n-------------------------------------------------------------\n\t";
         start += String.format("SMQTTX mqtt connect url %s:%s \n\t", ServerUtils.serverIp, bootstrap.getTcpConfig().getPort());
-        if (bootstrap.getHttpConfig() != null && bootstrap.getHttpConfig().isEnable()) {
+        if (bootstrap.getHttpConfig() != null) {
             Integer port = 60000;
             start += String.format("SMQTTX-Admin UI is running AccessURLs:\n\t" +
                     "Http Local url:    http://localhost:%s/smqtt/admin" + "\n\t" +
