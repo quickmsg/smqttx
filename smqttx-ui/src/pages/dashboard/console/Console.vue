@@ -142,25 +142,20 @@
 
     const columns = [
     {
-        title: 'Node名称',
-        dataIndex: 'alias',
-        key: 'alias',
+        title: 'ClusterId',
+        dataIndex: 'clusterId',
+        key: 'clusterId',
     },
     {
-        title: '主机IP',
-        dataIndex: 'host',
-        key:'host'
+        title: 'NodeIp',
+        dataIndex: 'nodeIp',
+        key:'nodeIp'
     },
     {
-        title: '端口',
-        dataIndex: 'port',
-        key:'port'
-    },
-    {
-        title: '命名空间',
-        dataIndex: 'namespace',
-        key: 'namespace',
-    },
+        title: 'Http',
+        dataIndex: 'httpUrl',
+        key:'httpUrl'
+    }
 ]
 const counterColumns = [
     {
@@ -303,7 +298,7 @@ export default {
                 if(!newVal){
                     console.log("pass")
                 }else {
-                    this.getConsoleInfo()
+                    this.getConsoleInfo(newVal)
                 }
             },
             deep: true,
@@ -316,11 +311,11 @@ export default {
                 this.dataSource = res.data
                 // 设置默认的展示节点数据
                 this.optionsList =[...res.data]
-                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['alias']
+                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['nodeIp']
                 this.nodeInfo = res.data.slice(0,1) || []
                 //如果单机nodeInfo不发生变化，watch不会调用接口请求
                 if(this.nodeInfo.length===0){
-                  this.getConsoleInfo()
+                  this.getConsoleInfo(defaultNode)
                 }
             })
         },
@@ -342,15 +337,11 @@ export default {
                 })
             }
         },
-        getConsoleInfo(){
-            let host = window.location.host.split(':')[0]
-            if(this.isCluster){
-               host = this.nodeInfo[0]['host']
-            }
-            let jvm = `http://${host}:60000/smqtt/monitor/jvm`
-            let cpu = `http://${host}:60000/smqtt/monitor/cpu`
-            let counter = `http://${host}:60000/smqtt/monitor/counter`
-            let event = `http://${host}:60000/smqtt/monitor/event`
+        getConsoleInfo(host){
+            let jvm = `http://${host}/smqtt/monitor/jvm`
+            let cpu = `http://${host}/smqtt/monitor/cpu`
+            let counter = `http://${host}/smqtt/monitor/counter`
+            let event = `http://${host}/smqtt/monitor/event`
             let options = {
                 headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
             }
