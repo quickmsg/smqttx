@@ -21,8 +21,8 @@
                     @change="handleChange"
                     @focus="handleFocus"
                 >
-                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.alias">
-                        {{ it.alias }}
+                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.nodeIp">
+                        {{ it.nodeIp }}
                     </a-select-option>
                 </a-select>
             </div>
@@ -333,7 +333,7 @@ export default {
                 console.log("pass")
             }else {
                 this.dataSource.map(item=>{
-                    item.alias===this.defaultNode?this.nodeInfo = new Array(item):null
+                    item.nodeIp===this.defaultNode?this.nodeInfo = new Array(item):null
                 })
             }
         },
