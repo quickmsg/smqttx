@@ -8,6 +8,7 @@ import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.utils.JacksonUtil;
+import io.github.quickmsg.common.utils.ServerUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.ignite.IgniteMessaging;
 
@@ -61,7 +62,7 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
 
     @Override
     public String getLocalNode() {
-        return igniteIntegrate.getIgnite().cluster().localNode().id().toString();
+        return igniteIntegrate.getIgnite().cluster().localNode().addresses().stream().findFirst().orElse(ServerUtils.serverIp);
     }
 
 

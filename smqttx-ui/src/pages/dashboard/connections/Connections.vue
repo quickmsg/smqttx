@@ -5,18 +5,18 @@
         class="antAdvancedSearchForm"
     >
       <a-form-item label="设备id" style="size: 20px">
-        <a-input v-model="params.clientId" style="width: 100px" placeholder='请输入客户端id'/>
+        <a-input v-model="params.clientId" style="width: 150px" placeholder='请输入客户端id'/>
       </a-form-item>
       <a-form-item label="客户端ip" style="size: 20px">
-        <a-input v-model="params.clientIp" style="width: 100px" placeholder='请输入客户端ip'/>
+        <a-input v-model="params.clientIp" style="width: 150px" placeholder='请输入客户端ip'/>
       </a-form-item>
       <a-form-item label="节点ip" style="size: 20px">
-        <a-input v-model="params.nodeIp" style="width: 100px" placeholder='请输入t节点ip'/>
+        <a-input v-model="params.nodeIp" style="width: 150px" placeholder='请输入节点ip'/>
       </a-form-item>
       <a-form-item>
         <a-button style="width: 80px;margin-left: 20px" @click="getConnections">查询</a-button>
         <a-button style="width: 80px;margin-left: 20px" @click="reset">重置</a-button>
-        <a-button style="width: 80px;margin-left: 20px" @click="deleteConnectionLink">删除</a-button>
+        <a-button style="width: 80px;margin-left: 20px" @click="deleteConnectionLink">剔除</a-button>
       </a-form-item>
     </a-form>
     <a-table
@@ -46,7 +46,7 @@
             title="你确定要踢除这台设备连接吗?"
             @confirm="() => onDelete(record.clientId)"
         >
-          <a href="javascript:;" style="color: cornflowerblue">Delete</a>
+          <a href="javascript:;" style="color: cornflowerblue">下线</a>
         </a-popconfirm>
       </template>
 

@@ -22,7 +22,7 @@
                     @focus="handleFocus"
                 >
                     <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.httpUrl">
-                        {{ it.httpUrl }}
+                        {{ it.nodeIp }}
                     </a-select-option>
                 </a-select>
             </div>

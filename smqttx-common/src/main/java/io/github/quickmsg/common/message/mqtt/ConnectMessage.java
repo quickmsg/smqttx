@@ -82,7 +82,7 @@ public class ConnectMessage implements Message {
     }
 
 
-    public ConnectCache getCache(){
+    public ConnectCache getCache(String localNode){
         ConnectCache cache = new ConnectCache();
         cache.setAuth(this.auth);
         cache.setKeepalive(this.keepalive);
@@ -91,7 +91,7 @@ public class ConnectMessage implements Message {
         cache.setCleanSession(this.cleanSession);
         cache.setClientId(this.mqttChannel.getClientId());
         cache.setConnectTime(this.time);
-        cache.setNodeIp(ServerUtils.serverIp);
+        cache.setNodeIp(localNode);
         cache.setClientAddress(this.clientAddress);
         return cache;
     }
