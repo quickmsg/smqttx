@@ -12,6 +12,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Optional;
 
@@ -32,6 +33,8 @@ public class PublishMessage implements Message {
     private boolean retain;
 
     private byte[] body;
+
+    private String msg;
 
     private String time;
 
@@ -61,6 +64,7 @@ public class PublishMessage implements Message {
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
         this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
         this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.msg= new String(this.body, Charset.defaultCharset());
         this.clientId = Optional.ofNullable(mqttChannel)
                     .map(MqttChannel::getClientId).orElse(null);
     }

@@ -36,9 +36,9 @@ public class DatabaseRuleNode implements RuleNode {
 
     @Override
     public void execute(ContextView contextView) {
-        Message message = contextView.get(Message.class);
+        Map<String,Object> message = contextView.get(Map.class);
         if (script != null) {
-            Object obj = triggerTemplate(script, context -> context.set("root",message));
+            Object obj = triggerTemplate(script, context -> message.forEach(context::set));
             Map<String,Object> param  = new HashMap<>(2);
             param.put("sql", String.valueOf(obj));
             Optional.ofNullable(SourceManager.getSourceBean(Source.DATA_BASE))

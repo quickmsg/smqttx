@@ -36,3 +36,27 @@ smqtt:
     addresses: ["127.0.0.1"]
   meter:
     meterType: PROMETHEUS # INFLUXDB , PROMETHEUS
+  rules: # 规则引擎相关配置
+    - ruleName: 过滤
+      chain: # 规则链
+        - ruleType: PREDICATE  # 条件过滤器
+          script: $.event.equals("publish")
+        - ruleType: DATA_BASE # MYSQL过滤器
+          script: insert into device_msg (clientIdentifier,topic,qos,retain,msg) value ('${clientId}','${topic}','${qos}',${retain},'${msg}')
+  sources: # 配置数据源sources
+  - source: DATA_BASE
+    sourceName: dataBase
+    sourceAttributes:
+        jdbcUrl: jdbc:mysql://121.40.92.152:3306/smqtt
+        username: root
+        password: lxr7293209
+        dataSource-cachePrepStmts: true
+        dataSource-prepStmtCacheSize: 250
+        dataSource-prepStmtCacheSqlLimit: 2048
+        dataSource-useServerPrepStmts: true
+        dataSource-useLocalSessionState: true
+        dataSource-rewriteBatchedStatements: true
+        dataSource-cacheResultSetMetadata: true
+        dataSource-cacheServerConfiguration: true
+        dataSource-elideSetAutoCommits: true
+        dataSource-maintainTimeStats: false
