@@ -44,10 +44,7 @@
 
 <samp>
 
-
-
-[English] (README-EN. md) · [Simplified Chinese] (README. md)
-
+[English](README-EN.md) · [Simplified Chinese](README.md)
 
 
 </samp>
