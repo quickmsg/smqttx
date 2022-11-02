@@ -1,270 +1,141 @@
-## ![image](icon/logo.png) SMQTT开源的MQTT消息代理Broker
+<h1 align="center">SMQTTX</h1>
 
-SMQTT基于reactor-netty(spring-webflux底层依赖)开发，底层采用Reactor3反应堆模型,支持单机部署，支持容器化部署，具备低延迟，高吞吐量，支持百万TCP连接，同时支持多种协议交互，是一款非常优秀的消息中间件！
+<p align="center">
+  <a href="https://github.com/quickmsg/smqttx/blob/release/ignite/README.md">
+    <img alt="apache" src="https://img.shields.io/badge/license-Apache%202-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
+    <img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.0.22-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/core/release/reference/">
+    <img alt="reactor3" src="https://img.shields.io/badge/reactor3--netty-3.4.22-yellow"/>
+  </a>
+  <a href="">
+    <img alt="ignite" src="https://img.shields.io/badge/ignite-2.14.0-yellowgreen"/>
+  </a>
+  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
+    <img alt="ignite" src="https://img.shields.io/badge/mqtt-3.1.1-green"/>
+  </a>
+</p>
 
-## smqtt目前拥有的功能如下：
-![架构图](icon/component.png)
+<div align="center">
+<strong>
+<samp>
 
+[English](README-EN.md) · [简体中文](README.md)
 
-1. 消息质量等级实现(支持qos0，qos1，qos2)
-2. topicFilter支持
-    - topic分级（test/test）
-    - +支持（单层匹配）
-    - #支持（多层匹配）
-3. 会话消息
-    - 默认内存存储
-    - 支持持久化（redis/db）
-4. 保留消息
-     - 默认内存存储
-     - 支持持久化（redis/db）
-5. 遗嘱消息
-     > 设备掉线时候触发
-6. 客户端认证
-     - 支持spi注入外部认证
-7. tls加密
-     - 支持tls加密（mqtt端口/http端口）
-8. websocket协议支持x
-     > 使用mqtt over websocket
-9. http协议交互
-    - 支持http接口推送消息
-    - 支持spi扩展http接口
-10. SPI接口扩展支持
-     - 消息管理接口（会话消息/保留消息管理）
-     - 通道管理接口 (管理系统的客户端连接)
-     - ~~认证接口 （用于自定义外部认证）~~
-     - 拦截器  （用户自定义拦截消息）
-11. 集群支持（gossip协议实现）
-12. 容器化支持 
-    > 默认镜像最新tag: 1ssqq1lxr/smqtt
-13. 持久化支持（session 保留消息）
-14. 规则引擎支持
-15. 支持springboot starter启动
-16. 管理后台
-    > 请参考smqtt文档如何启动管理后台
-17. grafana监控集成
-    - 支持influxdb
-    - 支持prometheus
-18. ACL权限管理
-    - 对设备、资源、类型进行鉴权
-    
-## 尝试一下
+</samp>
+</strong>
+</div>
 
-> 大家不要恶意链接，谢谢！
+## 功能列表
 
-|  管理   | 说明  | 其他  |
-|  ----  | ----  |----  |
-| 123.57.69.210:1883  | mqtt端口 |用户名：smqtt 密码：smqtt |
-| 123.57.69.210:8999  | mqtt over websocket |用户名：smqtt 密码：smqtt  |
-| http://123.57.69.210:60000/smqtt/admin | 管理后台 |用户名：smqtt 密码：smqtt  |
+<details>
+  <summary>点我 打开/关闭 功能列表</summary>
 
-## 启动方式
+- [标准MQTT协议](#国际化)
+- [Websocket协议](#内容目录)
+- [TLS/SSL加密](#内容目录)
+- [服务等级](#项目介绍)
+  - [qos0 至多一次](#官方网站)
+  - [qos1 至少一次](#官方网站)
+  - [qos2 仅仅一次](#官方网站)
+- [Topic过滤](#图形演示)
+  - [# 多级匹配](#官方网站)
+  - [+ 一级匹配](#官方网站)
+- [保留消息](#功能)
+- [HTTP协议](#架构)
+- [拦截器](#快速入门)
+- [Metrics健康](#快速入门)
+- [规则引擎](#维护者)
+  - [规则管理](#官方网站)
+  - [数据源管理](#官方网站)
+- [集群](#维护者)
+  - [分布式集群路由](#维护者)
+  - [分布式节点动态发现](#维护者)
+  - [分布式Job](#维护者)
+  - [集群互踢策略](#维护者)
+- [SMQTTX管理平台](#快速入门)
+- [SpringBoot Starter](#贡献者)
+- [Apacche 2](#许可证)
 
-### main方式启动
+</details>
 
-引入依赖
-```markdown
-<!--smqtt依赖 -->
-<dependency>
-  <groupId>io.github.quickmsg</groupId>
-  <artifactId>smqtt-core</artifactId>
-  <version>${Latest version}</version>
-</dependency>
-<!--集群依赖 -->
-<dependency>
-   <artifactId>smqtt-registry-scube</artifactId>
-   <groupId>io.github.quickmsg</groupId>
-   <version>${Latest version}</version>
-</dependency>
-<!--管理ui依赖 -->
-<dependency>
-   <artifactId>smqtt-ui</artifactId>
-   <groupId>io.github.quickmsg</groupId>
-   <version>${Latest version}</version>
-</dependency>
-```
+## 项目介绍
+![架构图](icon/smqttx.jpg)
 
-- 阻塞式启动服务：
+基于Java实现的物联网分布式MQTT消息代理服务器
 
-```markdown
-  Bootstrap bootstrap = Bootstrap.builder()
-                .rootLevel(Level.DEBUG)
-                .tcpConfig(
-                        BootstrapConfig
-                                .TcpConfig
-                                .builder()
-                                .port(8888)
-                                .username("smqtt")
-                                .password("smqtt")
-                                .build())
-                .httpConfig(
-                        BootstrapConfig
-                                .HttpConfig
-                                .builder()
-                                .enable(true)
-                                .accessLog(true)
-                                .build())
-                .clusterConfig(
-                        BootstrapConfig.
-                                ClusterConfig
-                                .builder()
-                                .enable(true)
-                                .namespace("smqtt")
-                                .node("node-1")
-                                .port(7773)
-                                .url("127.0.0.1:7771,127.0.0.1:7772").
-                                build())
-                .build()
-                .startAwait();
-```
+### 官方网站
 
-- 非阻塞式启动服务：
+[官网地址](https://www.smqtt.cc)
+
+### 背景
+基于Netty实现分布式MQTT集群，并提供快速接入、配置能力，提供统一的接入管理平台，无需复杂配置，即可完成千万级别设备接入。
+## 功能
+
+- 项目 logo 以及相应数据居中展示
+- 提供多语言功能以及示例模板
+- README 文件必备的说明
+- 内置目录导航功能，解决部分 Markdown 解析引擎不能正确解析导航的问题
+
+## 快速入门
+
+[![smqttx](https://img.shields.io/badge/smqtt-2.0.0-green)](https://www.smqtt.cc)
+
+以 Markdown 格式添加，请使用以下代码：
 
 ```markdown
 
-  Bootstrap bootstrap = Bootstrap.builder()
-                .rootLevel(Level.DEBUG)
-                .tcpConfig(
-                        BootstrapConfig
-                                .TcpConfig
-                                .builder()
-                                .port(8888)
-                                .username("smqtt")
-                                .password("smqtt")
-                                .build())
-                .httpConfig(
-                        BootstrapConfig
-                                .HttpConfig
-                                .builder()
-                                .enable(true)
-                                .accessLog(true)
-                                .build())
-                .clusterConfig(
-                        BootstrapConfig.
-                                ClusterConfig
-                                .builder()
-                                .enable(true)
-                                .namespace("smqtt")
-                                .node("node-1")
-                                .port(7773)
-                                .url("127.0.0.1:7771,127.0.0.1:7772").
-                                build())
-                .build()
-                .start().block();
 ```
 
-### jar方式
+以 HTML 格式添加，请使用以下代码：
 
-1. 下载源码 mvn compile package -Dmaven.test.skip=true -P jar,web
-
-```markdown
-  在smqtt-bootstrap/target目录下生成jar
+```html
+<a href="https://github.com/misitebao/yakia">
+  <img
+    alt="GitHub Yakia"
+    src="https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg"
+  />
+</a>
 ```
 
-2. 准备配置文件 config.yaml
+请自行修改文件名以获取你想要的样式：
 
-   [config.yaml](config/config.yaml)
+| 文件名                  | 样式预览                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| badge_flat.svg          | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
+| badge_flat-square.svg   | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
+| badge_for-the-badge.svg | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
+| badge_plastic.svg       | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
+| badge_social.svg        | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
 
-3. 启动服务
+## 维护者
 
-```markdown
-  java -jar smqtt-bootstrap-1.0.1-SNAPSHOT.jar <config.yaml路径>
-```
+感谢这些项目的维护者：
+<a href="https://github.com/1ssqq1lxr">
+  <img src="https://avatars.githubusercontent.com/u/19258331?v=4" width="40" height="40" alt="misitebao" title="misitebao"/>
+</a>
 
+<details>
+  <summary>点我 打开/关闭 维护者列表</summary>
 
+- [MetaQ](https://github.com/1ssqq1lxr) - SMQTTX项目维护者。
 
-### docker 方式
+</details>
 
+## 贡献者
 
-拉取镜像
+感谢所有参与SMQTTX开发的贡献者。[贡献者列表](https://github.com/quickmsg/smqttx/graphs/contributors)
 
-``` 
-# 拉取docker镜像地址
-docker pull 1ssqq1lxr/smqtt:latest
-```
+## 组件
 
-启动镜像默认配置
+- [Reactor-Netty](https://projectreactor.io/docs/netty/release/reference/index.html) - 高性能网络框架
+- [Reactor3](https://projectreactor.io/docs/core/release/reference/) - 基于Reactor3的反应式框架实现
+- [Ignite](http://ignite-service.cn/) - 基于高性能的分布式网络服务缓存
+- [WebSite](https://www.smqtt.cc) - 项目官网
+- [Wiki](https://wiki.smqtt.cc) - 项目文档
 
-``` 
-# 启动服务
-docker run -it  -p 1883:1883 1ssqq1lxr/smqtt
-```
+## 许可证
 
-启动镜像使用自定义配置（同上准备配置文件config.yaml）
-
-
-``` 
-# 启动服务
-docker run -it  -v <配置文件路径目录>:/conf -p 1883:1883  -p 1999:1999 1ssqq1lxr/smqtt
-```
-
-
-
-### springboot方式
-
-1. 引入依赖
-   
-    ```markdown
-    <dependency>
-        <groupId>io.github.quickmsg</groupId>
-        <artifactId>smqtt-spring-boot-starter</artifactId>
-        <version>${Latest version >= 1.0.8}</version>
-    </dependency>
-    ```
-
-2. 启动类Application上添加注解 `  @EnableMqttServer`
-
-3. 配置application.yml文件
-     > properties也支持，但是需要自己转换，没有提供demo文件 
-
-   [config.yaml](config/config.yaml)
-
-5. 启动springboot服务服务即可
-
-## 官网地址
-
-[smqtt官网](https://www.smqtt.cc/)
-
-## wiki地址
-
-[wiki地址](https://wiki.smqtt.cc/)
-
-
-## 管理后台
-![image](icon/admin.png)
-
-
-## 监控页面
-
-### Mqtt监控
-![image](icon/application.png)
-
-
-### Jvm监控
-![image](icon/jvm.png)
-
-### Netty监控
-![image](icon/netty.png)
-
-
-
-## License
-
-[Apache License, Version 2.0](LICENSE)
-
-
-## 友情链接
-[一款非常好用的IOT平台：thinglinks](https://github.com/mqttsnet/thinglinks)
-
-
-## 相关技术文档
-- [reactor3](https://projectreactor.io/docs/core/release/reference/)
-- [reactor-netty](https://projectreactor.io/docs/netty/1.0.12/reference/index.html)
-
-## 麻烦关注下公众号！
-![image](icon/icon.jpg)
-
-
-- 添加微信号`Lemon877164954`，拉入smqtt官方交流群
-- 加入qq群 `700152283` 
-
-
+[License APACHE](LICENSE)
