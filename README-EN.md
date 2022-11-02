@@ -58,7 +58,7 @@
 
 
 
-##Function list
+## unction list
 
 
 
@@ -124,7 +124,7 @@
 
 
 
-##Project introduction
+## Project introduction
 
 ! [Architecture Diagram] (icon/smqttx. jpg)
 
@@ -134,7 +134,7 @@ Java based distributed MQTT message proxy server for Internet of Things
 
 
 
-###Official website
+### Official website
 
 
 
@@ -142,11 +142,11 @@ Java based distributed MQTT message proxy server for Internet of Things
 
 
 
-###Background
+### Background
 
 The distributed MQTT cluster is implemented based on Netty, and provides fast access and configuration capabilities. It provides a unified access management platform. It can complete the access of tens of millions of devices without complex configuration.
 
-##Function
+## Function
 
 
 
@@ -160,7 +160,7 @@ The distributed MQTT cluster is implemented based on Netty, and provides fast ac
 
 
 
-##Quick Start
+## Quick Start
 
 
 
@@ -216,7 +216,7 @@ Please modify the file name to get the style you want:
 
 
 
-##Maintainer
+## Maintainer
 
 
 
@@ -244,7 +244,7 @@ Thanks to the maintainers of these projects:
 
 
 
-##Contributors
+## Contributors
 
 
 
@@ -252,7 +252,7 @@ Thank all the contributors who participated in the development of SMQTTX. [List 
 
 
 
-##Components
+## Components
 
 
 
@@ -268,7 +268,7 @@ Thank all the contributors who participated in the development of SMQTTX. [List 
 
 
 
-##License
+## License
 
 
 
