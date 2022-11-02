@@ -1,39 +1,22 @@
 <h1 align="center">SMQTTX</h1>
 
 
-
 <p align="center">
-
-<a href=" https://github.com/quickmsg/smqttx/blob/release/ignite/README.md ">
-
-<img alt="apache" src=" https://img.shields.io/badge/license-Apache%202 -blue"/>
-
-</a>
-
-<a href=" https://projectreactor.io/docs/netty/release/reference/index.html ">
-
-<img alt="reactor-netty" src=" https://img.shields.io/badge/reactor--netty-1.0.22-blue "/>
-
-</a>
-
-<a href=" https://projectreactor.io/docs/core/release/reference/ ">
-
-<img alt="reactor3" src=" https://img.shields.io/badge/reactor3--netty-3.4.22-yellow "/>
-
-</a>
-
-<a href="">
-
-<img alt="ignite" src=" https://img.shields.io/badge/ignite-2.14.0-yellowgreen "/>
-
-</a>
-
-<a href=" https://projectreactor.io/docs/netty/release/reference/index.html ">
-
-<img alt="ignite" src=" https://img.shields.io/badge/mqtt-3.1.1-green "/>
-
-</a>
-
+  <a href="https://github.com/quickmsg/smqttx/blob/release/ignite/README.md">
+    <img alt="apache" src="https://img.shields.io/badge/license-Apache%202-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
+    <img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.0.22-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/core/release/reference/">
+    <img alt="reactor3" src="https://img.shields.io/badge/reactor3--netty-3.4.22-yellow"/>
+  </a>
+  <a href="">
+    <img alt="ignite" src="https://img.shields.io/badge/ignite-2.14.0-yellowgreen"/>
+  </a>
+  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
+    <img alt="ignite" src="https://img.shields.io/badge/mqtt-3.1.1-green"/>
+  </a>
 </p>
 
 
