@@ -157,7 +157,6 @@ public class MqttChannel {
      * write message
      *
      * @param mqttMessage #{@link MqttMessage}
-     * @return mono
      */
     public void write(MqttMessage mqttMessage) {
         if (this.connection.channel().isActive() && this.connection.channel().isWritable()) {

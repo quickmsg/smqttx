@@ -35,7 +35,6 @@ public interface Protocol<T extends Message> {
      * @param message     {@link T extends Message}
      * @param mqttChannel {@link MqttChannel}
      * @param contextView {@link ContextView}
-     * @return Mono
      * @see MqttMessage
      */
     void parseProtocol(T message, MqttChannel mqttChannel, ContextView contextView);

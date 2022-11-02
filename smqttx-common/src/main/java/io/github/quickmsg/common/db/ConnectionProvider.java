@@ -8,7 +8,6 @@ import java.util.Properties;
  * 数据库连接提供者
  *
  * @author easy
- * @date 2022/04/26
  */
 public interface ConnectionProvider {
 

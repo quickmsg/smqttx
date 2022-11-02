@@ -57,7 +57,7 @@ public interface IntegrateChannels extends IntegrateGetter {
 
     /**
      * 移除说有channel信息
-     *
+     * @param mqttChannel {@link MqttChannel old}
      */
     void remove(MqttChannel mqttChannel);
 }

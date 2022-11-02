@@ -13,7 +13,7 @@ public interface TopicFilter<T> {
      * 获取订阅topic
      *
      * @param topic   topic
-     * @return {@link SubscribeTopic}
+     * @return {@link Set}
      */
     Set<T> getObjectByTopic(String topic);
 
@@ -23,6 +23,7 @@ public interface TopicFilter<T> {
      *
      * @param topicFilter topicFilter
      * @param t           filter result
+     * @return bool
      */
     boolean addObjectTopic(String topicFilter, T t);
 
@@ -39,8 +40,7 @@ public interface TopicFilter<T> {
 
     /**
      * 获取订所有订阅topic
-     *
-     * @return {@link SubscribeTopic}
+     * @return {@link Set}
      */
     Set<T> getAllObjectsTopic();
 

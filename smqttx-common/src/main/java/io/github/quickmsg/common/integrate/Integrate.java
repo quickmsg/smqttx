@@ -29,6 +29,8 @@ public interface Integrate {
 
     /**
      * @param cacheName cache name
+     * @param <K>  key
+     * @param <V>  value
      * @return {@link IntegrateCache support memory or Persistence }
      */
     <K, V> IntegrateCache<K, V> getCache(String cacheName);
@@ -37,6 +39,8 @@ public interface Integrate {
 
     /**
      * @param cacheName cache name
+     * @param <K>  key
+     * @param <V>  value
      * @return {@link IntegrateCache support memory or Persistence }
      */
     <K, V> IntegrateCache<K, V> getLocalCache(String cacheName);
@@ -44,12 +48,16 @@ public interface Integrate {
 
     /**
      * @param cacheName cache name
+     * @param <K>  key
+     * @param <V>  value
      * @return {@link IntegrateCache support memory or Persistence }
      */
     <K, V> IntegrateCache<K, V> getLocalCache(String cacheName,boolean local);
 
 
     /**
+     * @param <K>  key
+     * @param <V>  value
      * @param igniteCacheRegion  {@link IntegrateCache support memory or Persistence }
      * @return {@link IntegrateCache support memory or Persistence }
      */
