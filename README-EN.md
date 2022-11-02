@@ -106,7 +106,7 @@
 
 ## Project introduction
 
-! [Architecture Diagram] (icon/smqttx. jpg)
+! [Architecture Diagram](icon/smqttx.jpg)
 
 
 
