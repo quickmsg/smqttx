@@ -50,10 +50,7 @@
 
 
 <details>
-
 <summary>Click I open/close the function list</summary>
-
-
 
 - [Standard MQTT Protocol](#Internationalization)
 
@@ -105,15 +102,13 @@
 
 - [Apacche 2](#License)
 
-
-
 </details>
 
 
 
 ## Project introduction
 
-![Architecture Diagram](icon/smqttx.jpg)
+![smqttx](icon/smqttx.jpg)
 
 
 
