@@ -10,8 +10,8 @@ import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.IntegrateBuilder;
+import io.github.quickmsg.common.metric.MetricFactory;
 import io.github.quickmsg.common.metric.MetricManager;
-import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.retry.RetryManager;
@@ -23,8 +23,6 @@ import io.github.quickmsg.core.auth.AuthManagerFactory;
 import io.github.quickmsg.dsl.RuleDslExecutor;
 import io.github.quickmsg.dsl.RuleDslParser;
 import io.github.quickmsg.interate.IgniteIntegrate;
-import io.github.quickmsg.metric.InfluxDbMetricFactory;
-import io.github.quickmsg.metric.PrometheusMetricFactory;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
@@ -129,16 +127,9 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {
         ConfigCheck.checkMeterConfig(meterConfig);
-        return MetricManagerHolder.setMetricManager(Optional.ofNullable(meterConfig).map(config -> {
-            switch (config.getMeterType()) {
-                case INFLUXDB:
-                    return new InfluxDbMetricFactory(config).getMetricManager();
-                case PROMETHEUS:
-                    return new PrometheusMetricFactory(config).getMetricManager();
-                default:
-                    return new LocalMetricManager();
-            }
-        }).orElseGet(LocalMetricManager::new));
+        return Optional.ofNullable(MetricFactory.INSTANCE)
+                .map(metricFactory -> metricFactory.initFactory(meterConfig).getMetricManager())
+                .orElseGet(LocalMetricManager::new);
     }
 
     private AbstractConfiguration castConfiguration(T configuration) {

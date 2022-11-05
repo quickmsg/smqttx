@@ -9,10 +9,12 @@ import io.github.quickmsg.common.metric.MetricManager;
  */
 public class PrometheusMetricFactory implements MetricFactory {
 
-    private final MetricManager metricManager;
+    private  MetricManager metricManager;
 
-    public PrometheusMetricFactory(BootstrapConfig.MeterConfig config) {
-        this.metricManager = new PrometheusMetricManager(config);
+    @Override
+    public MetricFactory initFactory(BootstrapConfig.MeterConfig config) {
+        metricManager = new PrometheusMetricManager(config);
+        return this;
     }
 
     @Override

@@ -83,7 +83,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
         Optional.ofNullable(mqttChannel.getConnectCache().getWill()).ifPresent(will -> Optional.ofNullable(topics.getMqttChannelsByTopic(will.getWillTopic())).ifPresent(subscribeTopics -> subscribeTopics.forEach(subscribeTopic -> {
             MqttChannel channel = subscribeTopic.getMqttChannel();
-            MqttQoS mqttQoS = subscribeTopic.minQos(MqttQoS.valueOf()will.getWillQos());
+            MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
             channel.sendPublish(mqttQoS, will.toPublishMessage());
         })));
 

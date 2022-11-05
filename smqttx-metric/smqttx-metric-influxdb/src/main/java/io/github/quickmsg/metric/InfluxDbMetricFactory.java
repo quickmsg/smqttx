@@ -9,10 +9,13 @@ import io.github.quickmsg.common.metric.MetricManager;
  */
 public class InfluxDbMetricFactory implements MetricFactory {
 
-    private final MetricManager metricManager;
+    private  MetricManager metricManager;
 
-    public InfluxDbMetricFactory(BootstrapConfig.MeterConfig config) {
+    @Override
+    public MetricFactory initFactory(BootstrapConfig.MeterConfig config) {
         this.metricManager = new InfluxDbMetricManager(config);
+        return this;
+
     }
 
     @Override
