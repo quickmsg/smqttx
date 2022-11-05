@@ -125,17 +125,17 @@ The distributed MQTT cluster is implemented based on Netty, and provides fast ac
 [![smqttx]( https://img.shields.io/badge/smqtt-2.0.0-green )]( https://www.smqtt.cc )
 
 
+### Dependency
 
-To add in Markdown format, please use the following code:
-
-
-
-```markdown
-
-
-
+```xml
+<dependency>
+   <artifactId>smqttx-spring-boot-starter</artifactId>
+   <groupId>io.github.quickmsg</groupId>
+   <version>2.0.1-SNAPSHOT</version>
+</dependency>
 ```
-
+### Config
+[config](config/config.yaml)
 
 
 To add in HTML format, use the following code:
@@ -144,17 +144,6 @@ To add in HTML format, use the following code:
 
 ```html
 
-<a href=" https://github.com/misitebao/yakia ">
-
-<img
-
-alt="GitHub Yakia"
-
-src=" https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg "
-
-/>
-
-</a>
 
 ```
 
@@ -164,13 +153,15 @@ Please modify the file name to get the style you want:
 
 
 
-|File Name | Style Preview|
-|-----------------------|----------------------------------------------------------------------------------------------------|
-| badge_flat. svg | ! [According to Yakia's readme]（ https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg ) |
-| badge_flat-square. svg | ! [According to Yakia's readme]（ https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg ) |
-| badge_for-the-badge. svg | ! [According to Yakia's readme]（ https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg ) |
-| badge_plastic. svg | ! [According to Yakia's readme]（ https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg ) |
-| badge_social. svg | ! [According to Yakia's readme]（ https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg ) |
+| File Name      | Style Preview|
+|----------------|----------------------------------------------------------------------------------------------------|
+| tcp config     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
+| acl config     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
+| auth config    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
+| http config    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
+| ws config      | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| cluster config | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| metrics config       | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
 
 
 
@@ -230,4 +221,4 @@ Thank all the contributors who participated in the development of SMQTTX. [List 
 
 
 
-[License APACHE](LICENSE)
+[License APACHE 2.0](LICENSE)

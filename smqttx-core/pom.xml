@@ -17,7 +17,6 @@
             <artifactId>hutool-db</artifactId>
             <version>5.7.22</version>
         </dependency>
-
         <dependency>
             <groupId>io.github.quickmsg</groupId>
             <artifactId>smqttx-integrate</artifactId>

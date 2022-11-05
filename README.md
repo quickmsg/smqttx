@@ -81,34 +81,30 @@
 
 ## 快速入门
 
-[![smqttx](https://img.shields.io/badge/smqtt-2.0.0-green)](https://www.smqtt.cc)
+[![smqttx](https://img.shields.io/badge/SMQTTX-2.0.0-green)](https://www.smqtt.cc)
 
-以 Markdown 格式添加，请使用以下代码：
+### 引入maven依赖
+> 这次是SMQTTX 首次发行，非正式版本，后面有问题会及时进行修复
 
-```markdown
-
+```xml
+<dependency>
+   <artifactId>smqttx-spring-boot-starter</artifactId>
+   <groupId>io.github.quickmsg</groupId>
+   <version>2.0.1-SNAPSHOT</version>
+</dependency>
 ```
+### 配置文件
+[配置文件参考](config/config.yaml)
 
-以 HTML 格式添加，请使用以下代码：
-
-```html
-<a href="https://github.com/misitebao/yakia">
-  <img
-    alt="GitHub Yakia"
-    src="https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg"
-  />
-</a>
-```
-
-请自行修改文件名以获取你想要的样式：
-
-| 文件名                  | 样式预览                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| badge_flat.svg          | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
-| badge_flat-square.svg   | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
-| badge_for-the-badge.svg | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
-| badge_plastic.svg       | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
-| badge_social.svg        | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| 配置项       | 参考文档                                                                                          |
+|-----------|-----------------------------------------------------------------------------------------------|
+| tcp配置     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
+| acl配置     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
+| auth配置    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
+| http配置    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
+| ws配置      | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| cluster配置 | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| metrics配置 | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
 
 ## 维护者
 
@@ -138,4 +134,4 @@
 
 ## 许可证
 
-[License APACHE](LICENSE)
+[License APACHE 2.0](LICENSE)

@@ -62,7 +62,7 @@ public class ConnectMessage implements Message {
                     .willMessage(mqttConnectPayload.willMessageInBytes())
                     .isRetain(variableHeader.isWillRetain())
                     .willTopic(mqttConnectPayload.willTopic())
-                    .mqttQoS(MqttQoS.valueOf(variableHeader.willQos()))
+                    .willQos(variableHeader.willQos())
                     .build();
         }
         if (variableHeader.hasUserName() && variableHeader.hasPassword()) {
