@@ -85,7 +85,7 @@
 
 ### 引入maven依赖
 
-> 建议SpringBoot版本大于2.7.3
+> SpringBoot版本>=2.7.3
 
 ```xml
 <dependency>
@@ -101,7 +101,14 @@
 </dependency>
 ```
 ### 配置文件
+application.yaml中添加配置：
 [配置文件参考](config/config.yaml)
+
+### 启动服务
+在SpringBootApplication启动类上添加
+`@EnableMqttServer` ,然后启动服务即可
+
+**请关注一下配置文件:**
 
 | 配置项       | 参考文档                                                                                          |
 |-----------|-----------------------------------------------------------------------------------------------|
