@@ -142,21 +142,18 @@ The distributed MQTT cluster is implemented based on Netty, and provides fast ac
 </dependency>
 ```
 ### Config
+application.yaml add config:
+
 [config](config/config.yaml)
 
+### Start
+Add on the SpringBootApplication startup class
 
-To add in HTML format, use the following code:
-
-
-
-```html
-
-
-```
+`@EnableMqttServer ', and then start the service
 
 
 
-Please modify the file name to get the style you want:
+Please check config you want:
 
 
 
