@@ -128,10 +128,17 @@ The distributed MQTT cluster is implemented based on Netty, and provides fast ac
 ### Dependency
 
 ```xml
+
 <dependency>
-   <artifactId>smqttx-spring-boot-starter</artifactId>
-   <groupId>io.github.quickmsg</groupId>
-   <version>2.0.1-SNAPSHOT</version>
+  <artifactId>smqttx-spring-boot-starter</artifactId>
+  <groupId>io.github.quickmsg</groupId>
+  <version>2.0.1-SNAPSHOT</version>
+</dependency>
+        <!--Mask h2 database version conflicts-->
+<dependency>
+<groupId>com.h2database</groupId>
+<artifactId>h2</artifactId>
+<version>1.4.197</version>
 </dependency>
 ```
 ### Config
@@ -187,9 +194,7 @@ Thanks to the maintainers of these projects:
 
 - [MetaQ]( https://github.com/1ssqq1lxr ）- SMQTTX project maintainer.
 
-
-
-</details>
+</details>[
 
 
 
@@ -219,6 +224,5 @@ Thank all the contributors who participated in the development of SMQTTX. [List 
 
 ## License
 
-
-
+]([config](config))
 [License APACHE 2.0](LICENSE)

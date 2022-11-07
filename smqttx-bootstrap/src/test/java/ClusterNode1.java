@@ -1,6 +1,7 @@
 import ch.qos.logback.classic.Level;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.core.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 
 import static org.apache.ignite.IgniteSystemProperties.IGNITE_NO_ASCII;
 

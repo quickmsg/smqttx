@@ -84,13 +84,20 @@
 [![smqttx](https://img.shields.io/badge/SMQTTX-2.0.0-green)](https://www.smqtt.cc)
 
 ### 引入maven依赖
-> 这次是SMQTTX 首次发行，非正式版本，后面有问题会及时进行修复
+
+> 建议SpringBoot版本大于2.7.3
 
 ```xml
 <dependency>
    <artifactId>smqttx-spring-boot-starter</artifactId>
    <groupId>io.github.quickmsg</groupId>
    <version>2.0.1-SNAPSHOT</version>
+</dependency>
+<!--屏蔽h2版本冲突-->
+<dependency>
+  <groupId>com.h2database</groupId>
+  <artifactId>h2</artifactId>
+  <version>1.4.197</version>
 </dependency>
 ```
 ### 配置文件
