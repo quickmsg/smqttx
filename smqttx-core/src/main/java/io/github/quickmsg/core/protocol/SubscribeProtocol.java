@@ -3,6 +3,7 @@ package io.github.quickmsg.core.protocol;
 import io.github.quickmsg.common.acl.AclAction;
 import io.github.quickmsg.common.acl.AclManager;
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
@@ -32,7 +33,9 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
 
     @Override
     public void parseProtocol(SubscribeMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        MetricManagerHolder.metricManager.getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
+        ContextHolder.getReceiveContext().getMetricManager()
+                .getMetricRegistry()
+                .getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
         IntegrateTopics<SubscribeTopic> topics = receiveContext.getIntegrate().getTopics();

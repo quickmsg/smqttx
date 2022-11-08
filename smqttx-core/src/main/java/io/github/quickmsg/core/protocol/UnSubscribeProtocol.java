@@ -29,6 +29,7 @@ public class UnSubscribeProtocol implements Protocol<UnSubscribeMessage> {
                                 .getIntegrate()
                                 .getTopics()
                                 .removeTopic(mqttChannel,new SubscribeTopic(topic, MqttQoS.AT_MOST_ONCE, mqttChannel)));
+
         logManager.printInfo(mqttChannel, LogEvent.SUBSCRIBE, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
 
         mqttChannel.write(MqttMessageUtils.buildUnsubAck(message.getMessageId()));
