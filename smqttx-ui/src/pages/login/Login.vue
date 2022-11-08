@@ -5,7 +5,7 @@
         <img alt="logo" class="logo" src="@/assets/img/logo.png"/>
         <span class="title">{{ systemName }}</span>
       </div>
-      <div class="desc">smqtt 是一款Java实现的高性能可扩展的MQTT broker</div>
+      <div class="desc">SMQTTX 是一款企业级高性能可扩展的MQTT broker</div>
     </div>
     <div class="login">
       <a-form :form="form" @submit="onSubmit">
@@ -17,7 +17,7 @@
               <a-input
                   v-decorator="['name', {rules: [{ required: true, message: '请输入账户名', whitespace: true}]}]"
                   autocomplete="autocomplete"
-                  placeholder="smqtt"
+                  placeholder="smqttx"
                   size="large"
               >
                 <a-icon slot="prefix" type="user"/>
@@ -27,7 +27,7 @@
               <a-input
                   v-decorator="['password', {rules: [{ required: true, message: '请输入密码', whitespace: true}]}]"
                   autocomplete="autocomplete"
-                  placeholder="smqtt"
+                  placeholder="smqttx"
                   size="large"
                   type="password"
               >

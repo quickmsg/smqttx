@@ -23,7 +23,9 @@ public class SubscribeMessage implements Message {
 
     private int messageId;
 
-    private String connectTime;
+    private String event = "subscribe";
+
+    private String time;
 
     @JsonIgnore
     private MqttChannel mqttChannel;
@@ -36,7 +38,7 @@ public class SubscribeMessage implements Message {
         MqttSubscribeMessage subscribeMessage = (MqttSubscribeMessage) mqttMessage;
         this.mqttChannel=mqttChannel;
         this.messageId = subscribeMessage.variableHeader().messageId();
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.subscribeTopics =
                 subscribeMessage
                         .payload()

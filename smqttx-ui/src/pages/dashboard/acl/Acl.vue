@@ -180,7 +180,7 @@ export default {
         pageSize: 20, // 默认每页显示数量
         showSizeChanger: true, // 显示可改变每页数量
         pageSizeOptions: ['10', '20', '30', '40'], // 每页数量选项
-        showTotal: total => `Total ${total} items`, // 显示总数
+        showTotal: total => `总共 ${total} 条`, // 显示总数
         onShowSizeChange: (page, pageSize) => {
           this.pagination.pageSize = pageSize
         }

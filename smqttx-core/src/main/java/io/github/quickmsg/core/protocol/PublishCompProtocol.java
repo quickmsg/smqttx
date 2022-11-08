@@ -1,8 +1,13 @@
 package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.log.LogEvent;
+import io.github.quickmsg.common.log.LogManager;
+import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.PublishCompMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import reactor.util.context.ContextView;
 
 /**
@@ -13,11 +18,9 @@ public class PublishCompProtocol implements Protocol<PublishCompMessage> {
     @Override
     // todo 暂不支持qos2
     public void parseProtocol(PublishCompMessage message, MqttChannel mqttChannel, ContextView contextView) {
-//        int compId = message.getMessageId();
-//        return mqttChannel.cancelRetry(MqttMessageType.PUBREL, compId)
-//                .thenReturn(build(EventMsg.PUB_COMP_MESSAGE,
-//                        mqttChannel.getConnectMessage().getClientId(),
-//                        compId));
+        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        LogManager logManager = receiveContext.getLogManager();
+        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_ACK, LogStatus.SUCCESS,"unsupport qos2 "+JacksonUtil.bean2Json(message));
     }
 
     @Override

@@ -10,8 +10,8 @@ import io.github.quickmsg.common.handler.TrafficHandlerLoader;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.IntegrateBuilder;
-import io.github.quickmsg.common.metric.MetricFactory;
 import io.github.quickmsg.common.metric.MetricManager;
+import io.github.quickmsg.common.metric.MetricManagerHolder;
 import io.github.quickmsg.common.metric.local.LocalMetricManager;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.retry.RetryManager;
@@ -30,9 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ignite.configuration.DataRegionConfiguration;
-import org.apache.ignite.configuration.DataStorageConfiguration;
-import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.configuration.*;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
@@ -70,15 +68,18 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private final AuthManager authManager;
 
+    private final LogManager logManager;
+
     private final RuleDslExecutor ruleDslExecutor;
 
 
     public AbstractReceiveContext(T configuration, Transport<T> transport) {
+        this.logManager = new LogManager(ServerUtils.serverIp);
         AbstractConfiguration abstractConfiguration = castConfiguration(configuration);
         this.configuration = configuration;
         this.transport = transport;
         this.protocolAdaptor = protocolAdaptor(abstractConfiguration.getBusinessQueueSize(), abstractConfiguration.getBusinessThreadSize());
-        this.loopResources = LoopResources.create("smqtt-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
+        this.loopResources = LoopResources.create("smqttx-cluster-io", configuration.getBossThreadSize(), configuration.getWorkThreadSize(), true);
         this.trafficHandlerLoader = trafficHandlerLoader();
         this.integrate = integrateBuilder().newIntegrate(initConfig(abstractConfiguration.getClusterConfig()));
         RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
@@ -87,7 +88,7 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
-        this.aclManager = new JCasBinAclManager(abstractConfiguration.getAclConfig());
+        this.aclManager = new JCasBinAclManager(integrate.getCache(IgniteCacheRegion.CONFIG));
         this.authManager = authManagerFactory().provider(abstractConfiguration.getAuthConfig()).getAuthManager();
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
@@ -145,6 +146,9 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
         igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
+        String localAddress= Optional.ofNullable(clusterConfig.getLocalAddress()).orElse(ServerUtils.serverIp);
+        igniteConfiguration.setLocalHost(localAddress);
+        igniteConfiguration.setConnectorConfiguration(new ConnectorConfiguration().setHost(localAddress));
         igniteConfiguration.setGridLogger(new Slf4jLogger());
         if(StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())){
             igniteConfiguration.setWorkDirectory(clusterConfig.getWorkDirectory());

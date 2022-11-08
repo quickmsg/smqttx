@@ -7,7 +7,11 @@ import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
+import io.github.quickmsg.common.log.LogEvent;
+import io.github.quickmsg.common.log.LogManager;
+import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
@@ -34,7 +38,8 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     @Override
     public void parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
-        log.info("connect:"+ JacksonUtil.bean2Json(connectMessage.getCache()));
+        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        LogManager logManager = receiveContext.getLogManager();
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
         String clientIdentifier = mqttChannel.getClientId();
         Integrate integrate = mqttReceiveContext.getIntegrate();
@@ -49,12 +54,14 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         /*password check*/
         if (aclManager.auth(connectMessage.getAuth().getUsername(), connectMessage.getAuth().getPassword(), clientIdentifier)) {
             /*check clientIdentifier exist*/
+            mqttChannel.setConnectCache(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode()));
 
-            mqttChannel.setConnectCache(connectMessage.getCache());
+            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
+
             mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
             /*registry unread event close channel */
-            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, mqttChannel::close);
+            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, ()->this.logHeartClose(logManager,mqttChannel));
 
             /* registry new channel*/
             channels.add(mqttChannel.getClientId(), mqttChannel);
@@ -63,10 +70,19 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext));
 
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
+
+            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT).increment();
+            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT_EVENT).increment();
+
         } else {
+            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.FAILED, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
         }
 
+    }
+
+    private void logHeartClose(LogManager logManager, MqttChannel mqttChannel) {
+        logManager.printInfo(mqttChannel,LogEvent.HEART_TIMEOUT,LogStatus.SUCCESS,JacksonUtil.bean2Json(mqttChannel.getConnectCache()));
     }
 
 

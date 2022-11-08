@@ -6,6 +6,7 @@ import io.github.quickmsg.common.integrate.IntegrateGetter;
 import io.github.quickmsg.common.message.mqtt.ClusterMessage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,4 +66,11 @@ public interface IntegrateTopics<T> extends IntegrateGetter {
     boolean isWildcard(String topic);
 
     Set<String> getWildcardTopics(String topic);
+
+
+    /**
+     *  get all subscribers
+     * @return Map
+     */
+    Map<String, Set<SubscribeTopic>> getTopicSubscribers();
 }

@@ -20,7 +20,10 @@ public class PublishRecMessage implements Message {
 
     private int messageId;
 
-    private String connectTime;
+    private String time;
+
+    private String event = "pubAck";
+
 
     @JsonIgnore
     private MqttChannel mqttChannel;
@@ -29,7 +32,7 @@ public class PublishRecMessage implements Message {
     public PublishRecMessage(Object message, MqttChannel mqttChannel){
         this.mqttChannel  = mqttChannel;
         this.messageId=((MqttMessageIdVariableHeader) ((MqttMessage) message).variableHeader()).messageId();
-        this.connectTime = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
+        this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
 
 }

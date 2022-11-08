@@ -1,4 +1,4 @@
-package io.github.quickmsg.core.http.actors;
+package io.github.quickmsg.core.http.actors.system;
 
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.http.HttpActor;

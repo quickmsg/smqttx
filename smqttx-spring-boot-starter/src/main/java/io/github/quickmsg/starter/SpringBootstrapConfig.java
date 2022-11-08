@@ -74,12 +74,6 @@ public class SpringBootstrapConfig {
      */
     private List<SourceDefinition> sources;
 
-
-    /**
-     * acl
-     */
-    private AclConfig aclConfig;
-
     /**
      * auth
      */

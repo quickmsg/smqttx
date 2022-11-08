@@ -9,10 +9,10 @@ import org.apache.ignite.cache.CacheMode;
 @Getter
 public enum IgniteCacheRegion {
 
-    MQTT_CACHE("mqtt-*", "topic_data_region", CacheMode.PARTITIONED) {
+    CONFIG("config", "config_region", CacheMode.REPLICATED) {
         @Override
         public boolean persistence() {
-            return false;
+            return true;
         }
 
         @Override
@@ -41,18 +41,7 @@ public enum IgniteCacheRegion {
         public boolean local() {
             return false;
         }
-    },
-    LOCK("lock", "lock_region", CacheMode.PARTITIONED) {
-        @Override
-        public boolean persistence() {
-            return false;
-        }
-
-        @Override
-        public boolean local() {
-            return false;
-        }
-    },
+    }
     ;
 
 

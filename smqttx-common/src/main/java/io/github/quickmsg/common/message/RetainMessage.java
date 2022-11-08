@@ -8,6 +8,8 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Optional;
+
 /**
  * @author luxurong
  */
@@ -32,9 +34,9 @@ public class RetainMessage {
                 .topic(message.getTopic())
                 .qos(message.getQos())
                 .body(message.getBody())
-                .clientId(message.getMqttChannel().getClientId())
+                .clientId(message.getClientId())
                 .retain(message.isRetain())
-                .connectTime(message.getConnectTime())
+                .connectTime(message.getTime())
                 .build();
     }
 

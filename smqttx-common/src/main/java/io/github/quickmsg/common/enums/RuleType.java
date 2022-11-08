@@ -11,10 +11,6 @@ public enum RuleType {
     PREDICATE,
 
     /**
-     * topic转发器
-     */
-    TOPIC,
-    /**
      * log转发器
      */
     LOG,

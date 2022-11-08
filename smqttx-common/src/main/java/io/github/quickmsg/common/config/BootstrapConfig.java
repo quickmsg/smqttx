@@ -31,11 +31,10 @@ public class BootstrapConfig {
         smqttConfig.setLogLevel("INFO");
         bootstrapConfig.setSmqttConfig(smqttConfig);
         smqttConfig.setClusterConfig(ClusterConfig.builder()
-                        .enable(false).build());
-        smqttConfig.setHttpConfig(HttpConfig.builder()
-                .enable(false).build());
+                    .enable(false).build());
+        smqttConfig.setHttpConfig(HttpConfig.builder().host("0.0.0.0").build());
         smqttConfig.setWebsocketConfig(WebsocketConfig.builder()
-                .enable(false).build());
+                    .enable(false).build());
         return bootstrapConfig;
     }
 
@@ -91,12 +90,6 @@ public class BootstrapConfig {
          */
         @JsonProperty("meter")
         private MeterConfig meterConfig;
-
-        /**
-         * acl
-         */
-        @JsonProperty("acl")
-        private AclConfig aclConfig;
 
         /**
          * acl
@@ -167,7 +160,7 @@ public class BootstrapConfig {
         /**
          * 单个连接读写字节限制
          */
-        private String  channelReadWriteSize;
+        private String channelReadWriteSize;
 
 
         /**
@@ -188,9 +181,13 @@ public class BootstrapConfig {
     @AllArgsConstructor
     public static class HttpConfig {
         /**
-         * 开启http
+         * ip
          */
-        private boolean enable;
+        private String host;
+        /**
+         * port
+         */
+        private Integer port;
         /**
          * http日志
          */
@@ -235,6 +232,13 @@ public class BootstrapConfig {
          * 开启集群
          */
         private boolean enable;
+
+        /**
+         * 本地ip
+         */
+        private String localAddress;
+
+
         /**
          * 集群ip集合
          */
@@ -258,16 +262,11 @@ public class BootstrapConfig {
     }
 
 
-
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HttpAdmin {
-        /**
-         * 开启http管理页面
-         */
-        private boolean enable;
         /**
          * 用户名
          */
@@ -296,7 +295,6 @@ public class BootstrapConfig {
 
     /**
      * 指标配置
-
      */
     @Data
     @Builder

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.quickmsg.common.config.BootstrapConfig;
 import io.github.quickmsg.common.utils.FileExtension;
 import io.github.quickmsg.common.utils.IPUtils;
+import io.github.quickmsg.common.utils.ServerUtils;
 import io.github.quickmsg.core.Bootstrap;
 import io.github.quickmsg.exception.NotSupportConfigException;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,6 @@ public abstract class AbstractStarter {
                 .meterConfig(config.getSmqttConfig().getMeterConfig())
                 .ruleChainDefinitions(config.getSmqttConfig().getRuleChainDefinitions())
                 .sourceDefinitions(config.getSmqttConfig().getRuleSources())
-                .aclConfig(config.getSmqttConfig().getAclConfig())
                 .authConfig(config.getSmqttConfig().getAuthConfig())
                 .build()
                 .doOnStarted(AbstractStarter::printUiUrl).startAwait();
@@ -70,13 +70,13 @@ public abstract class AbstractStarter {
      */
     public static void printUiUrl(Bootstrap bootstrap) {
         String start = "\n-------------------------------------------------------------\n\t";
-        start += String.format("Smqtt mqtt connect url %s:%s \n\t", IPUtils.getIP(), bootstrap.getTcpConfig().getPort());
-        if (bootstrap.getHttpConfig() != null && bootstrap.getHttpConfig().isEnable()) {
+        start += String.format("SMQTTX mqtt connect url %s:%s \n\t", ServerUtils.serverIp, bootstrap.getTcpConfig().getPort());
+        if (bootstrap.getHttpConfig() != null) {
             Integer port = 60000;
-            start += String.format("Smqtt-Admin UI is running AccessURLs:\n\t" +
+            start += String.format("SMQTTX-Admin UI is running AccessURLs:\n\t" +
                     "Http Local url:    http://localhost:%s/smqtt/admin" + "\n\t" +
                     "Http External url: http://%s:%s/smqtt/admin" + "\n" +
-                    "-------------------------------------------------------------", port, IPUtils.getIP(), port);
+                    "-------------------------------------------------------------", port,  ServerUtils.serverIp, port);
         }
         log.info(start);
     }

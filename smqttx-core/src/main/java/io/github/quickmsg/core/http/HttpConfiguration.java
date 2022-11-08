@@ -14,6 +14,8 @@ public class HttpConfiguration implements Configuration {
 
     private Integer port = 60000;
 
+    private String host = "0.0.0.0";
+
     private Boolean wiretap = false;
 
     private Boolean ssl = false;

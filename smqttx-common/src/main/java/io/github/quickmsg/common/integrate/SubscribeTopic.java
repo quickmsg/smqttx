@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.integrate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Getter;
@@ -19,6 +20,8 @@ public class SubscribeTopic {
 
     private final MqttQoS qoS;
 
+
+    @JsonIgnore
     private MqttChannel mqttChannel;
 
     public SubscribeTopic(String topicFilter, MqttQoS qoS) {

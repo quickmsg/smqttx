@@ -45,11 +45,6 @@ const options = {
               component: () => import('@/pages/dashboard/connections'),
             },
             {
-              path: 'subscribes',
-              name: '订阅信息',
-              component: () => import('@/pages/dashboard/subscribes'),
-            },
-            {
               path: 'publish',
               name: '推送信息',
               component: () => import('@/pages/dashboard/publish'),
@@ -57,6 +52,17 @@ const options = {
             {
               path: 'acl',
               name: '访问控制',
+              component: () => import('@/pages/dashboard/acl'),
+            },
+            {
+              path: 'rule',
+              name: '规则管控',
+              component: () => import('@/pages/dashboard/acl'),
+            }
+            ,
+            {
+              path: 'datasource',
+              name: '数据源管控',
               component: () => import('@/pages/dashboard/acl'),
             }
 

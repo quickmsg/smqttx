@@ -14,12 +14,4 @@ public interface JobCaller<R>  extends Callable<R> {
      */
     String getJobName();
 
-    /**
-     * 是否广播
-     *
-     * @return Boolean
-     */
-    Boolean isBroadcast();
-
-
 }

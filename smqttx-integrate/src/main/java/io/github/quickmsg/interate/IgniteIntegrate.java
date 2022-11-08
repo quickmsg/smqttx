@@ -3,6 +3,7 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.SubscribeTopic;
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
@@ -102,6 +103,7 @@ public class IgniteIntegrate implements Integrate {
                                 .setAtomicityMode(CacheAtomicityMode.ATOMIC)
                                 .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
                                 .setBackups(1)
+                                .setIndexedTypes(Integer.class, ConnectCache.class)
                                 .setRebalanceMode(CacheRebalanceMode.ASYNC);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }

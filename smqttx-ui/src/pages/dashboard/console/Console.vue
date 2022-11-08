@@ -21,8 +21,8 @@
                     @change="handleChange"
                     @focus="handleFocus"
                 >
-                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.alias">
-                        {{ it.alias }}
+                    <a-select-option v-for="it in optionsList.slice(0,10)" :key="it.httpUrl">
+                        {{ it.nodeIp }}
                     </a-select-option>
                 </a-select>
             </div>
@@ -30,7 +30,7 @@
         <div style="margin-top: 30px;font-size: medium">系统信息</div>
         <div style="display: flex">
             <a-card size="small" :bordered="false" style="margin-top: 15px;width:50%;height: 100%">
-                <div slot="title">SMQTT 信息（Ver {{jvmInfo["smqtt"] || "-"}}）</div>
+                <div slot="title">SMQTTX 信息（Ver {{jvmInfo["smqtt"] || "-"}}）</div>
                 <span slot="extra"><img src="@/assets/img/jvm.png" width="32"/></span>
               <a-row style="height: 50%" v-if="Object.keys(jvmInfo).length>0">
                 <a-col :span="12">
@@ -142,25 +142,20 @@
 
     const columns = [
     {
-        title: 'Node名称',
-        dataIndex: 'alias',
-        key: 'alias',
+        title: '集群ID',
+        dataIndex: 'clusterId',
+        key: 'clusterId',
     },
     {
-        title: '主机IP',
-        dataIndex: 'host',
-        key:'host'
+        title: '节点IP',
+        dataIndex: 'nodeIp',
+        key:'nodeIp'
     },
     {
-        title: '端口',
-        dataIndex: 'port',
-        key:'port'
-    },
-    {
-        title: '命名空间',
-        dataIndex: 'namespace',
-        key: 'namespace',
-    },
+        title: 'HTTP端口',
+        dataIndex: 'httpUrl',
+        key:'httpUrl'
+    }
 ]
 const counterColumns = [
     {
@@ -303,7 +298,7 @@ export default {
                 if(!newVal){
                     console.log("pass")
                 }else {
-                    this.getConsoleInfo()
+                    this.getConsoleInfo(newVal)
                 }
             },
             deep: true,
@@ -316,11 +311,11 @@ export default {
                 this.dataSource = res.data
                 // 设置默认的展示节点数据
                 this.optionsList =[...res.data]
-                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['alias']
+                this.defaultNode = this.optionsList.length===0 ? undefined : this.optionsList[0]['httpUrl']
                 this.nodeInfo = res.data.slice(0,1) || []
                 //如果单机nodeInfo不发生变化，watch不会调用接口请求
                 if(this.nodeInfo.length===0){
-                  this.getConsoleInfo()
+                  this.getConsoleInfo(this.defaultNode)
                 }
             })
         },
@@ -338,19 +333,15 @@ export default {
                 console.log("pass")
             }else {
                 this.dataSource.map(item=>{
-                    item.alias===this.defaultNode?this.nodeInfo = new Array(item):null
+                    item.nodeIp===this.defaultNode?this.nodeInfo = new Array(item):null
                 })
             }
         },
-        getConsoleInfo(){
-            let host = window.location.host.split(':')[0]
-            if(this.isCluster){
-               host = this.nodeInfo[0]['host']
-            }
-            let jvm = `http://${host}:60000/smqtt/monitor/jvm`
-            let cpu = `http://${host}:60000/smqtt/monitor/cpu`
-            let counter = `http://${host}:60000/smqtt/monitor/counter`
-            let event = `http://${host}:60000/smqtt/monitor/event`
+        getConsoleInfo(host){
+            let jvm = `http://${host}/smqtt/monitor/jvm`
+            let cpu = `http://${host}/smqtt/monitor/cpu`
+            let counter = `http://${host}/smqtt/monitor/counter`
+            let event = `http://${host}/smqtt/monitor/event`
             let options = {
                 headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
             }

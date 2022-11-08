@@ -3,6 +3,7 @@ package io.github.quickmsg.core;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
 import io.github.quickmsg.common.spi.loader.DynamicLoader;
@@ -30,7 +31,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                                 .doOnError(throwable -> log.error("DefaultProtocolAdaptor consumer", throwable))
                                 .onErrorResume(throwable -> Mono.empty())
                                 .ofType(protocol.getClassType())
-                                .publishOn(Schedulers.newParallel("message-acceptor", threadSize))
+                                .subscribeOn(Schedulers.newParallel("message-acceptor", threadSize))
                                 .subscribe(msg -> {
                                     Message message = (Message) msg;
                                     Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
@@ -41,9 +42,9 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                                                     log.error("DefaultProtocolAdaptor", throwable);
                                                 })
                                                 .subscribe();
-                                    RuleDslExecutor executor =((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor();
-                                    if(executor.isExecute()){
-                                        executor.executeRule(message);
+                                    RuleDslExecutor executor = ((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor();
+                                    if (executor.isExecute()) {
+                                        executor.executeRule( message);
                                     }
                                 }));
     }

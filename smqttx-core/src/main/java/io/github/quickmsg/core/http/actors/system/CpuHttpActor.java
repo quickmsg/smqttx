@@ -1,4 +1,4 @@
-package io.github.quickmsg.core.http.actors;
+package io.github.quickmsg.core.http.actors.system;
 
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.http.HttpActor;
@@ -18,14 +18,15 @@ import reactor.netty.http.server.HttpServerResponse;
  * @author luxurong
  */
 
-@Router(value = "/smqtt/monitor/counter", type = HttpType.GET)
+@Router(value = "/smqtt/monitor/cpu", type = HttpType.GET)
 @Slf4j
 @Header(key = "Content-Type", value = "application/json")
 @AllowCors
-public class CounterHttpActor implements HttpActor {
+public class CpuHttpActor implements HttpActor {
+
 
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration configuration) {
-        return request.receive().then(response.sendString(Mono.just(JacksonUtil.bean2Json(MetricManagerHolder.getMetricManager().getCounterMetric()))).then());
+        return request.receive().then(response.sendString(Mono.just(JacksonUtil.bean2Json(MetricManagerHolder.getMetricManager().getCpuMetric()))).then());
     }
 }

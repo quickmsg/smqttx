@@ -3,7 +3,10 @@ package io.github.quickmsg.interate;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import org.apache.ignite.IgniteCache;
 
+import javax.cache.Cache;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Consumer;
 
 /**
  * @author luxurong
@@ -14,6 +17,16 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
 
     public IgniteIntegrateCache(IgniteCache<K, V> igniteCache) {
         this.igniteCache = igniteCache;
+    }
+
+    @Override
+    public IgniteCache<K, V> getOriginCache() {
+        return this.igniteCache;
+    }
+
+    @Override
+    public void forEach(Consumer<Cache.Entry<K, V>> consumer) {
+        igniteCache.forEach(consumer);
     }
 
     @Override
@@ -64,7 +77,6 @@ public class IgniteIntegrateCache<K,V> implements IntegrateCache<K,V> {
     @Override
     public void close() {
         this.igniteCache.close();
-
     }
 
 

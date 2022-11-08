@@ -1,6 +1,7 @@
 package io.github.quickmsg.core.http;
 
 import io.github.quickmsg.common.Receiver;
+import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.transport.Transport;
 import lombok.Getter;
@@ -33,12 +34,15 @@ public class HttpTransport implements Transport<HttpConfiguration> {
     @Override
     public Mono<Transport> start() {
         return Mono.deferContextual(contextView ->
-                receiver.bind())
-                .doOnNext(this::bindSever)
-                .thenReturn(this)
-                .doOnSuccess(defaultTransport -> log.info("server start success host {} port {}", disposableServer.host(), disposableServer.port()))
-                .cast(Transport.class)
-                .contextWrite(context -> context.put(HttpConfiguration.class, getConfiguration()));
+                                receiver.bind())
+                    .doOnNext(this::bindSever)
+                    .thenReturn(this)
+                    .doOnSuccess(defaultTransport -> {
+                        log.info("http server start success host {} port {}", disposableServer.host(), disposableServer.port());
+                        ContextHolder.setHttpUrl(disposableServer.host() + ":" + disposableServer.port());
+                    })
+                    .cast(Transport.class)
+                    .contextWrite(context -> context.put(HttpConfiguration.class, getConfiguration()));
 
     }
 
@@ -50,7 +54,7 @@ public class HttpTransport implements Transport<HttpConfiguration> {
     @Override
     public void dispose() {
         Optional.ofNullable(disposableServer)
-                .ifPresent(DisposableChannel::dispose);
+                    .ifPresent(DisposableChannel::dispose);
     }
 
     private void bindSever(DisposableServer disposableServer) {

@@ -18,14 +18,25 @@ smqtt:
       enable: false # 开关
       key: /user/server.key # 指定ssl文件 默认系统生成
       crt: /user/server.crt # 指定ssl文件 默认系统生成
+  acl:
+    aclPolicy: NONE # NONE or FILE or JDBC
+    filePath: D:\smq-business\config\acl\basic_policy.csv # FILE时配置filePath
+    jdbcAclConfig:
+      driver: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/smqtt
+      username: root
+      password: 123
   auth:
     fixed:
       username: smqtt
       password: smqtt
   http: # http相关配置 端口固定60000
-    host: 127.0.0.1
+    enable: true # 开关
     accessLog: true # http访问日志
+    ssl: # ssl配置
+      enable: false
     admin: # 后台管理配置
+      enable: true  # 开关
       username: smqtt # 访问用户名
       password: smqtt # 访问密码
   ws: # websocket配置
@@ -33,30 +44,10 @@ smqtt:
     port: 8999 # 端口
     path: /mqtt # ws 的访问path mqtt.js请设置此选项
   cluster: # 集群配置
+    enable: false # 集群开关
     addresses: ["127.0.0.1"]
   meter:
     meterType: PROMETHEUS # INFLUXDB , PROMETHEUS
-  rules: # 规则引擎相关配置
-    - ruleName: 过滤
-      chain: # 规则链
-        - ruleType: PREDICATE  # 条件过滤器
-          script: $.event.equals("publish")
-        - ruleType: DATA_BASE # MYSQL过滤器
-          script: insert into device_msg (clientIdentifier,topic,qos,retain,msg) value ('${clientId}','${topic}','${qos}',${retain},'${msg}')
-  sources: # 配置数据源sources
-  - source: DATA_BASE
-    sourceName: dataBase
-    sourceAttributes:
-        jdbcUrl: jdbc:mysql://121.40.92.152:3306/smqtt
-        username: root
-        password: lxr7293209
-        dataSource-cachePrepStmts: true
-        dataSource-prepStmtCacheSize: 250
-        dataSource-prepStmtCacheSqlLimit: 2048
-        dataSource-useServerPrepStmts: true
-        dataSource-useLocalSessionState: true
-        dataSource-rewriteBatchedStatements: true
-        dataSource-cacheResultSetMetadata: true
-        dataSource-cacheServerConfiguration: true
-        dataSource-elideSetAutoCommits: true
-        dataSource-maintainTimeStats: false
+
+
+

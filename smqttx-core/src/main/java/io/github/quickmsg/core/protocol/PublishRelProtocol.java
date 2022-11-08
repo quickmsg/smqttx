@@ -1,8 +1,13 @@
 package io.github.quickmsg.core.protocol;
 
 import io.github.quickmsg.common.channel.MqttChannel;
+import io.github.quickmsg.common.context.ReceiveContext;
+import io.github.quickmsg.common.log.LogEvent;
+import io.github.quickmsg.common.log.LogManager;
+import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.PublishRelMessage;
 import io.github.quickmsg.common.protocol.Protocol;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import reactor.util.context.ContextView;
 
 import java.util.Set;
@@ -14,7 +19,9 @@ import java.util.Set;
 public class PublishRelProtocol implements Protocol<PublishRelMessage> {
     @Override
     public void parseProtocol(PublishRelMessage message, MqttChannel mqttChannel, ContextView contextView) {
-        int id = message.getMessageId();
+        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        LogManager logManager = receiveContext.getLogManager();
+        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_ACK, LogStatus.SUCCESS,"unSupport qos2 "+ JacksonUtil.bean2Json(message));
         /*
          * 判断是不是缓存qos2消息
          *       是： 走消息分发 & 回复 comp消息
