@@ -104,17 +104,6 @@ Java based distributed MQTT message proxy server for Internet of Things
 
 The distributed MQTT cluster is implemented based on Netty, and provides fast access and configuration capabilities. It provides a unified access management platform. It can complete the access of tens of millions of devices without complex configuration.
 
-## Function
-
-
-
-- The project logo and corresponding data are displayed in the middle
-
-- Provide multilingual functions and sample templates
-
-- Prerequisite description of README file
-
-- Built in directory navigation function to solve the problem that some Markdown parsing engines cannot correctly parse and navigate
 
 
 
