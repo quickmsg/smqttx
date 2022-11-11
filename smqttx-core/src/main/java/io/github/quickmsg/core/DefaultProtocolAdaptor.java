@@ -43,7 +43,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                                                 })
                                                 .subscribe();
                                     RuleDslExecutor executor = ((AbstractReceiveContext<?>) receiveContext).getRuleDslExecutor();
-                                    if (executor.isExecute()) {
+                                    if (executor.isExecute() && message instanceof PublishMessage) {
                                         executor.executeRule( message);
                                     }
                                 }));

@@ -15,9 +15,9 @@ smqtt:
     options:
       SO_BACKLOG: 2000
     ssl: # ssl配置
-      enable: false # 开关
-      key: /user/server.key # 指定ssl文件 默认系统生成
-      crt: /user/server.crt # 指定ssl文件 默认系统生成
+      enable: true # 开关
+      key: C:\Users\luxurong\Desktop\pkcs8_ssl\serverpk8.key # 指定ssl文件 默认系统生成
+      crt: C:\Users\luxurong\Desktop\pkcs8_ssl\server.cer # 指定ssl文件 默认系统生成
   auth:
     fixed:
       username: smqtt

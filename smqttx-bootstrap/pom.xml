@@ -105,7 +105,7 @@
                                 <image>openjdk:8-jre-alpine</image>
                             </from>
                             <to>
-                                <image>1ssqq1lxr/smqtt</image>
+                                <image>1ssqq1lxr/smqttx</image>
                                 <tags>
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
