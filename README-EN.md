@@ -159,13 +159,14 @@ Please check config you want:
 
 | File Name      | Style Preview|
 |----------------|----------------------------------------------------------------------------------------------------|
-| tcp config     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
-| acl config     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
-| auth config    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
-| http config    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
-| ws config      | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
-| cluster config | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
-| metrics config       | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| -----------    |-----------------------------------------------------|
+| mqtt config    | https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html       |
+| acl config     | https://wiki.smqtt.cc/smqttx/acl/1.acl.html         |
+| auth config    | https://wiki.smqtt.cc/smqttx/auth/1.auth.html       |
+| http config    | https://wiki.smqtt.cc/smqttx/http/1.http.html       |
+| ws config      | https://wiki.smqtt.cc/smqttx/ws/1.ws.html           |
+| cluster config | https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html |
+| ssl/tls config       | https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html         |
 
 
 

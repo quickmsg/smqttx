@@ -110,15 +110,15 @@ application.yaml中添加配置：
 
 **请关注一下配置文件:**
 
-| 配置项       | 参考文档                                                                                          |
-|-----------|-----------------------------------------------------------------------------------------------|
-| tcp配置     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat.svg)          |
-| acl配置     | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_flat-square.svg)   |
-| auth配置    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_for-the-badge.svg) |
-| http配置    | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_plastic.svg)       |
-| ws配置      | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
-| cluster配置 | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
-| metrics配置 | ![符合 Yakia 的自述文件](https://cdn.jsdelivr.net/gh/misitebao/yakia/assets/badge_social.svg)        |
+| 配置项       | 参考文档                                                |
+|-----------|-----------------------------------------------------|
+| mqtt配置    | https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html       |
+| acl配置     | https://wiki.smqtt.cc/smqttx/acl/1.acl.html         |
+| auth配置    | https://wiki.smqtt.cc/smqttx/auth/1.auth.html       |
+| http配置    | https://wiki.smqtt.cc/smqttx/http/1.http.html       |
+| ws配置      | https://wiki.smqtt.cc/smqttx/ws/1.ws.html           |
+| cluster配置 | https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html |
+| ssl/tls配置 | https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html         |
 
 ## 维护者
 
