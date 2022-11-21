@@ -211,5 +211,7 @@ Thank all the contributors who participated in the development of SMQTTX. [List 
 
 ## License
 
-]([config](config))
 [License APACHE 2.0](LICENSE)
+
+## Contact We
+Add WeChat `17512575402` 

@@ -144,3 +144,6 @@ application.yaml中添加配置：
 ## 许可证
 
 [License APACHE 2.0](LICENSE)
+
+## 联系我们
+请添加微信 `17512575402` 拉交流群
