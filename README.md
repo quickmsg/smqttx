@@ -141,6 +141,11 @@ application.yaml中添加配置：
 - [WebSite](https://www.smqtt.cc) - 项目官网
 - [Wiki](https://wiki.smqtt.cc) - 项目文档
 
+## 商业版本
+
+商业版演示地址 `http://114.116.98.217:50000/`
+> 有需要商业版接入的请添加微信`17512575402`联系我!
+
 ## 许可证
 
 [License APACHE 2.0](LICENSE)
