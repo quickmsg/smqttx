@@ -11,6 +11,7 @@ import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.ServerUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.ignite.IgniteMessaging;
+import org.apache.ignite.lang.IgniteBiPredicate;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -31,16 +32,16 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
 
     private final org.apache.ignite.IgniteCluster igniteCluster;
 
-    private Map<String, UUID> fixedListener = new ConcurrentHashMap<>();
-
+    private final Map<String, IgniteBiPredicate<UUID, ?>> fixedListener = new ConcurrentHashMap<>();
 
 
     private final ClusterHandler clusterHandler;
+
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate) {
         this.igniteIntegrate = igniteIntegrate;
         this.message = igniteIntegrate.getIgnite().message();
         this.igniteCluster = igniteIntegrate.getIgnite().cluster();
-        this.clusterHandler=new ClusterHandler();
+        this.clusterHandler = new ClusterHandler();
     }
 
 
@@ -51,7 +52,8 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
                 .stream()
                 .map(clusterNode -> clusterNode.consistentId().toString())
                 .collect(Collectors.toSet());
-}
+    }
+
     @Override
     public Set<String> getOtherClusterNode() {
         return igniteCluster
@@ -68,21 +70,25 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
     }
 
 
-
     @Override
     public void listenTopic(String topic) {
-        fixedListener.computeIfAbsent(topic,tp->message.remoteListen(tp,clusterHandler::doRemote));
+        fixedListener.computeIfAbsent(topic, tp -> {
+                    IgniteBiPredicate<UUID, ?> p = clusterHandler::doRemote;
+                    message.localListen(tp, p);
+                    return p;
+                }
+        );
     }
 
     @Override
     public void stopListenTopic(String topic) {
         Optional.ofNullable(fixedListener.remove(topic))
-                    .ifPresent(message::stopRemoteListenAsync);
+                .ifPresent(o -> message.stopLocalListen(topic, o));
     }
 
     @Override
-    public void sendCluster(String topic,ClusterMessage clusterMessage) {
-        message.send(topic,clusterMessage);
+    public void sendCluster(String topic, ClusterMessage clusterMessage) {
+        message.send(topic, clusterMessage);
     }
 
 
