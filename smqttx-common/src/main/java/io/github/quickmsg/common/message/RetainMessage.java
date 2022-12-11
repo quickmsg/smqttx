@@ -1,6 +1,7 @@
 package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
@@ -8,6 +9,7 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
@@ -33,7 +35,7 @@ public class RetainMessage {
         return RetainMessage.builder()
                 .topic(message.getTopic())
                 .qos(message.getQos())
-                .body(message.getBody())
+                .body(JacksonUtil.dynamicJson(message.getBody()).getBytes(StandardCharsets.UTF_8))
                 .clientId(message.getClientId())
                 .retain(message.isRetain())
                 .connectTime(message.getTime())

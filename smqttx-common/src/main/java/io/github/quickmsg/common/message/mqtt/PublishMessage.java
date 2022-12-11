@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.Message;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MessageUtils;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -13,6 +14,7 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Data;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
@@ -32,9 +34,7 @@ public class PublishMessage implements Message {
 
     private boolean retain;
 
-    private byte[] body;
-
-    private String msg;
+    private Object body;
 
     private String time;
 
@@ -45,11 +45,13 @@ public class PublishMessage implements Message {
 
 
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId) {
-        return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
+        return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId,
+                this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(JacksonUtil.dynamicJson(this.body).getBytes(StandardCharsets.UTF_8)));
     }
 
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId,boolean isDup) {
-        return MqttMessageUtils.buildPub(isDup, qoS, this.retain, messageId, this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(body));
+        return MqttMessageUtils.buildPub(isDup, qoS, this.retain, messageId, this.getTopic(),
+                PooledByteBufAllocator.DEFAULT.buffer().writeBytes(JacksonUtil.dynamicJson(this.body).getBytes(StandardCharsets.UTF_8)));
     }
 
     public PublishMessage() {
@@ -62,9 +64,8 @@ public class PublishMessage implements Message {
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
-        this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
+        this.body = JacksonUtil.dynamic(new String(MessageUtils.readByteBuf(mqttPublishMessage.payload()),StandardCharsets.UTF_8));
         this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
-        this.msg= new String(this.body, Charset.defaultCharset());
         this.clientId = Optional.ofNullable(mqttChannel)
                     .map(MqttChannel::getClientId).orElse(null);
     }

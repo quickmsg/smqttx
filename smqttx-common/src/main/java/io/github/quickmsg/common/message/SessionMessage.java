@@ -2,12 +2,15 @@ package io.github.quickmsg.common.message;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.Builder;
 import lombok.Data;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author luxurong
@@ -33,7 +36,7 @@ public class SessionMessage {
                 .topic(message.getTopic())
                 .qos(message.getQos())
                 .retain(message.isRetain())
-                .body(message.getBody())
+                .body(JacksonUtil.dynamicJson(message.getBody()).getBytes(StandardCharsets.UTF_8))
                 .build();
     }
 

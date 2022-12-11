@@ -13,7 +13,7 @@ import java.util.Optional;
 public class LogManager {
     public volatile static boolean logAll = true;
 
-    private ConcurrentHashSet<String> debugClientIds = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<String> debugClientIds = new ConcurrentHashSet<>();
 
     /**
      * 节点IP
@@ -33,14 +33,14 @@ public class LogManager {
     }
 
     public void printInfo(MqttChannel mqttChannel, LogEvent type, LogStatus eventStatus, String message) {
-        if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
+        if (logAll) {
             log.info("{}|{}|{}|{}|{}|{}",
-                        nodeIp,
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
-                        type.getName(),
-                        eventStatus.getName(),
-                        message);
+                    nodeIp,
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
+                    type.getName(),
+                    eventStatus.getName(),
+                    message);
         }
     }
 
@@ -48,14 +48,14 @@ public class LogManager {
      * error日志打印
      */
     public void printError(MqttChannel mqttChannel, LogEvent type, String message) {
-        if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
+        if (logAll) {
             log.info("{}|{}|{}|{}|{}|{}",
-                        nodeIp,
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
-                        type.getName(),
-                        LogStatus.FAILED.getName(),
-                        message);
+                    nodeIp,
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse("system"),
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse("system"),
+                    type.getName(),
+                    LogStatus.FAILED.getName(),
+                    message);
         }
     }
 
@@ -65,14 +65,14 @@ public class LogManager {
      * warn日志打印
      */
     public void printWarn(MqttChannel mqttChannel, LogEvent type, LogStatus logStatus,String message) {
-        if (logAll || debugClientIds.contains(mqttChannel.getClientId())) {
+        if (logAll){
             log.info("{}|{}|{}|{}|{}|{}",
-                        nodeIp,
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
-                        Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
-                        type.getName(),
-                        logStatus.getName(),
-                        message);
+                    nodeIp,
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getAddress).orElse(null),
+                    Optional.ofNullable(mqttChannel).map(MqttChannel::getClientId).orElse(null),
+                    type.getName(),
+                    logStatus.getName(),
+                    message);
         }
     }
 

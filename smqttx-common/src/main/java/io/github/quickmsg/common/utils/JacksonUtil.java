@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.quickmsg.common.context.ContextHolder;
+import io.github.quickmsg.common.log.LogEvent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
@@ -22,10 +24,10 @@ import java.util.Map;
 @Slf4j
 public class JacksonUtil {
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
-        mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true) ;
+        mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 
@@ -35,31 +37,38 @@ public class JacksonUtil {
         try {
             return mapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            log.error("JacksonUtil bean2Json error", e);
+            ContextHolder.getReceiveContext()
+                    .getLogManager()
+                    .printError(null, LogEvent.SYSTEM,e.getMessage());
             return "";
         }
     }
 
 
-    public static Map<String,Object> bean2Map(Object data) {
-        return  mapper.convertValue(data, new TypeReference<Map<String, Object>>() {
-            @Override
-            public Type getType() {
-                return super.getType();
-            }
-        });
+    public static Map<String, Object> bean2Map(Object data) {
+        try {
+            return mapper.convertValue(data, new TypeReference<Map<String, Object>>() {
+                @Override
+                public Type getType() {
+                    return super.getType();
+                }
+            });
+        } catch (Exception e) {
+            ContextHolder.getReceiveContext()
+                    .getLogManager().printError(null, LogEvent.SYSTEM, e.getCause().toString());
+            return Collections.emptyMap();
+        }
+
     }
-
-
-
-
 
 
     public static <T> T json2Bean(String jsonData, Class<T> beanType) {
         try {
             return mapper.readValue(jsonData, beanType);
         } catch (Exception e) {
-            log.error("JacksonUtil json {}  error",jsonData, e);
+            ContextHolder.getReceiveContext()
+                    .getLogManager()
+                    .printError(null,LogEvent.SYSTEM,e.getMessage());
             return null;
         }
     }
@@ -70,7 +79,9 @@ public class JacksonUtil {
             JavaType javaType = mapper.getTypeFactory().constructParametricType(List.class, beanType);
             return mapper.readValue(jsonData, javaType);
         } catch (Exception e) {
-            log.error("JacksonUtil json2List error", e);
+            ContextHolder.getReceiveContext()
+                    .getLogManager()
+                    .printError(null,LogEvent.SYSTEM,e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -81,7 +92,9 @@ public class JacksonUtil {
 
             return mapper.readValue(jsonData, javaType);
         } catch (Exception e) {
-            log.error("JacksonUtil json2Map error", e);
+            ContextHolder.getReceiveContext()
+                    .getLogManager()
+                    .printError(null,LogEvent.SYSTEM,e.getMessage());
             return Collections.emptyMap();
         }
     }
@@ -90,10 +103,30 @@ public class JacksonUtil {
         try {
             return mapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
-            log.error("JacksonUtil map2Json error", e);
+            ContextHolder.getReceiveContext()
+                    .getLogManager()
+                    .printError(null,LogEvent.SYSTEM,e.getMessage());
             return "";
         }
     }
 
+
+    public static Object dynamic(String s) {
+        if (s.startsWith("{") && s.endsWith("}")) {
+            return JacksonUtil.json2Map(s, String.class, Object.class);
+        } else if (s.startsWith("[") && s.endsWith("]")) {
+            return json2List(s, Map.class);
+        } else {
+            return s;
+        }
+    }
+
+    public static String dynamicJson(Object object) {
+        if (object instanceof String) {
+            return String.valueOf(object);
+        } else {
+            return JacksonUtil.bean2Json(object);
+        }
+    }
 
 }

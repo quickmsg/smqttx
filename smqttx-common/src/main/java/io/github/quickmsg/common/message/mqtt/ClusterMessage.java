@@ -1,9 +1,6 @@
 package io.github.quickmsg.common.message.mqtt;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.quickmsg.common.channel.MqttChannel;
-import io.github.quickmsg.common.context.ReceiveContext;
-import io.github.quickmsg.common.message.Message;
 import lombok.Data;
 
 import java.util.Optional;
@@ -18,7 +15,7 @@ public class ClusterMessage{
 
     private boolean retain;
 
-    private byte[] body;
+    private Object body;
 
     private String connectTime;
 

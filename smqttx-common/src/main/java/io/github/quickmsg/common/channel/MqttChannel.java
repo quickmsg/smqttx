@@ -8,6 +8,7 @@ import io.github.quickmsg.common.message.mqtt.ConnectMessage;
 import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.message.mqtt.RetryMessage;
 import io.github.quickmsg.common.retry.RetryManager;
+import io.github.quickmsg.common.utils.JacksonUtil;
 import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -142,7 +144,8 @@ public class MqttChannel {
             default:
                 int messageId = this.generateMessageId();
                 RetryManager retryManager = ContextHolder.getReceiveContext().getRetryManager();
-                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(), message.getTopic(), MqttQoS.valueOf(message.getQos()), message.getBody(),this);
+                RetryMessage retryMessage = new RetryMessage(messageId, System.currentTimeMillis(), message.isRetain(),
+                        message.getTopic(), MqttQoS.valueOf(message.getQos()), JacksonUtil.dynamicJson(message.getBody()).getBytes(StandardCharsets.UTF_8),this);
                 retryManager.doRetry(this, retryMessage);
                 this.write(message.buildMqttMessage(mqttQoS, messageId));
                 break;
