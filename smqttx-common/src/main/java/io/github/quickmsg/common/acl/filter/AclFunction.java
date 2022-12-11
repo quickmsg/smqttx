@@ -27,7 +27,7 @@ public class AclFunction extends CustomFunction {
             int endIndex = subject.indexOf("}");
             String ip = requestSubject.split(":")[1];
             return   AviatorBoolean.valueOf(BuiltInFunctions.ipMatch(ip, subject.substring(startIndex + 1, endIndex)));
-        } else if (subject.equals("all")) {
+        } else if ("all".equals(subject)) {
             return AviatorBoolean.valueOf(true);
         } else {
             String clientId = requestSubject.split(":")[0];

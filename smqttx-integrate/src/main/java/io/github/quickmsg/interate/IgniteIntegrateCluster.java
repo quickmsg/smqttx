@@ -33,6 +33,8 @@ public class IgniteIntegrateCluster implements IntegrateCluster, Serializable {
 
     private Map<String, UUID> fixedListener = new ConcurrentHashMap<>();
 
+
+
     private final ClusterHandler clusterHandler;
     public IgniteIntegrateCluster(IgniteIntegrate igniteIntegrate) {
         this.igniteIntegrate = igniteIntegrate;
