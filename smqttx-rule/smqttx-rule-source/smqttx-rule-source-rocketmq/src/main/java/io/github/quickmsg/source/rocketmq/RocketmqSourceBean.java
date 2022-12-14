@@ -65,10 +65,9 @@ public class RocketmqSourceBean implements SourceBean {
      * @param object 对象
      */
     @Override
-    public void transmit(Map<String, Object> object) {
-        String json = JacksonUtil.bean2Json(object);
+    public void transmit(Object object) {
         if (producer != null) {
-            Message message = new Message(topic, tags, json.getBytes());
+            Message message = new Message(topic, tags, JacksonUtil.dynamicJson(object).getBytes());
             //发送消息v
             try {
                 SendResult sendResult = producer.send(message);

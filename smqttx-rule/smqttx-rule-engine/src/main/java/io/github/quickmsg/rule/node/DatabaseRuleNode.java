@@ -38,11 +38,8 @@ public class DatabaseRuleNode implements RuleNode {
     public void execute(ContextView contextView) {
         Map<String,Object> message = contextView.get(Map.class);
         if (script != null) {
-            Object obj = triggerTemplate(script, context -> message.forEach(context::set));
-            Map<String,Object> param  = new HashMap<>(2);
-            param.put("sql", String.valueOf(obj));
             Optional.ofNullable(SourceManager.getSourceBean(Source.DATA_BASE))
-                    .ifPresent(sourceBean -> sourceBean.transmit(param));
+                    .ifPresent(sourceBean -> sourceBean.transmit(triggerTemplate(script, context -> message.forEach(context::set))));
         }
         executeNext(contextView);
     }

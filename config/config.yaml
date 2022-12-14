@@ -14,11 +14,6 @@ smqtt:
     # channelReadWriteSize: 10000000,100000000 单个channel读写大小限制
     options:
       SO_BACKLOG: 2000
-    ssl: # ssl配置
-      enable: true # 开关
-      key: C:\Users\luxurong\Desktop\pkcs8_ssl\serverpk8.key # 指定ssl文件 默认系统生成
-      crt: C:\Users\luxurong\Desktop\pkcs8_ssl\server.cer # 指定ssl文件 默认系统生成
-      ca: C:\Users\luxurong\Desktop\pkcs8_ssl\ca.cer # 指定ssl文件 默认系统生成
   auth:
     fixed:
       username: smqtt
@@ -42,22 +37,24 @@ smqtt:
       chain: # 规则链
         - ruleType: PREDICATE  # 条件过滤器
           script: $.event.equals("publish")
-        - ruleType: DATA_BASE # MYSQL过滤器
-          script: insert into device_msg (clientIdentifier,topic,qos,retain,msg) value ('${clientId}','${topic}','${qos}',${retain},'${msg}')
-  sources: # 配置数据源sources
-  - source: DATA_BASE
-    sourceName: dataBase
-    sourceAttributes:
-        jdbcUrl: jdbc:mysql://121.40.92.152:3306/smqtt
-        username: root
-        password: lxr7293209qq
-        dataSource-cachePrepStmts: true
-        dataSource-prepStmtCacheSize: 250
-        dataSource-prepStmtCacheSqlLimit: 2048
-        dataSource-useServerPrepStmts: true
-        dataSource-useLocalSessionState: true
-        dataSource-rewriteBatchedStatements: true
-        dataSource-cacheResultSetMetadata: true
-        dataSource-cacheServerConfiguration: true
-        dataSource-elideSetAutoCommits: true
-        dataSource-maintainTimeStats: false
+        - ruleType: KAFKA  # 条件过滤器
+          script: "{'topic':topic,'body':body,'qos':qos}"
+#        - ruleType: DATA_BASE # MYSQL过滤器
+#          script: insert into device_msg (clientIdentifier,topic,qos,retain,msg) value ('${clientId}','${topic}','${qos}',${retain},'${msg}')
+#  sources: # 配置数据源sources
+#  - source: DATA_BASE
+#    sourceName: dataBase
+#    sourceAttributes:
+#        jdbcUrl: jdbc:mysql://121.40.92.152:3306/smqtt
+#        username: root
+#        password: lxr7293209qq
+#        dataSource-cachePrepStmts: true
+#        dataSource-prepStmtCacheSize: 250
+#        dataSource-prepStmtCacheSqlLimit: 2048
+#        dataSource-useServerPrepStmts: true
+#        dataSource-useLocalSessionState: true
+#        dataSource-rewriteBatchedStatements: true
+#        dataSource-cacheResultSetMetadata: true
+#        dataSource-cacheServerConfiguration: true
+#        dataSource-elideSetAutoCommits: true
+#        dataSource-maintainTimeStats: false

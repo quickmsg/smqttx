@@ -43,14 +43,11 @@ public class HttpSourceBean implements SourceBean {
 
 
     @Override
-    public void transmit(Map<String, Object> object) {
-        if (httpParam.getAdditions() != null && httpParam.getAdditions().size() > 0) {
-            object.putAll(httpParam.getAdditions());
-        }
+    public void transmit(Object object) {
         httpClient
                 .post()
                 .uri(httpParam.getUrl())
-                .send(Mono.just(PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(JacksonUtil.bean2Json(object).getBytes())))
+                .send(Mono.just(PooledByteBufAllocator.DEFAULT.directBuffer().writeBytes(JacksonUtil.dynamicJson(object).getBytes())))
                 .response()
                 .log()
                 .subscribe();

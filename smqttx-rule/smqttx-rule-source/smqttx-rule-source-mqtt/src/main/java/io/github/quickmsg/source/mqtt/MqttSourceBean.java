@@ -85,10 +85,11 @@ public class MqttSourceBean implements SourceBean {
     /**
      * 转发数据
      *
-     * @param object 对象
+     * @param param 对象
      */
     @Override
-    public void transmit(Map<String, Object> object) {
+    public void transmit(Object param) {
+        Map<String, Object> object = (Map<String, Object> )param;
         String topic = (String) object.get("topic");
         if (topic == null) {
             log.error("MqttSourceBean transmit topic is not null");

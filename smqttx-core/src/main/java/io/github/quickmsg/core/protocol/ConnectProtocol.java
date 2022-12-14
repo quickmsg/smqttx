@@ -52,7 +52,10 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             return;
         }
         /*password check*/
-        if (aclManager.auth(connectMessage.getAuth().getUsername(), connectMessage.getAuth().getPassword(), clientIdentifier)) {
+        if (aclManager.auth(Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getUsername).orElse(null),
+                Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getPassword).orElseGet(()->new byte[]{}),
+                clientIdentifier)) {
+            /*check clientId, clientIdentifier)) {
             /*check clientIdentifier exist*/
             mqttChannel.setConnectCache(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode()));
 

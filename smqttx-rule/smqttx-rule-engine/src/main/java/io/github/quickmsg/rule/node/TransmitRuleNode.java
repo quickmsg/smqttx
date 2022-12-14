@@ -30,13 +30,12 @@ public class TransmitRuleNode implements RuleNode {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(ContextView contextView) {
-        Map<String, Object> param;
+        Object param;
         if (script != null) {
-            Object obj = triggerScript(script, context -> {
+            param = triggerScript(script, context -> {
                 Map<String, Object> message = contextView.get(Map.class);
                 message.forEach(context::set);
             });
-            param = JacksonUtil.json2Map(obj.toString(), String.class, Object.class);
         } else {
             param = contextView.get(Map.class);
         }
