@@ -32,7 +32,7 @@ public class TransmitRuleNode implements RuleNode {
     public void execute(ContextView contextView) {
         Map<String, Object> param;
         if (script != null) {
-            Object obj = triggerTemplate(script, context -> {
+            Object obj = triggerScript(script, context -> {
                 Map<String, Object> message = contextView.get(Map.class);
                 message.forEach(context::set);
             });
