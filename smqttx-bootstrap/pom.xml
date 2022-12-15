@@ -7,10 +7,10 @@
     <parent>
         <artifactId>smqttx</artifactId>
         <groupId>io.github.quickmsg</groupId>
-        <version>2.0.5</version>
+        <version>2.0.6</version>
     </parent>
     <artifactId>smqttx-bootstrap</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
 
     <name>smqttx-bootstrap</name>
     <url>http://www.example.com</url>
@@ -45,12 +45,12 @@
         <dependency>
             <groupId>io.github.quickmsg</groupId>
             <artifactId>smqttx-core</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
         <dependency>
             <artifactId>smqttx-ui</artifactId>
             <groupId>io.github.quickmsg</groupId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
     </dependencies>
     <profiles>
