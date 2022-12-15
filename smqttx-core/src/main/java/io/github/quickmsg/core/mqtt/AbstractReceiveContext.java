@@ -87,13 +87,12 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.integrate = integrateBuilder().newIntegrate(initConfig(abstractConfiguration.getClusterConfig()));
         RuleDslParser ruleDslParser = new RuleDslParser(abstractConfiguration.getRuleChainDefinitions());
         this.ruleDslExecutor = ruleDslParser.executor();
-        Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
-                .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
         this.aclManager = new JCasBinAclManager(integrate.getCache(IgniteCacheRegion.CONFIG));
         this.authManager = authManagerFactory().provider(abstractConfiguration.getAuthConfig()).getAuthManager();
-        Optional.ofNullable(abstractConfiguration.getSourceDefinitions()).ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
+        Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
+                .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
 
     }
 
