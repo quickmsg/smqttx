@@ -121,7 +121,7 @@ The distributed MQTT cluster is implemented based on Netty, and provides fast ac
 <dependency>
   <artifactId>smqttx-spring-boot-starter</artifactId>
   <groupId>io.github.quickmsg</groupId>
-  <version>2.0.3</version>
+  <version>2.0.6</version>
 </dependency>
         <!--Mask h2 database version conflicts-->
 <dependency>
