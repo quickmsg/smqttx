@@ -25,6 +25,8 @@ public class ConnectMessage implements Message {
 
     private String clientAddress;
 
+    private String clientId;
+
     private String nodeIp;
     @JsonIgnore
     private MqttChannel mqttChannel;
@@ -58,6 +60,7 @@ public class ConnectMessage implements Message {
 
     public ConnectMessage(MqttConnectMessage message,MqttChannel mqttChannel) {
         MqttConnectVariableHeader variableHeader = message.variableHeader();
+        this.clientId = mqttChannel.getClientId();
         MqttConnectPayload mqttConnectPayload = message.payload();
         if (variableHeader.isWillFlag()) {
             this.will = MqttChannel.Will.builder()

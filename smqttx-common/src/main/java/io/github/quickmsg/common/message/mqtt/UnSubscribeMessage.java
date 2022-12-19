@@ -24,12 +24,15 @@ public class UnSubscribeMessage implements Message {
 
     private String event = "unsubscribe";
 
+    private String clientId;
+
     private List<String> topics;
 
     @JsonIgnore
     private MqttChannel mqttChannel;
 
     public UnSubscribeMessage(Object message,MqttChannel mqttChannel) {
+        this.clientId =mqttChannel.getClientId();
         this.mqttChannel=mqttChannel;
         MqttUnsubscribeMessage unsubscribeMessage = (MqttUnsubscribeMessage) message;
         this.messageId = unsubscribeMessage.variableHeader().messageId();
