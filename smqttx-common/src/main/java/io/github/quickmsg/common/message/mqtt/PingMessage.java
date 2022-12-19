@@ -21,6 +21,8 @@ public class PingMessage implements Message {
 
     private String event = "ping";
 
+    private String clientId;
+
     @JsonIgnore
     private MqttChannel mqttChannel;
 
@@ -35,6 +37,7 @@ public class PingMessage implements Message {
     }
 
     public PingMessage(MqttChannel mqttChannel) {
+        this.clientId = mqttChannel.getClientId();
         this.mqttChannel = mqttChannel;
         this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
     }
