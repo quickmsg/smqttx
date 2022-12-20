@@ -60,7 +60,7 @@ public class ConnectMessage implements Message {
 
     public ConnectMessage(MqttConnectMessage message,MqttChannel mqttChannel) {
         MqttConnectVariableHeader variableHeader = message.variableHeader();
-        this.clientId = mqttChannel.getClientId();
+        this.clientId = message.payload().clientIdentifier();
         MqttConnectPayload mqttConnectPayload = message.payload();
         if (variableHeader.isWillFlag()) {
             this.will = MqttChannel.Will.builder()
