@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
  */
 public class NoneAuthManager implements AuthManager {
     @Override
-    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
-        return  true;
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+        return  Mono.just(true);
     }
 }

@@ -35,7 +35,7 @@ public class HttpAuthManager implements AuthManager {
                 });
     }
     @Override
-    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
         AuthConfig.HttpAuthConfig httpAuthConfig = authConfig.getHttp();
         Map<String, String> params = new HashMap<>();
         params.put("clientIdentifier", clientIdentifier);
@@ -46,7 +46,7 @@ public class HttpAuthManager implements AuthManager {
                 .send(ByteBufFlux.fromString(Mono.just(JacksonUtil.map2Json(params))))
                 .response()
                 .map(response -> HttpResponseStatus.OK.code() == response.status().code())
-                .block(Duration.ofSeconds(3));
+        ;
     }
 
 }

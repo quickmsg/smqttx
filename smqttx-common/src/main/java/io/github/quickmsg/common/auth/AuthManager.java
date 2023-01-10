@@ -1,5 +1,6 @@
 package io.github.quickmsg.common.auth;
 
+
 import reactor.core.publisher.Mono;
 
 /**
@@ -15,6 +16,6 @@ public interface AuthManager {
      * @param clientIdentifier 设备标志
      * @return 布尔
      */
-    Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier);
+    Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier);
 
 }

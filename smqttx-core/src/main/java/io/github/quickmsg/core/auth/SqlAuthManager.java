@@ -4,6 +4,7 @@ import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.AuthConfig;
 import io.github.quickmsg.core.db.HikariCPConnectionProvider;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -33,7 +34,7 @@ public class SqlAuthManager implements AuthManager {
                 .init(properties);
     }
 
-    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -46,7 +47,7 @@ public class SqlAuthManager implements AuthManager {
 
             rs = ps.executeQuery();
             if (rs.next()) {
-                return true;
+                return Mono.just(true);
             }
         } catch (SQLException e) {
             log.error("auth error clientIdentifier={}", clientIdentifier, e);
@@ -66,6 +67,5 @@ public class SqlAuthManager implements AuthManager {
             }
         }
 
-        return false;
-    }
+        return Mono.just(false);    }
 }

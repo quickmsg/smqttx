@@ -38,54 +38,55 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
     @Override
     public void parseProtocol(ConnectMessage connectMessage, MqttChannel mqttChannel, ContextView contextView) {
-        ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
+        ReceiveContext<?> receiveContext = contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
         MqttReceiveContext mqttReceiveContext = (MqttReceiveContext) contextView.get(ReceiveContext.class);
         String clientIdentifier = mqttChannel.getClientId();
         Integrate integrate = mqttReceiveContext.getIntegrate();
         IntegrateChannels channels = integrate.getChannels();
         IntegrateTopics<SubscribeTopic> topics = integrate.getTopics();
-        AuthManager aclManager = mqttReceiveContext.getAuthManager();
+        AuthManager authManager = mqttReceiveContext.getAuthManager();
         /*protocol version support*/
         if (MqttVersion.MQTT_3_1_1 != connectMessage.getVersion() && MqttVersion.MQTT_3_1 != connectMessage.getVersion() && MqttVersion.MQTT_5 != connectMessage.getVersion()) {
             mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION));
             return;
         }
-        /*password check*/
-        if (aclManager.auth(Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getUsername).orElse(null),
-                Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getPassword).orElseGet(()->new byte[]{}),
-                clientIdentifier)) {
+        authManager.auth(Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getUsername).orElse(null), Optional.ofNullable(connectMessage.getAuth()).map(MqttChannel.Auth::getPassword).orElseGet(() -> new byte[]{}), clientIdentifier).subscribe(aBoolean -> {
+            /*password check*/
+            if (aBoolean) {
             /*check clientId, clientIdentifier)) {
             /*check clientIdentifier exist*/
-            mqttChannel.setConnectCache(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode()));
+                mqttChannel.setConnectCache(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode()));
 
-            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
+                logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
 
-            mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
+                mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
 
-            /*registry unread event close channel */
-            mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, ()->this.logHeartClose(logManager,mqttChannel));
+                /*registry unread event close channel */
+                mqttChannel.getConnection().onReadIdle((long) connectMessage.getKeepalive() * MILLI_SECOND_PERIOD << 1, () -> this.logHeartClose(logManager, mqttChannel));
 
-            /* registry new channel*/
-            channels.add(mqttChannel.getClientId(), mqttChannel);
+                /* registry new channel*/
+                channels.add(mqttChannel.getClientId(), mqttChannel);
 
-            /* registry close mqtt channel event*/
-            mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext));
+                /* registry close mqtt channel event*/
+                mqttChannel.registryClose(channel -> this.close(mqttChannel, mqttReceiveContext));
 
-            mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
+                mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_ACCEPTED));
 
-            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT).increment();
-            receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT_EVENT).increment();
+                receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT).increment();
+                receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.CONNECT_EVENT).increment();
 
-        } else {
-            logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.FAILED, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
-            mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
-        }
+            } else {
+                logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.FAILED, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
+                mqttChannel.write(MqttMessageUtils.buildConnectAck(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD));
+            }
+        });
+
 
     }
 
     private void logHeartClose(LogManager logManager, MqttChannel mqttChannel) {
-        logManager.printInfo(mqttChannel,LogEvent.HEART_TIMEOUT,LogStatus.SUCCESS,JacksonUtil.bean2Json(mqttChannel.getConnectCache()));
+        logManager.printInfo(mqttChannel, LogEvent.HEART_TIMEOUT, LogStatus.SUCCESS, JacksonUtil.bean2Json(mqttChannel.getConnectCache()));
     }
 
 

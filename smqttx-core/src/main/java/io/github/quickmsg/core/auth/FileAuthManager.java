@@ -33,10 +33,10 @@ public class FileAuthManager implements AuthManager {
     }
 
     @Override
-    public Boolean auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
-        return Optional.ofNullable(authBeanMap.get(clientIdentifier))
+    public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
+        return Mono.just(Optional.ofNullable(authBeanMap.get(clientIdentifier))
                 .map(authBean -> authBean.getUsername().equals(userName) && authBean.getPassword().equals(new String(passwordInBytes)))
-                .orElse(false);
+                .orElse(false));
     }
 
 

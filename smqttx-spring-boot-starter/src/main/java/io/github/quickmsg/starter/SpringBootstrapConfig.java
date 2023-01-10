@@ -77,7 +77,7 @@ public class SpringBootstrapConfig {
     /**
      * auth
      */
-    private AuthConfig authConfig;
+    private AuthConfig auth;
 
 
 
