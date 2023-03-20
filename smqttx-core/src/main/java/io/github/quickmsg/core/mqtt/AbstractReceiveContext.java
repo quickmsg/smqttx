@@ -130,9 +130,9 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
 
     private MetricManager metricManager(BootstrapConfig.MeterConfig meterConfig) {
         ConfigCheck.checkMeterConfig(meterConfig);
-        return Optional.ofNullable(MetricFactory.INSTANCE)
+        return MetricManagerHolder.setMetricManager(Optional.ofNullable(MetricFactory.INSTANCE)
                 .map(metricFactory -> metricFactory.initFactory(meterConfig).getMetricManager())
-                .orElseGet(LocalMetricManager::new);
+                .orElseGet(LocalMetricManager::new));
     }
 
     private AbstractConfiguration castConfiguration(T configuration) {
