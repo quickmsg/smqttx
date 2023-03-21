@@ -23,6 +23,8 @@ import reactor.core.publisher.Mono;
 import reactor.netty.Connection;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +37,9 @@ import java.util.function.Consumer;
 @Setter
 @Slf4j
 public class MqttChannel {
+
+    private Map<Integer,PublishMessage> qosCache = new HashMap<>();
+
 
     private Integer id;
 
@@ -60,6 +65,14 @@ public class MqttChannel {
 
     @JsonIgnore
     private transient AtomicInteger atomicInteger;
+
+    public void saveQos2Cache(Integer messageId,PublishMessage publishMessage){
+        qosCache.put(messageId,publishMessage);    }
+
+
+    public PublishMessage sendQos2Cache(Integer messageId){
+        return qosCache.remove(messageId);
+    }
 
     public static MqttChannel init(Connection connection) {
         MqttChannel mqttChannel = new MqttChannel();

@@ -18,6 +18,7 @@ import io.github.quickmsg.common.message.mqtt.PublishMessage;
 import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -46,6 +47,19 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         }
         if (message.isRetain()) {
             messages.saveRetainMessage(RetainMessage.of(message));
+        }
+        if(mqttChannel!=null){
+            switch (MqttQoS.valueOf(message.getQos())){
+                case AT_LEAST_ONCE:
+                    mqttChannel.write(MqttMessageUtils.buildPublishAck(message.getMessageId()));
+                    break;
+                case EXACTLY_ONCE:
+                    mqttChannel.saveQos2Cache(message.getMessageId(), message);
+                    mqttChannel.write(MqttMessageUtils.buildPublishRec(message.getMessageId()));
+                    break ;
+                default:
+                    break;
+            }
         }
         receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
         logManager.printInfo(mqttChannel, LogEvent.PUBLISH, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
