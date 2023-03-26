@@ -30,7 +30,8 @@ public class DefaultTransport implements Transport<MqttConfiguration> {
     public DefaultTransport(MqttConfiguration configuration, Receiver receiver) {
         this.configuration = configuration;
         this.receiver = receiver;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Optional.ofNullable(disposableServer).ifPresent(DisposableServer::dispose)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Optional.ofNullable(disposableServer)
+                .ifPresent(DisposableServer::dispose)));
     }
 
 
