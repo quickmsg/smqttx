@@ -12,7 +12,7 @@ public enum IgniteCacheRegion {
     CONFIG("config", "config_region", CacheMode.REPLICATED) {
         @Override
         public boolean persistence() {
-            return true;
+            return false;
         }
 
         @Override

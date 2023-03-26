@@ -32,6 +32,12 @@ public enum LogEvent {
 
     SYSTEM("SYSTEM"),
 
+    PUBLISH_REC("PUBLISH_REC"),
+
+    PUBLISH_REL("PUBLISH_REL"),
+
+    PUBLISH_COMP("PUBLISH_COMP"),
+
     ;
 
 

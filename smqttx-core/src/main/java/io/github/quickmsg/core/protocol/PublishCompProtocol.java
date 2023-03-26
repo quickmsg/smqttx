@@ -16,11 +16,10 @@ import reactor.util.context.ContextView;
 public class PublishCompProtocol implements Protocol<PublishCompMessage> {
 
     @Override
-    // todo 暂不支持qos2
     public void parseProtocol(PublishCompMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
-        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_ACK, LogStatus.SUCCESS,"unsupport qos2 "+JacksonUtil.bean2Json(message));
+        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_COMP, LogStatus.SUCCESS,JacksonUtil.bean2Json(message));
     }
 
     @Override

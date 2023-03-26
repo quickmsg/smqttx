@@ -9,6 +9,7 @@ import io.github.quickmsg.common.message.mqtt.PublishRecMessage;
 import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
+import io.github.quickmsg.common.utils.MqttMessageUtils;
 import reactor.util.context.ContextView;
 
 /**
@@ -16,20 +17,13 @@ import reactor.util.context.ContextView;
  */
 public class PublishRecProtocol implements Protocol<PublishRecMessage> {
 
-    // todo 暂不支持qos2
     @Override
     public void parseProtocol(PublishRecMessage message, MqttChannel mqttChannel, ContextView contextView) {
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
-        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_ACK, LogStatus.SUCCESS,"unSupport qos2 "+JacksonUtil.bean2Json(message));
+        logManager.printWarn(mqttChannel, LogEvent.PUBLISH_REC, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
         receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
-
-//        int messageId = message.getMessageId();
-//        return mqttChannel.cancelRetry(MqttMessageType.PUBLISH, messageId)
-//                .then(mqttChannel.write(MqttMessageUtils.buildPublishRel(messageId), true))
-//                .thenReturn(build(EventMsg.PUB_REC_MESSAGE,
-//                        mqttChannel.getConnectMessage().getClientId(),
-//                        messageId));
+        mqttChannel.write(MqttMessageUtils.buildPublishRel(message.getMessageId()));
     }
 
     @Override
