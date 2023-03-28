@@ -17,15 +17,13 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteAtomicLong;
 import org.apache.ignite.IgniteSet;
 import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheAtomicityMode;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.cache.CacheRebalanceMode;
-import org.apache.ignite.cache.CacheWriteSynchronizationMode;
+import org.apache.ignite.cache.*;
 import org.apache.ignite.cluster.ClusterState;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.CollectionConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,7 +47,9 @@ public class IgniteIntegrate implements Integrate {
 
     public IgniteIntegrate(IgniteConfiguration configuration, ProtocolAdaptor protocolAdaptor) {
         this.ignite = Ignition.start(configuration);
-        this.ignite.cluster().state(ClusterState.ACTIVE);
+        if (!this.ignite.cluster().state().active()) {
+            this.ignite.cluster().state(ClusterState.ACTIVE);
+        }
         this.protocolAdaptor = protocolAdaptor;
         this.igniteChannels = new IgniteChannels(this, new ConcurrentHashMap<>());
         this.cluster = new IgniteIntegrateCluster(this);
@@ -93,18 +93,22 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion) {
-        CacheMode cacheMode = igniteCacheRegion.local() ? CacheMode.LOCAL : CacheMode.PARTITIONED;
+        CacheMode cacheMode = igniteCacheRegion.local() ? CacheMode.REPLICATED : CacheMode.PARTITIONED;
         CacheConfiguration<K, V> configuration =
-                    new CacheConfiguration<K, V>()
-                                .setName(igniteCacheRegion.getCacheName())
-                                .setCacheMode(cacheMode)
-                                .setDataRegionName(igniteCacheRegion.getRegionName())
-                                .setCacheMode(igniteCacheRegion.getCacheMode())
-                                .setAtomicityMode(CacheAtomicityMode.ATOMIC)
-                                .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
-                                .setBackups(1)
-                                .setIndexedTypes(Integer.class, ConnectCache.class)
-                                .setRebalanceMode(CacheRebalanceMode.ASYNC);
+                new CacheConfiguration<K, V>()
+                        .setName(igniteCacheRegion.getCacheName())
+                        .setCacheMode(cacheMode)
+                        .setDataRegionName(igniteCacheRegion.getRegionName())
+                        .setCacheMode(igniteCacheRegion.getCacheMode())
+                        .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
+                        .setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_SYNC)
+                        .setBackups(1)
+                        .setEagerTtl(true)
+                        .setPartitionLossPolicy(PartitionLossPolicy.READ_ONLY_SAFE)
+                        .setIndexedTypes(igniteCacheRegion.getIndexedTypes())
+                        .setRebalanceMode(CacheRebalanceMode.ASYNC);
+        Optional.ofNullable(igniteCacheRegion.getExpiryPolicyFactory())
+                .ifPresent(configuration::setExpiryPolicyFactory);
         return new IgniteIntegrateCache<>(ignite.getOrCreateCache(configuration));
     }
 

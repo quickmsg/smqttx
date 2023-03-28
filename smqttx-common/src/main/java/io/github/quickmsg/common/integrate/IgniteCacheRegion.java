@@ -1,7 +1,11 @@
 package io.github.quickmsg.common.integrate;
 
+import io.github.quickmsg.common.integrate.cache.ConnectCache;
 import lombok.Getter;
 import org.apache.ignite.cache.CacheMode;
+
+import javax.cache.configuration.Factory;
+import javax.cache.expiry.ExpiryPolicy;
 
 /**
  * @author luxurong
@@ -9,7 +13,7 @@ import org.apache.ignite.cache.CacheMode;
 @Getter
 public enum IgniteCacheRegion {
 
-    CONFIG("config", "config_region", CacheMode.REPLICATED) {
+    CONFIG("config", "config_region", CacheMode.REPLICATED, null) {
         @Override
         public boolean persistence() {
             return false;
@@ -18,9 +22,14 @@ public enum IgniteCacheRegion {
         @Override
         public boolean local() {
             return false;
+        }
+
+        @Override
+        public Factory<? extends ExpiryPolicy> getExpiryPolicyFactory() {
+            return null;
         }
     },
-    CHANNEL("channel_cache", "channel_data_region", CacheMode.PARTITIONED) {
+    CHANNEL("channel_cache", "channel_data_region", CacheMode.PARTITIONED, new Class[]{Integer.class, ConnectCache.class}) {
         @Override
         public boolean persistence() {
             return false;
@@ -29,9 +38,14 @@ public enum IgniteCacheRegion {
         @Override
         public boolean local() {
             return false;
+        }
+
+        @Override
+        public Factory<? extends ExpiryPolicy> getExpiryPolicyFactory() {
+            return null;
         }
     },
-    RETAIN("retain_message", "retain_data_region", CacheMode.PARTITIONED) {
+    RETAIN("retain_message", "retain_data_region", CacheMode.PARTITIONED, null) {
         @Override
         public boolean persistence() {
             return false;
@@ -40,6 +54,11 @@ public enum IgniteCacheRegion {
         @Override
         public boolean local() {
             return false;
+        }
+
+        @Override
+        public Factory<? extends ExpiryPolicy> getExpiryPolicyFactory() {
+            return null;
         }
     }
     ;
@@ -51,15 +70,20 @@ public enum IgniteCacheRegion {
 
     private final CacheMode  cacheMode;
 
-    IgniteCacheRegion(String cacheName, String regionName, CacheMode cacheMode) {
+    private final Class<?>[] indexedTypes;
+
+    IgniteCacheRegion(String cacheName, String regionName, CacheMode cacheMode, Class<?>[] indexedTypes) {
         this.cacheName = cacheName;
         this.regionName = regionName;
         this.cacheMode = cacheMode;
+        this.indexedTypes = indexedTypes;
     }
 
     public abstract boolean persistence();
 
     public abstract boolean local();
+
+    public abstract Factory<? extends ExpiryPolicy> getExpiryPolicyFactory();
 
 
 }
