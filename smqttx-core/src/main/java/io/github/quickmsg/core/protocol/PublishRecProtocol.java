@@ -22,6 +22,7 @@ public class PublishRecProtocol implements Protocol<PublishRecMessage> {
         ReceiveContext<?> receiveContext =  contextView.get(ReceiveContext.class);
         LogManager logManager = receiveContext.getLogManager();
         logManager.printWarn(mqttChannel, LogEvent.PUBLISH_REC, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
+        contextView.get(ReceiveContext.class).getRetryManager().cancelRetry(mqttChannel, message.getMessageId());
         receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
         mqttChannel.write(MqttMessageUtils.buildPublishRel(message.getMessageId()));
     }
