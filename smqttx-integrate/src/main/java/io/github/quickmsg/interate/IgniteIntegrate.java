@@ -84,7 +84,7 @@ public class IgniteIntegrate implements Integrate {
 
     @Override
     public <K, V> IntegrateCache<K, V> getLocalCache(String cacheName, boolean local) {
-        CacheMode cacheMode = local ? CacheMode.LOCAL : CacheMode.PARTITIONED;
+        CacheMode cacheMode = local ? CacheMode.REPLICATED: CacheMode.PARTITIONED;
         CacheConfiguration<K, V> configuration =
                     new CacheConfiguration<K, V>()
                                 .setName(cacheName).setCacheMode(cacheMode);
