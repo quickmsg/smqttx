@@ -56,7 +56,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                 case EXACTLY_ONCE:
                     mqttChannel.saveQos2Cache(message.getMessageId(), message);
                     mqttChannel.write(MqttMessageUtils.buildPublishRec(message.getMessageId()));
-                    break ;
+                    return ;
                 default:
                     break;
             }

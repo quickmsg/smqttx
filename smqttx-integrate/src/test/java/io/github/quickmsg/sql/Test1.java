@@ -52,7 +52,6 @@ public class Test1 {
                         new CacheConfiguration<Integer, Message.Person>()
                                 .setName("myCache")
                                 .setSqlFunctionClasses(MyFunctions.class)
-                                .setCacheMode(CacheMode.LOCAL)
                                 .setIndexedTypes(Integer.class,Message.Person.class));
 //        SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery("insert into Person (_key,username,id,age) values (2,'lisi',1,2)").setLocal(true);
 //        cache.query(sqlFieldsQuery);
@@ -74,7 +73,6 @@ public class Test1 {
                         new CacheConfiguration<Integer, Message.Person>()
                                 .setName("myCache2")
                                 .setSqlFunctionClasses(MyFunctions.class)
-                                .setCacheMode(CacheMode.LOCAL)
                                 .setIndexedTypes(Integer.class,Message.Person.class));
 
 
