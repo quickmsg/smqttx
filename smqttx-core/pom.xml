@@ -15,7 +15,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-db</artifactId>
-            <version>5.7.22</version>
+            <version>5.8.18</version>
         </dependency>
         <dependency>
             <groupId>io.github.quickmsg</groupId>
