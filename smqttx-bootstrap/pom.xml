@@ -102,7 +102,7 @@
                     <plugin>
                         <groupId>com.google.cloud.tools</groupId>
                         <artifactId>jib-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.3.2</version>
                         <configuration>
                             <from>
                                 <image>openjdk:8-jre-alpine</image>
@@ -113,6 +113,10 @@
                                     <tag>latest</tag>
                                     <tag>${project.version}</tag>
                                 </tags>
+                                <auth>
+                                      <username>1ssqq1lxr</username>
+                                       <password>lxr7293209</password>
+                                </auth>
                             </to>
                             <container>
                                 <!--容器相关的属性-->
