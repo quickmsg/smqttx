@@ -14,10 +14,10 @@ smqtt:
     # channelReadWriteSize: 10000000,100000000 单个channel读写大小限制
     options:
       SO_BACKLOG: 2000
-#  auth:
-#    fixed:
-#      username: smqtt
-#      password: smqtt
+  auth:
+    fixed:
+      username: smqtt
+      password: smqtt
   http: # http相关配置 端口固定60000
     host: 127.0.0.1
     accessLog: true # http访问日志
