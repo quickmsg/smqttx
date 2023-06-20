@@ -86,7 +86,7 @@
 <dependency>
    <artifactId>smqttx-spring-boot-starter</artifactId>
    <groupId>io.github.quickmsg</groupId>
-   <version>2.0.7</version>
+   <version>2.0.9</version>
 </dependency>
 <!--屏蔽h2版本冲突-->
 <dependency>
