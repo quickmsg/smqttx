@@ -1,5 +1,11 @@
 package io.github.quickmsg.core.protocol;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Optional;
+
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ReceiveContext;
@@ -11,6 +17,7 @@ import io.github.quickmsg.common.log.LogEvent;
 import io.github.quickmsg.common.log.LogManager;
 import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.message.mqtt.ConnectMessage;
+import io.github.quickmsg.common.message.mqtt.DisConnectMessage;
 import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.protocol.Protocol;
 import io.github.quickmsg.common.utils.JacksonUtil;
@@ -20,12 +27,7 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import reactor.util.context.ContextView;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
 
 /**
  * @author luxurong
@@ -86,6 +88,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
     }
 
     private void logHeartClose(LogManager logManager, MqttChannel mqttChannel) {
+        mqttChannel.close();
         logManager.printInfo(mqttChannel, LogEvent.HEART_TIMEOUT, LogStatus.SUCCESS, JacksonUtil.bean2Json(mqttChannel.getConnectCache()));
     }
 
@@ -101,6 +104,8 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
         IntegrateTopics<SubscribeTopic> topics = mqttReceiveContext.getIntegrate().getTopics();
         topics.removeTopic(mqttChannel, new ArrayList<>(mqttChannel.getTopics()));
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
+        DisConnectMessage disConnectMessage = new DisConnectMessage(mqttChannel);
+        mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(disConnectMessage);
         Optional.ofNullable(mqttChannel.getConnectCache().getWill()).ifPresent(will ->
                 Optional.ofNullable(topics.getMqttChannelsByTopic(will.getWillTopic()))
                         .ifPresent(subscribeTopics -> subscribeTopics.forEach(subscribeTopic -> {
