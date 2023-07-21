@@ -31,7 +31,7 @@ public class DefaultProtocolAdaptor implements ProtocolAdaptor {
                                 .doOnError(throwable -> log.error("DefaultProtocolAdaptor consumer", throwable))
                                 .onErrorResume(throwable -> Mono.empty())
                                 .ofType(protocol.getClassType())
-                                .subscribeOn(Schedulers.newParallel("message-acceptor", threadSize))
+                                .publishOn(Schedulers.newParallel("message-acceptor", threadSize))
                                 .subscribe(msg -> {
                                     Message message = (Message) msg;
                                     Protocol<Message> messageProtocol = (Protocol<Message>) protocol;
