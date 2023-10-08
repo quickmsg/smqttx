@@ -10,9 +10,9 @@ import java.util.function.Consumer;
  */
 public interface RuleExecute {
 
-    JexlEngine J_EXL_ENGINE = new JexlBuilder().create();
+    JexlEngine J_EXL_ENGINE = new JexlBuilder().cache(10000).create();
 
-    JxltEngine T_J_EXL_ENGINE = new JexlBuilder().create().createJxltEngine();
+    JxltEngine T_J_EXL_ENGINE = new JexlBuilder().cache(10000).create().createJxltEngine();
 
 
     /**
