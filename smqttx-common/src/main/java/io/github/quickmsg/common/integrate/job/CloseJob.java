@@ -2,32 +2,38 @@ package io.github.quickmsg.common.integrate.job;
 
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
-import io.github.quickmsg.common.integrate.SubscribeTopic;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
-import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 
 /**
  * @author luxurong
  */
-public class CloseJob implements JobClosure<String,Boolean> {
+public class CloseJob implements Job {
+
+
+    private final String clientId;
+
+    public CloseJob(String clientId) {
+        this.clientId = clientId;
+    }
 
     @Override
     public String getJobName() {
-        return "close-connect";
+        return clientId;
     }
 
-
+    @Override
+    public Boolean isBroadcast() {
+        return true;
+    }
 
     @Override
-    public Boolean apply(String clientId) {
+    public void run() {
         IntegrateChannels channels = ContextHolder.getReceiveContext()
-                    .getIntegrate().getChannels();
-        IntegrateTopics<SubscribeTopic> integrateTopics = ContextHolder.getReceiveContext()
-                    .getIntegrate().getTopics();
+                .getIntegrate().getChannels();
         MqttChannel mqttChannel = channels.get(clientId);
         if (mqttChannel != null) {
+            channels.remove(mqttChannel);
             mqttChannel.close();
         }
-        return mqttChannel != null;
     }
 }

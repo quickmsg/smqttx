@@ -11,22 +11,16 @@ import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.job.CloseJob;
 import io.github.quickmsg.common.log.LogEvent;
-import io.github.quickmsg.common.log.LogStatus;
 import io.github.quickmsg.common.sql.ConnectionQueryModel;
-import io.github.quickmsg.common.sql.PageRequest;
 import io.github.quickmsg.common.sql.PageResult;
-import io.github.quickmsg.common.utils.JacksonUtil;
 import io.netty.handler.codec.mqtt.MqttVersion;
-import org.apache.ignite.cache.CachePeekMode;
 import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author luxurong
@@ -39,8 +33,6 @@ public class IgniteChannels implements IntegrateChannels {
     private final IntegrateCache<Integer, ConnectCache> shareChannelCache;
 
     private final IgniteIntegrate integrate;
-
-    private final CloseJob closeConnectJob = new CloseJob();
 
     @Override
     public Integrate getIntegrate() {
@@ -56,7 +48,7 @@ public class IgniteChannels implements IntegrateChannels {
 
     @Override
     public void add(String clientIdentifier, MqttChannel mqttChannel) {
-        Collection<Boolean> closeJobs = integrate.getJobExecutor().callBroadcast(this.closeConnectJob, clientIdentifier);
+        integrate.getJobExecutor().execute(new CloseJob(clientIdentifier));
         localChannelCache.put(clientIdentifier, mqttChannel);
         this.shareChannelCache.put(mqttChannel.getId(), mqttChannel.getConnectCache());
     }
@@ -82,9 +74,10 @@ public class IgniteChannels implements IntegrateChannels {
     }
 
     @Override
-    public void remove(MqttChannel mqttChannel) {
+    public MqttChannel remove(MqttChannel mqttChannel) {
         localChannelCache.remove(mqttChannel.getClientId(), mqttChannel);
         shareChannelCache.remove(mqttChannel.getId());
+        return mqttChannel;
     }
 
     @Override
@@ -168,4 +161,7 @@ public class IgniteChannels implements IntegrateChannels {
         }
         return pageResult;
     }
+
+
+
 }
