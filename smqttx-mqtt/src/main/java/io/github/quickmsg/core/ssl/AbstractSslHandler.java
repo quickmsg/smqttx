@@ -4,6 +4,7 @@ import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.config.SslContext;
 import io.github.quickmsg.core.mqtt.MqttConfiguration;
 import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.netty.util.internal.StringUtil;
@@ -30,6 +31,7 @@ public class AbstractSslHandler {
                     sslContextBuilder = SslContextBuilder.forServer(new File(sslContext.getCrt()), new File(sslContext.getKey()));
                     if(StringUtils.isNotEmpty(sslContext.getCa())){
                         sslContextBuilder= sslContextBuilder.trustManager(new File(sslContext.getCa()));
+                        sslContextBuilder.clientAuth(ClientAuth.REQUIRE);
                     }
                 } else {
                     SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -53,6 +55,7 @@ public class AbstractSslHandler {
         if (mqttConfiguration.getOptions() != null) {
             for (Map.Entry<String, Object> entry : mqttConfiguration.getOptions().entrySet()) {
                 server = server.option(ChannelOption.valueOf(entry.getKey()), entry.getValue());
+
             }
         }
         if (mqttConfiguration.getChildOptions() != null) {
