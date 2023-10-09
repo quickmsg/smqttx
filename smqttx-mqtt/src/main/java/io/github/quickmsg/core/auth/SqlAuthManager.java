@@ -1,5 +1,7 @@
 package io.github.quickmsg.core.auth;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.quickmsg.common.auth.AuthManager;
 import io.github.quickmsg.common.config.AuthConfig;
 import io.github.quickmsg.core.db.HikariCPConnectionProvider;
@@ -21,17 +23,21 @@ public class SqlAuthManager implements AuthManager {
 
     private AuthConfig authConfig;
 
+    private final HikariDataSource hikariDataSource;
+
+
+
     public SqlAuthManager(AuthConfig authConfig) {
         this.authConfig = authConfig;
         // 初始化数据库连接池
+        // 初始化数据库连接池
         Properties properties = new Properties();
+        properties.put("driverClassName", authConfig.getSql().getDriver());
         properties.put("jdbcUrl", authConfig.getSql().getUrl());
         properties.put("username", authConfig.getSql().getUsername());
         properties.put("password", authConfig.getSql().getPassword());
-
-        HikariCPConnectionProvider
-                .singleTon()
-                .init(properties);
+        HikariConfig config = new HikariConfig(properties);
+        this.hikariDataSource = new HikariDataSource(config);
     }
 
     public Mono<Boolean> auth(String userName, byte[] passwordInBytes, String clientIdentifier) {
@@ -39,7 +45,7 @@ public class SqlAuthManager implements AuthManager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            conn = HikariCPConnectionProvider.singleTon().getConnection();
+            conn = hikariDataSource.getConnection();
             ps = conn.prepareStatement(authConfig.getSql().getAuthSql());
             ps.setString(1, userName);
             ps.setString(2, new String(passwordInBytes, StandardCharsets.UTF_8));

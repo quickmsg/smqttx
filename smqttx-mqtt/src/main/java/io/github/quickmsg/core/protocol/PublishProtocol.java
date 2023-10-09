@@ -66,7 +66,7 @@ public class PublishProtocol implements Protocol<PublishMessage> {
         ClusterMessage clusterMessage = new ClusterMessage(message);
         integrateCluster.sendCluster(clusterMessage.getTopic(), clusterMessage);
         Set<String> wildcardTopics = topics.getWildcardTopics(clusterMessage.getTopic());
-        if (wildcardTopics != null && wildcardTopics.size() > 0) {
+        if (wildcardTopics != null && !wildcardTopics.isEmpty()) {
             wildcardTopics.forEach(tp -> {
                 clusterMessage.setTopic(tp);
                 integrateCluster.sendCluster(tp, clusterMessage);
@@ -81,38 +81,6 @@ public class PublishProtocol implements Protocol<PublishMessage> {
     }
 
 
-    /**
-     * 通用发送消息
-     *
-     * @param subscribeTopics {@link SubscribeTopic}
-     * @param message         {@link PublishMessage}
-     * @param other           {@link Mono}
-     */
-    private void send(Set<SubscribeTopic> subscribeTopics, PublishMessage message, Mono<Void> other) {
-        subscribeTopics
-                    .forEach(subscribeTopic -> {
-                                    subscribeTopic.getMqttChannel()
-                                                .sendPublish(subscribeTopic.minQos(MqttQoS.valueOf(message.getQos())), message);
-                                }
-                    );
-        other.subscribe();
-    }
-
-
-    /**
-     * 过滤保留消息
-     *
-     * @param message  {@link PublishMessage}
-     * @param messages {@link IntegrateMessages}
-     * @return Mono
-     */
-    private Mono<Void> filterRetainMessage(PublishMessage message, IntegrateMessages messages) {
-        return Mono.fromRunnable(() -> {
-            if (message.isRetain()) {
-                messages.saveRetainMessage(RetainMessage.of(message));
-            }
-        });
-    }
 
 
 }
