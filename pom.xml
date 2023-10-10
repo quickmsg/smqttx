@@ -8,7 +8,7 @@
     <version>2.0.11</version>
     <modules>
         <module>smqttx-common</module>
-        <module>smqttx-mqtt</module>
+        <module>smqttx-core</module>
         <module>smqttx-bootstrap</module>
         <module>smqttx-rule</module>
         <module>smqttx-ui</module>
