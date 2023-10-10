@@ -61,7 +61,8 @@ public class PublishProtocol implements Protocol<PublishMessage> {
                     break;
             }
         }
-        receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.PUBLISH_EVENT).increment();
+        receiveContext.getMetricManager().getMetricRegistry()
+                .getMetricCounter(CounterType.PUBLISH_EVENT).increment();
         logManager.printInfo(mqttChannel, LogEvent.PUBLISH, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
         ClusterMessage clusterMessage = new ClusterMessage(message);
         integrateCluster.sendCluster(clusterMessage.getTopic(), clusterMessage);

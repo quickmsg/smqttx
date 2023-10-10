@@ -41,6 +41,6 @@ public class RuleDslExecutor implements DslExecutor {
 
     @Override
     public Boolean isExecute() {
-        return ruleChain.getRuleNodeList().size() > 0;
+        return !ruleChain.getRuleNodeList().isEmpty();
     }
 }

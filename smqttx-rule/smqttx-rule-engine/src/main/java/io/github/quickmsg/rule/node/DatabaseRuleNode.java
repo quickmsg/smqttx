@@ -39,7 +39,8 @@ public class DatabaseRuleNode implements RuleNode {
         Map<String,Object> message = contextView.get(Map.class);
         if (script != null) {
             Optional.ofNullable(SourceManager.getSourceBean(Source.DATA_BASE))
-                    .ifPresent(sourceBean -> sourceBean.transmit(triggerTemplate(script, context -> message.forEach(context::set))));
+                    .ifPresent(sourceBean ->
+                            sourceBean.transmit(triggerTemplate(script, context -> message.forEach(context::set))));
         }
         executeNext(contextView);
     }

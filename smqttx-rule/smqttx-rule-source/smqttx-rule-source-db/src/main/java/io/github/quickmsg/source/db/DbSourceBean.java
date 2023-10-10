@@ -1,5 +1,7 @@
 package io.github.quickmsg.source.db;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.quickmsg.common.rule.source.Source;
 import io.github.quickmsg.common.rule.source.SourceBean;
 import io.github.quickmsg.source.db.config.HikariCPConnectionProvider;
@@ -27,6 +29,9 @@ public class DbSourceBean implements SourceBean {
     }
 
 
+    private  HikariDataSource hikariDataSource;
+
+
     /**
      * 初始化数据库连接
      *
@@ -41,12 +46,10 @@ public class DbSourceBean implements SourceBean {
         }
 
         try {
-            HikariCPConnectionProvider
-                    .singleTon()
-                    .init(properties);
+            HikariConfig config = new HikariConfig(properties);
+            this.hikariDataSource = new HikariDataSource(config);;
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -58,7 +61,7 @@ public class DbSourceBean implements SourceBean {
      */
     @Override
     public void transmit(Object object) {
-        try (Connection connection = HikariCPConnectionProvider.singleTon().getConnection()) {
+        try (Connection connection = hikariDataSource.getConnection()) {
             DSLContext dslContext = DSL.using(connection);
             dslContext.execute(object.toString());
         } catch (Exception e) {
@@ -69,7 +72,7 @@ public class DbSourceBean implements SourceBean {
 
     @Override
     public void close() {
-        HikariCPConnectionProvider.singleTon().shutdown();
+        hikariDataSource.close();
     }
 
 }
