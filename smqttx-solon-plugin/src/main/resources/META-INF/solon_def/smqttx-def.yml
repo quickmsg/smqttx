@@ -1,0 +1,53 @@
+smqtt:
+  logLevel: INFO # 系统日志
+  tcp: # tcp配置
+    port: 1883 # mqtt端口号
+    wiretap: false  # 二进制日志 前提是 smqtt.logLevel = DEBUG
+    bossThreadSize: 8  # boss线程 默认=cpu核心数
+    workThreadSize: 16 # work线程 默认=cpu核心数*2
+    businessThreadSize: 32 # 业务线程数 默认=cpu核心数*10
+    businessQueueSize: 100000 #业务队列 默认=100000
+    messageMaxSize: 4194304 # 接收消息的最大限制 默认4194304(4M)
+    lowWaterMark: 4000000 # 不建议配置 默认 32768
+    highWaterMark: 80000000 # 不建议配置 默认 65536
+    # globalReadWriteSize: 10000000,100000000  全局读写大小限制
+    # channelReadWriteSize: 10000000,100000000 单个channel读写大小限制
+    options:
+      SO_BACKLOG: 2000
+    ssl: # ssl配置
+      enable: false # 开关
+      key: /user/server.key # 指定ssl文件 默认系统生成
+      crt: /user/server.crt # 指定ssl文件 默认系统生成
+  acl:
+    aclPolicy: NONE # NONE or FILE or JDBC
+    filePath: D:\smq-business\config\acl\basic_policy.csv # FILE时配置filePath
+    jdbcAclConfig:
+      driver: com.mysql.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/smqtt
+      username: root
+      password: 123
+  auth:
+    fixed:
+      username: smqtt
+      password: smqtt
+  http: # http相关配置 端口固定60000
+    enable: true # 开关
+    accessLog: true # http访问日志
+    ssl: # ssl配置
+      enable: false
+    admin: # 后台管理配置
+      enable: true  # 开关
+      username: smqtt # 访问用户名
+      password: smqtt # 访问密码
+  ws: # websocket配置
+    enable: true # 开关
+    port: 8999 # 端口
+    path: /mqtt # ws 的访问path mqtt.js请设置此选项
+  cluster: # 集群配置
+    enable: false # 集群开关
+    addresses: ["127.0.0.1"]
+  meter:
+    meterType: PROMETHEUS # INFLUXDB , PROMETHEUS
+
+
+
