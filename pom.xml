@@ -13,6 +13,7 @@
         <module>smqttx-rule</module>
         <module>smqttx-ui</module>
         <module>smqttx-metric</module>
+        <module>smqttx-solon-plugin</module>
         <module>smqttx-spring-boot-starter</module>
         <module>smqttx-integrate</module>
     </modules>
