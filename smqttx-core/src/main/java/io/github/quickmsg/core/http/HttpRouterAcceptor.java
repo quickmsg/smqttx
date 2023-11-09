@@ -6,6 +6,8 @@ import io.github.quickmsg.common.http.annotation.Header;
 import io.github.quickmsg.common.http.annotation.Headers;
 import io.github.quickmsg.common.http.annotation.Router;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerRequest;
@@ -44,7 +46,8 @@ public class HttpRouterAcceptor implements Consumer<HttpServerRoutes> {
                     httpServerRoutes.delete(router.value(), handler);
                     break;
                 case OPTIONS:
-                    httpServerRoutes.options(router.value(), handler);
+                    httpServerRoutes.options(router.value(), ((httpServerRequest, httpServerResponse) ->
+                            httpActor.doRequest(httpServerRequest, httpServerResponse,httpConfiguration)));
                     break;
                 case GET:
                 default:
@@ -68,7 +71,7 @@ public class HttpRouterAcceptor implements Consumer<HttpServerRoutes> {
                 Arrays.stream(headers.headers()).forEach(hd -> httpServerResponse.addHeader(hd.key(), hd.value()));
             }
             if (allowCors != null) {
-                httpServerResponse.addHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "*");
+                httpServerResponse.addHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "Accept, Origin,Authorization,Sec-Ch-Ua,Sec-Ch-Ua-Mobile,Sec-Ch-Ua-Platform,Content-Type,Referer,User-Agent");
                 httpServerResponse.addHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS, "*");
                 httpServerResponse.addHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
             }

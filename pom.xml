@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.quickmsg</groupId>
     <artifactId>smqttx</artifactId>
-    <version>2.0.11</version>
+    <version>2.0.12</version>
     <modules>
         <module>smqttx-common</module>
         <module>smqttx-core</module>
         <module>smqttx-bootstrap</module>
         <module>smqttx-rule</module>
-        <module>smqttx-ui</module>
+<!--        <module>smqttx-ui</module>-->
         <module>smqttx-metric</module>
         <module>smqttx-solon-plugin</module>
         <module>smqttx-spring-boot-starter</module>

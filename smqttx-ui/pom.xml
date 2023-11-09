@@ -42,6 +42,7 @@
                         </executions>
                     </plugin>
 
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-resources-plugin</artifactId>
@@ -54,7 +55,7 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                                    <outputDirectory>../smqttx-bootstrap/src/main/resources/static</outputDirectory>
                                     <resources>
                                         <resource>
                                             <!-- 指定resources插件处理哪个目录下的资源文件 -->
