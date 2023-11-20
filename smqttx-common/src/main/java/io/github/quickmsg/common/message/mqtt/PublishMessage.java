@@ -34,7 +34,7 @@ public class PublishMessage implements Message {
 
     private boolean retain;
 
-    private Object body;
+    private byte[] body;
 
     private String time;
 
@@ -46,12 +46,12 @@ public class PublishMessage implements Message {
 
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId) {
         return MqttMessageUtils.buildPub(false, qoS, this.retain, messageId,
-                this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(JacksonUtil.dynamicJson(this.body).getBytes(StandardCharsets.UTF_8)));
+                this.getTopic(), PooledByteBufAllocator.DEFAULT.buffer().writeBytes(this.body));
     }
 
     public MqttPublishMessage buildMqttMessage(MqttQoS qoS, int messageId,boolean isDup) {
         return MqttMessageUtils.buildPub(isDup, qoS, this.retain, messageId, this.getTopic(),
-                PooledByteBufAllocator.DEFAULT.buffer().writeBytes(JacksonUtil.dynamicJson(this.body).getBytes(StandardCharsets.UTF_8)));
+                PooledByteBufAllocator.DEFAULT.buffer().writeBytes(this.body));
     }
 
     public PublishMessage() {
@@ -64,7 +64,7 @@ public class PublishMessage implements Message {
         this.topic = mqttPublishMessage.variableHeader().topicName();
         this.qos = mqttPublishMessage.fixedHeader().qosLevel().value();
         this.retain = mqttPublishMessage.fixedHeader().isRetain();
-        this.body = JacksonUtil.dynamic(new String(MessageUtils.readByteBuf(mqttPublishMessage.payload()),StandardCharsets.UTF_8));
+        this.body = MessageUtils.readByteBuf(mqttPublishMessage.payload());
         this.time = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_FORMAT);
         this.clientId = Optional.ofNullable(mqttChannel)
                     .map(MqttChannel::getClientId).orElse(null);

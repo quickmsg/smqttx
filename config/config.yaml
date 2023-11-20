@@ -12,6 +12,9 @@ smqtt:
     highWaterMark: 80000000 # 不建议配置 默认 65536
     # globalReadWriteSize: 10000000,100000000  全局读写大小限制
     # channelReadWriteSize: 10000000,100000000 单个channel读写大小限制
+    ssl:
+      crt: C:\Users\luxurong\Desktop\官网nginx部署\10034861_fluxmq.com.pem
+      key: C:\Users\luxurong\Desktop\官网nginx部署\10034861_fluxmq.com.key
     options:
       SO_BACKLOG: 2000
   auth:

@@ -32,7 +32,8 @@ public class ClusterHandler implements Serializable {
             String msg = JacksonUtil.bean2Json(clusterMessage);
             for(SubscribeTopic subscribeTopic:channels){
                 logManager.printInfo(subscribeTopic.getMqttChannel(), LogEvent.WRITE, LogStatus.SUCCESS,msg);
-                subscribeTopic.getMqttChannel().sendPublish(MqttQoS.valueOf(clusterMessage.getQos()),clusterMessage.toPublishMessage());
+                subscribeTopic.getMqttChannel().sendPublish(
+                        MqttQoS.valueOf(clusterMessage.getQos()), clusterMessage.toPublishMessage());
             }
         }
         return true;

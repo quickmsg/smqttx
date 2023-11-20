@@ -59,7 +59,7 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
             /*check clientId, clientIdentifier)) {
             /*check clientIdentifier exist*/
                 mqttChannel.setConnectCache(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode()));
-
+                mqttChannel.getConnectCache().setWill(connectMessage.getWill());
                 logManager.printInfo(mqttChannel, LogEvent.CONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(connectMessage.getCache(receiveContext.getIntegrate().getCluster().getLocalNode())));
 
                 mqttChannel.setAuthTime(DateFormatUtils.format(new Date(), "yyyy-mm-dd hh:mm:ss"));
@@ -100,19 +100,20 @@ public class ConnectProtocol implements Protocol<ConnectMessage> {
 
 
     private void close(MqttChannel mqttChannel, MqttReceiveContext mqttReceiveContext) {
+        final MqttChannel.Will willMessage = mqttChannel.getConnectCache().getWill();
         mqttReceiveContext.getIntegrate().getChannels().remove(mqttChannel);
         IntegrateTopics<SubscribeTopic> topics = mqttReceiveContext.getIntegrate().getTopics();
         topics.removeTopic(mqttChannel, new ArrayList<>(mqttChannel.getTopics()));
         mqttReceiveContext.getRetryManager().clearRetry(mqttChannel);
         DisConnectMessage disConnectMessage = new DisConnectMessage(mqttChannel);
         mqttReceiveContext.getIntegrate().getProtocolAdaptor().chooseProtocol(disConnectMessage);
-        Optional.ofNullable(mqttChannel.getConnectCache().getWill()).ifPresent(will ->
+        Optional.ofNullable(willMessage).ifPresent(will ->
                 Optional.ofNullable(topics.getMqttChannelsByTopic(will.getWillTopic()))
                         .ifPresent(subscribeTopics -> subscribeTopics.forEach(subscribeTopic -> {
-            MqttChannel channel = subscribeTopic.getMqttChannel();
-            MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
-            channel.sendPublish(mqttQoS, will.toPublishMessage());
-        })));
+                            MqttChannel channel = subscribeTopic.getMqttChannel();
+                            MqttQoS mqttQoS = subscribeTopic.minQos(will.getMqttQoS());
+                            channel.sendPublish(mqttQoS, will.toPublishMessage());
+                        })));
 
     }
 

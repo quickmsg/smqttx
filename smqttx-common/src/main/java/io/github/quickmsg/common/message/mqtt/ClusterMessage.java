@@ -15,7 +15,7 @@ public class ClusterMessage{
 
     private boolean retain;
 
-    private Object body;
+    private byte[] body;
 
     private String connectTime;
 
