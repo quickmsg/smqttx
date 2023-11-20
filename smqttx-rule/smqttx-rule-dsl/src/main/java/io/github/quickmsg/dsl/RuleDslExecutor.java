@@ -28,9 +28,13 @@ public class RuleDslExecutor implements DslExecutor {
 
     @Override
     public void executeRule(Message message) {
+        final Map<String, Object> map = JacksonUtil.bean2Map(message);
+        if(message instanceof  PublishMessage){
+            map.put("body",JacksonUtil.dynamic(new String(((PublishMessage)message).getBody())));
+        }
         Mono.deferContextual(ruleChain::executeRule)
                 .contextWrite(context -> context
-                        .put(Map.class,  JacksonUtil.bean2Map(message))
+                        .put(Map.class,  map)
                         .put(ReceiveContext.class, ContextHolder.getReceiveContext()))
                 .subscribeOn(Schedulers.parallel())
                 .subscribe();
