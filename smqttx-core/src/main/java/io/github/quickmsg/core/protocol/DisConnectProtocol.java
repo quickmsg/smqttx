@@ -24,8 +24,6 @@ public class DisConnectProtocol implements Protocol<DisConnectMessage> {
         LogManager logManager = receiveContext.getLogManager();
         logManager.printInfo(mqttChannel, LogEvent.DISCONNECT, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));
         receiveContext.getMetricManager().getMetricRegistry().getMetricCounter(CounterType.DIS_CONNECT_EVENT).increment();
-
-        mqttChannel.getConnectCache().setWill(null);
         Connection connection;
         if (!(connection = mqttChannel.getConnection()).isDisposed()) {
             connection.dispose();

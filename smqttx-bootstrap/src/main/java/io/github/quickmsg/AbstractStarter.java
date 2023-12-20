@@ -74,8 +74,8 @@ public abstract class AbstractStarter {
         if (bootstrap.getHttpConfig() != null) {
             Integer port = 60000;
             start += String.format("SMQTTX-Admin UI is running AccessURLs:\n\t" +
-                    "Http Local url:    http://localhost:%s/smqtt/admin" + "\n\t" +
-                    "Http External url: http://%s:%s/smqtt/admin" + "\n" +
+                    "Http Local url:    http://localhost:%s" + "\n\t" +
+                    "Http External url: http://%s:%s" + "\n" +
                     "-------------------------------------------------------------", port,  ServerUtils.serverIp, port);
         }
         log.info(start);

@@ -50,6 +50,8 @@ public class IgniteIntegrate implements Integrate {
         if (!this.ignite.cluster().state().active()) {
             this.ignite.cluster().state(ClusterState.ACTIVE);
         }
+        this.ignite.cluster().baselineAutoAdjustEnabled(true);
+        this.ignite.cluster().baselineAutoAdjustTimeout(3);
         this.protocolAdaptor = protocolAdaptor;
         this.igniteChannels = new IgniteChannels(this, new ConcurrentHashMap<>());
         this.cluster = new IgniteIntegrateCluster(this);
