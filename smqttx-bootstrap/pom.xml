@@ -25,19 +25,19 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.14.2</version>
+            <version>2.15.3</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.14.2</version>
+            <version>2.15.3</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-properties</artifactId>
-            <version>2.14.2</version>
+            <version>2.15.3</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -100,7 +100,7 @@
                         <version>3.3.2</version>
                         <configuration>
                             <from>
-                                <image>openjdk:8-jre-alpine</image>
+                                <image>eclipse-temurin:21-jre-alpine</image>
                             </from>
                             <to>
                                 <image>1ssqq1lxr/smqttx</image>

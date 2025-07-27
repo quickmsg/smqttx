@@ -23,14 +23,14 @@
     <description>smqttx mqtt broker</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <lombok>1.18.20</lombok>
-        <slf4j.version>1.7.30</slf4j.version>
-        <jackson.version>2.11.0</jackson.version>
-        <jackson.dataform.version>2.12.4</jackson.dataform.version>
-        <jackson.core.version>2.12.4</jackson.core.version>
-        <ignite.version>2.14.0</ignite.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <lombok>1.18.30</lombok>
+        <slf4j.version>2.0.9</slf4j.version>
+        <jackson.version>2.15.3</jackson.version>
+        <jackson.dataform.version>2.15.3</jackson.dataform.version>
+        <jackson.core.version>2.15.3</jackson.core.version>
+        <ignite.version>2.15.0</ignite.version>
         <disruptor.version>3.4.4</disruptor.version>
         <cglib.version>3.3.0</cglib.version>
     </properties>
@@ -117,12 +117,12 @@
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty</artifactId>
-                <version>1.1.7</version>
+                <version>1.1.16</version>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-core</artifactId>
-                <version>3.5.6</version>
+                <version>3.6.2</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -132,7 +132,7 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-mqtt</artifactId>
-                <version>4.1.92.Final</version>
+                <version>4.1.100.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -142,43 +142,43 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.1.11</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.11</version>
+                <version>1.4.14</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-core</artifactId>
-                <version>1.10.5</version>
+                <version>1.12.2</version>
             </dependency>
             <dependency>
                 <groupId>com.github.oshi</groupId>
                 <artifactId>oshi-core</artifactId>
-                <version>5.3.6</version>
+                <version>6.4.8</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>1.8.0</version>
+                <version>1.12.2</version>
             </dependency>
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-influx</artifactId>
-                <version>1.8.0</version>
+                <version>1.12.2</version>
             </dependency>
             <dependency>
                 <groupId>org.casbin</groupId>
                 <artifactId>jcasbin</artifactId>
-                <version>1.22.1</version>
+                <version>1.40.0</version>
             </dependency>
             <dependency>
                 <groupId>org.casbin</groupId>
@@ -210,7 +210,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -223,12 +223,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>2.7</version>
+                        <version>3.1.1</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>3.6.3</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -241,7 +241,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
