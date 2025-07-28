@@ -50,6 +50,13 @@
             <artifactId>smqttx-core</artifactId>
             <version>2.0.12</version>
         </dependency>
+        
+        <!-- 前端UI资源 -->
+        <dependency>
+            <groupId>io.github.quickmsg</groupId>
+            <artifactId>smqttx-ui</artifactId>
+            <version>2.0.12</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
