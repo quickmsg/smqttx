@@ -14,7 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ignite.version>2.15.0</ignite.version>
+        <ignite.version>2.16.0</ignite.version>
     </properties>
     <dependencies>
         <dependency>
