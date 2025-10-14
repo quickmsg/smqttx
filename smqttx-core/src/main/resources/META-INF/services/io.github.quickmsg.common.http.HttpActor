@@ -27,3 +27,4 @@ io.github.quickmsg.core.http.actors.acl.AclAddPolicyActor
 io.github.quickmsg.core.http.actors.acl.AclDeletePolicyActor
 io.github.quickmsg.core.http.actors.acl.AclQueryPolicyActor
 io.github.quickmsg.core.http.actors.resource.RootResourceActor
+io.github.quickmsg.core.http.actors.resource.AssetsResourceActor

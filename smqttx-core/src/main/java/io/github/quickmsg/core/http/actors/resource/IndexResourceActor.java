@@ -22,6 +22,7 @@ public class IndexResourceActor implements HttpActor {
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration configuration) {
         String path = "/static/"+request.path();
+        log.info("IndexResourceActor: Loading index.html from path: {}", path);
         return response.send(ClassPathLoader.readClassPathFile(path)).then();
     }
 }

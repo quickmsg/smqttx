@@ -15,7 +15,7 @@ public class ClusterMessage{
 
     private boolean retain;
 
-    private byte[] body;
+    private Object body;
 
     private String connectTime;
 
@@ -46,7 +46,7 @@ public class ClusterMessage{
         publishMessage.setTopic(this.originTopic);
         publishMessage.setQos(this.qos);
         publishMessage.setRetain(this.retain);
-        publishMessage.setBody(this.body);
+        publishMessage.setBody((byte[]) this.body);
         return  publishMessage;
     }
 }

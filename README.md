@@ -1,20 +1,26 @@
 <h1 align="center">SMQTTX</h1>
 
 <p align="center">
-  <a href="https://github.com/quickmsg/smqttx/blob/release/ignite/README.md">
+  <a href="https://github.com/quickmsg/smqttx/blob/main/LICENSE">
     <img alt="apache" src="https://img.shields.io/badge/license-Apache%202-blue"/>
   </a>
   <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
-    <img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.0.22-blue"/>
+    <img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.1.16-blue"/>
   </a>
   <a href="https://projectreactor.io/docs/core/release/reference/">
-    <img alt="reactor3" src="https://img.shields.io/badge/reactor3--netty-3.4.22-yellow"/>
+    <img alt="reactor3" src="https://img.shields.io/badge/reactor--core-3.6.2-yellow"/>
   </a>
-  <a href="">
-    <img alt="ignite" src="https://img.shields.io/badge/ignite-2.14.0-yellowgreen"/>
+  <a href="https://ignite.apache.org/">
+    <img alt="ignite" src="https://img.shields.io/badge/ignite-2.16.0-yellowgreen"/>
   </a>
-  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
-    <img alt="ignite" src="https://img.shields.io/badge/mqtt-3.1.1-green"/>
+  <a href="https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html">
+    <img alt="mqtt" src="https://img.shields.io/badge/mqtt-3.1.1%20|%205.0-green"/>
+  </a>
+  <a href="https://github.com/quickmsg/smqttx/releases">
+    <img alt="version" src="https://img.shields.io/badge/version-2.1.0-brightgreen"/>
+  </a>
+  <a href="https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html">
+    <img alt="java" src="https://img.shields.io/badge/Java-21+-orange"/>
   </a>
 </p>
 
@@ -28,92 +34,129 @@
 </strong>
 </div>
 
-## 功能列表
+## ✨ 核心特性
 
 <details>
-  <summary>点我 打开/关闭 功能列表</summary>
+  <summary>📋 点击展开完整功能列表</summary>
 
-- [标准MQTT协议](#国际化)
-- [Websocket协议](#内容目录)
-- [TLS/SSL加密](#内容目录)
-- [服务等级](#项目介绍)
-  - [qos0 至多一次](#官方网站)
-  - [qos1 至少一次](#官方网站)
-  - [qos2 仅仅一次](#官方网站)
-- [Topic过滤](#图形演示)
-  - [# 多级匹配](#官方网站)
-  - [+ 一级匹配](#官方网站)
-- [保留消息](#功能)
-- [HTTP协议](#架构)
-- [拦截器](#快速入门)
-- [Metrics健康](#快速入门)
-- [规则引擎](#维护者)
-  - [规则管理](#官方网站)
-  - [数据源管理](#官方网站)
-- [集群](#维护者)
-  - [分布式集群路由](#维护者)
-  - [分布式节点动态发现](#维护者)
-  - [分布式Job](#维护者)
-  - [集群互踢策略](#维护者)
-- [SMQTTX管理平台](#快速入门)
-- [SpringBoot Starter](#贡献者)
-- [Apacche 2](#许可证)
+### 🚀 协议支持
+- **标准MQTT协议** - 完整支持MQTT 3.1.1 & 5.0协议
+- **WebSocket协议** - 支持基于WebSocket的MQTT通信
+- **TLS/SSL加密** - 提供安全的加密通信
+- **HTTP协议** - 支持HTTP接口管理
+
+### 🎯 服务质量
+- **QoS 0** - 至多一次投递
+- **QoS 1** - 至少一次投递  
+- **QoS 2** - 仅一次投递
+
+### 🔍 高级功能
+- **Topic过滤** - 支持通配符匹配
+  - `#` 多级匹配
+  - `+` 单级匹配
+- **保留消息** - 消息持久化与重发
+- **拦截器** - 自定义消息处理逻辑
+- **Metrics监控** - 全方位性能监控
+
+### ⚙️ 规则引擎
+- **规则管理** - 灵活的业务规则配置
+- **数据源管理** - 多种数据源集成
+- **实时计算** - 流式数据处理
+
+### 🌐 分布式架构
+- **集群支持** - 高可用分布式部署
+- **动态路由** - 智能消息路由策略
+- **节点发现** - 自动化集群管理
+- **分布式任务** - 集群任务调度
+- **负载均衡** - 高性能负载分发
+
+### 🎮 管理平台
+- **Web管理界面** - 直观的可视化管理
+- **SpringBoot集成** - 简化开发集成
+- **监控仪表板** - 实时性能监控
 
 </details>
 
-## 项目介绍
-![架构图](icon/smqttx.jpg)
+## 📖 项目介绍
 
-基于Java实现的物联网分布式MQTT消息代理服务器
+<div align="center">
+  <img src="icon/smqttx.jpg" alt="SMQTTX架构图" width="800"/>
+</div>
 
-### 官方网站
+🌟 **SMQTTX** 是基于 **Java 21** 开发的高性能、分布式MQTT消息代理服务器，专为物联网场景设计。
 
-[官网地址](https://www.smqtt.cc)
+### 🏠 官方网站
 
-### 背景
-基于Netty实现分布式MQTT集群，并提供快速接入、配置能力，提供统一的接入管理平台，无需复杂配置，即可完成千万级别设备接入。
+- 🌐 [项目官网](https://www.smqtt.cc)
+- 📚 [在线文档](https://wiki.smqtt.cc)
+- 🎯 [演示环境](http://demo.fluxmq.com)
+
+### 🎯 项目背景
+
+SMQTTX 基于 **Reactor-Netty** 构建高性能分布式MQTT集群，提供：
+
+- 🚄 **极致性能** - 单机支持百万级并发连接
+- 🔧 **简单配置** - 开箱即用，最小化配置
+- 🌐 **分布式** - 支持水平扩展，千万级设备接入
+- 📊 **可视化管理** - 统一管理平台，实时监控
+- 🔌 **易于集成** - SpringBoot Starter，一键启动
 
 
-## 快速入门
+## 🚀 快速开始
 
-[![smqttx](https://img.shields.io/badge/SMQTTX-2.0.0-green)](https://www.smqtt.cc)
+[![version](https://img.shields.io/badge/SMQTTX-2.1.0-green)](https://www.smqtt.cc)
 
-### 引入maven依赖
+### 📦 Maven依赖
 
-> SpringBoot版本>=2.7.3
+> ✅ **环境要求:** SpringBoot >= 3.0.0，Java >= 21
 
 ```xml
 <dependency>
    <artifactId>smqttx-spring-boot-starter</artifactId>
    <groupId>io.github.quickmsg</groupId>
-   <version>2.0.11</version>
+   <version>2.1.0</version>
 </dependency>
-<!--屏蔽h2版本冲突-->
+<!-- 解决H2数据库版本冲突 -->
 <dependency>
   <groupId>com.h2database</groupId>
   <artifactId>h2</artifactId>
   <version>1.4.197</version>
 </dependency>
 ```
-### 配置文件
-application.yaml中添加配置：
-[配置文件参考](config/config.yaml)
+### ⚙️ 配置文件
 
-### 启动服务
-在SpringBootApplication启动类上添加
-`@EnableMqttServer` ,然后启动服务即可
+在 `application.yaml` 中添加配置：
+```yaml
+# 参考完整配置
+# config/config.yaml
+```
+📋 [完整配置文件参考](config/config.yaml)
 
-**请关注一下配置文件:**
+### 🎯 启动应用
 
-| 配置项       | 参考文档                                                |
-|-----------|-----------------------------------------------------|
-| mqtt配置    | https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html       |
-| acl配置     | https://wiki.smqtt.cc/smqttx/acl/1.acl.html         |
-| auth配置    | https://wiki.smqtt.cc/smqttx/auth/1.auth.html       |
-| http配置    | https://wiki.smqtt.cc/smqttx/http/1.http.html       |
-| ws配置      | https://wiki.smqtt.cc/smqttx/ws/1.ws.html           |
-| cluster配置 | https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html |
-| ssl/tls配置 | https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html         |
+在 SpringBoot 启动类上添加 `@EnableMqttServer` 注解：
+
+```java
+@SpringBootApplication
+@EnableMqttServer
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+### 📚 配置文档
+
+| 配置模块 | 说明 | 文档链接 |
+|---------|-----|---------|
+| 🔧 MQTT配置 | 基础MQTT服务配置 | [查看文档](https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html) |
+| 🔐 ACL配置 | 访问控制列表配置 | [查看文档](https://wiki.smqtt.cc/smqttx/acl/1.acl.html) |
+| 🔑 Auth配置 | 认证授权配置 | [查看文档](https://wiki.smqtt.cc/smqttx/auth/1.auth.html) |
+| 🌐 HTTP配置 | HTTP接口配置 | [查看文档](https://wiki.smqtt.cc/smqttx/http/1.http.html) |
+| 🔌 WebSocket配置 | WebSocket协议配置 | [查看文档](https://wiki.smqtt.cc/smqttx/ws/1.ws.html) |
+| 🌍 集群配置 | 分布式集群配置 | [查看文档](https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html) |
+| 🔒 SSL/TLS配置 | 安全传输配置 | [查看文档](https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html) |
 
 ## 维护者
 

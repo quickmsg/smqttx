@@ -1,29 +1,27 @@
 <h1 align="center">SMQTTX</h1>
 
-
-
 <p align="center">
-
-<a href=" https://github.com/quickmsg/smqttx/blob/release/ignite/README.md">
-<img alt="apache" src="https://img.shields.io/badge/license-Apache%202 -blue"/>
-</a>
-
-<a href=" https://projectreactor.io/docs/netty/release/reference/index.html">
-<img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.0.22-blue"/>
-</a>
-
-<a href=" https://projectreactor.io/docs/core/release/reference/">
-<img alt="reactor3" src="https://img.shields.io/badge/reactor3--netty-3.4.22-yellow"/>
-</a>
-
-<a href="">
-<img alt="ignite" src="https://img.shields.io/badge/ignite-2.14.0-yellowgreen"/>
-</a>
-
-<a href=" https://projectreactor.io/docs/netty/release/reference/index.html">
-<img alt="ignite" src="https://img.shields.io/badge/mqtt-3.1.1-green"/>
-</a>
-
+  <a href="https://github.com/quickmsg/smqttx/blob/main/LICENSE">
+    <img alt="apache" src="https://img.shields.io/badge/license-Apache%202-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/netty/release/reference/index.html">
+    <img alt="reactor-netty" src="https://img.shields.io/badge/reactor--netty-1.1.16-blue"/>
+  </a>
+  <a href="https://projectreactor.io/docs/core/release/reference/">
+    <img alt="reactor3" src="https://img.shields.io/badge/reactor--core-3.6.2-yellow"/>
+  </a>
+  <a href="https://ignite.apache.org/">
+    <img alt="ignite" src="https://img.shields.io/badge/ignite-2.16.0-yellowgreen"/>
+  </a>
+  <a href="https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/mqtt-v3.1.1.html">
+    <img alt="mqtt" src="https://img.shields.io/badge/mqtt-3.1.1%20|%205.0-green"/>
+  </a>
+  <a href="https://github.com/quickmsg/smqttx/releases">
+    <img alt="version" src="https://img.shields.io/badge/version-2.1.0-brightgreen"/>
+  </a>
+  <a href="https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html">
+    <img alt="java" src="https://img.shields.io/badge/Java-21+-orange"/>
+  </a>
 </p>
 
 
@@ -45,173 +43,180 @@
 
 
 
-## Function list
-
-
+## ✨ Core Features
 
 <details>
-<summary>Click I open/close the function list</summary>
+  <summary>📋 Click to expand complete feature list</summary>
 
-- [Standard MQTT Protocol](#Internationalization)
-- [Websocket Protocol](#ContentDirectory)
-- [TLS/SSL Encryption](#ContentDirectory)
-- [Service Level](#ProjectIntroduction)
-  - [qos0 at most once](#OfficialAebsite)
-  - [qos1 at least once](#OfficialAebsite)
-  - [qos2 only once](#OfficialAebsite)
-- [Topic Filtering](#GraphicDemo)
-  - [# Multi level matching](#fficialwebsite)
-  - [+first level matching](#officialwebsite)
-- [Reserved Message](#Function)
-- [HTTP Protocol](#Schema)
-- [Interceptor](#QuickStart)
-- [Metrics Health](#QuickStart)
-- [Rule Engine](#Maintainer)
-- [Rule Management](#OfficialWebsite)
-- [Data source management](#officialWebsite)
-- [Cluster](#Maintainer)
-- [Distributed Cluster Routing](#Maintainer)
-- [Distributed Node Dynamic Discovery](#Maintainer)
-- [Distributed Job](#Maintainer)
-- [Cluster Kick Off Strategy](#Maintainer)
-- [SMQTTX Management Platform](#QuickStart)
-- [SpringBoot Starter](#Contributor)
-- [Apacche 2](#License)
+### 🚀 Protocol Support
+- **Standard MQTT Protocol** - Full support for MQTT 3.1.1 & 5.0 protocols
+- **WebSocket Protocol** - WebSocket-based MQTT communication
+- **TLS/SSL Encryption** - Secure encrypted communication
+- **HTTP Protocol** - HTTP interface management
+
+### 🎯 Quality of Service
+- **QoS 0** - At most once delivery
+- **QoS 1** - At least once delivery  
+- **QoS 2** - Exactly once delivery
+
+### 🔍 Advanced Features
+- **Topic Filtering** - Wildcard matching support
+  - `#` Multi-level wildcard
+  - `+` Single-level wildcard
+- **Retained Messages** - Message persistence and republishing
+- **Interceptors** - Custom message processing logic
+- **Metrics Monitoring** - Comprehensive performance monitoring
+
+### ⚙️ Rule Engine
+- **Rule Management** - Flexible business rule configuration
+- **Data Source Management** - Multiple data source integration
+- **Real-time Computing** - Stream data processing
+
+### 🌐 Distributed Architecture
+- **Cluster Support** - High-availability distributed deployment
+- **Dynamic Routing** - Intelligent message routing strategy
+- **Node Discovery** - Automated cluster management
+- **Distributed Jobs** - Cluster task scheduling
+- **Load Balancing** - High-performance load distribution
+
+### 🎮 Management Platform
+- **Web Management UI** - Intuitive visual management
+- **SpringBoot Integration** - Simplified development integration
+- **Monitoring Dashboard** - Real-time performance monitoring
 
 </details>
 
 
 
-## Project introduction
+## 📖 Project Introduction
 
-![smqttx](icon/smqttx-en.jpg)
+<div align="center">
+  <img src="icon/smqttx-en.jpg" alt="SMQTTX Architecture" width="800"/>
+</div>
 
+🌟 **SMQTTX** is a high-performance, distributed MQTT message broker server built with **Java 21**, designed specifically for IoT scenarios.
 
+### 🏠 Official Website
 
-Java based distributed MQTT message proxy server for Internet of Things
+- 🌐 [Project Website](https://www.smqtt.cc)
+- 📚 [Documentation](https://wiki.smqtt.cc)
+- 🎯 [Demo Environment](http://demo.fluxmq.com)
 
+### 🎯 Project Background
 
+SMQTTX builds high-performance distributed MQTT clusters based on **Reactor-Netty**, providing:
 
-### Official website
-
-
-
-[Official website address]（ https://www.smqtt.cc )
-
-
-
-### Background
-
-The distributed MQTT cluster is implemented based on Netty, and provides fast access and configuration capabilities. It provides a unified access management platform. It can complete the access of tens of millions of devices without complex configuration.
-
-
-
-
-## Quick Start
+- 🚄 **Ultimate Performance** - Supports millions of concurrent connections on a single node
+- 🔧 **Simple Configuration** - Out-of-the-box with minimal configuration
+- 🌐 **Distributed** - Horizontal scaling, supporting millions of device connections
+- 📊 **Visual Management** - Unified management platform with real-time monitoring
+- 🔌 **Easy Integration** - SpringBoot Starter for one-click startup
 
 
 
-[![smqttx]( https://img.shields.io/badge/smqtt-2.0.0-green )]( https://www.smqtt.cc )
+
+## 🚀 Quick Start
 
 
-### Dependency
+
+[![version](https://img.shields.io/badge/SMQTTX-2.1.0-green)](https://www.smqtt.cc)
+
+
+### 📦 Maven Dependency
+
+> ✅ **Requirements:** SpringBoot >= 3.0.0, Java >= 21
 
 ```xml
-
 <dependency>
   <artifactId>smqttx-spring-boot-starter</artifactId>
   <groupId>io.github.quickmsg</groupId>
-  <version>2.0.11</version>
+  <version>2.1.0</version>
 </dependency>
-        <!--Mask h2 database version conflicts-->
+<!-- Resolve H2 database version conflicts -->
 <dependency>
-<groupId>com.h2database</groupId>
-<artifactId>h2</artifactId>
-<version>1.4.197</version>
+  <groupId>com.h2database</groupId>
+  <artifactId>h2</artifactId>
+  <version>1.4.197</version>
 </dependency>
 ```
-### Config
-application.yaml add config:
+### ⚙️ Configuration
 
-[config](config/config.yaml)
+Add configuration to `application.yaml`:
+```yaml
+# Refer to complete configuration
+# config/config.yaml
+```
+📋 [Full Configuration Reference](config/config.yaml)
 
-### Start
-Add on the SpringBootApplication startup class
+### 🎯 Start Application
 
-`@EnableMqttServer ', and then start the service
+Add `@EnableMqttServer` annotation to your SpringBoot application class:
+
+```java
+@SpringBootApplication
+@EnableMqttServer
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+### 📚 Configuration Documentation
+
+| Module | Description | Documentation |
+|--------|-------------|---------------|
+| 🔧 MQTT Config | Basic MQTT service configuration | [View Docs](https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html) |
+| 🔐 ACL Config | Access control list configuration | [View Docs](https://wiki.smqtt.cc/smqttx/acl/1.acl.html) |
+| 🔑 Auth Config | Authentication & authorization config | [View Docs](https://wiki.smqtt.cc/smqttx/auth/1.auth.html) |
+| 🌐 HTTP Config | HTTP interface configuration | [View Docs](https://wiki.smqtt.cc/smqttx/http/1.http.html) |
+| 🔌 WebSocket Config | WebSocket protocol configuration | [View Docs](https://wiki.smqtt.cc/smqttx/ws/1.ws.html) |
+| 🌍 Cluster Config | Distributed cluster configuration | [View Docs](https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html) |
+| 🔒 SSL/TLS Config | Secure transport configuration | [View Docs](https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html) |
 
 
 
-Please check config you want:
+## 👥 Maintainers
 
+Thanks to the maintainers of this project:
 
-
-| File Name      | Style Preview|
-|----------------|----------------------------------------------------------------------------------------------------|
-| -----------    |-----------------------------------------------------|
-| mqtt config    | https://wiki.smqtt.cc/smqttx/mqtt/1.mqtt.html       |
-| acl config     | https://wiki.smqtt.cc/smqttx/acl/1.acl.html         |
-| auth config    | https://wiki.smqtt.cc/smqttx/auth/1.auth.html       |
-| http config    | https://wiki.smqtt.cc/smqttx/http/1.http.html       |
-| ws config      | https://wiki.smqtt.cc/smqttx/ws/1.ws.html           |
-| cluster config | https://wiki.smqtt.cc/smqttx/cluster/1.cluster.html |
-| ssl/tls config       | https://wiki.smqtt.cc/smqttx/ssl/1.ssl.html         |
-
-
-
-## Maintainer
-
-
-
-Thanks to the maintainers of these projects:
-
-<a href=" https://github.com/1ssqq1lxr ">
-
-<img src=" https://avatars.githubusercontent.com/u/19258331?v=4 " width="40" height="40" alt="misitebao" title="misitebao"/>
-
+<a href="https://github.com/1ssqq1lxr">
+  <img src="https://avatars.githubusercontent.com/u/19258331?v=4" width="40" height="40" alt="MetaQ" title="MetaQ"/>
 </a>
 
-
-
 <details>
+  <summary>📋 Click to Open/Close Maintainer List</summary>
 
-<summary>Click I Open/Close Maintainer List</summary>
+- [MetaQ](https://github.com/1ssqq1lxr) - SMQTTX project maintainer.
 
-
-
-- [MetaQ]( https://github.com/1ssqq1lxr ）- SMQTTX project maintainer.
-
-</details>[
+</details>
 
 
 
-## Contributors
+## 🤝 Contributors
+
+Thanks to all the contributors who participated in SMQTTX development. [Contributors List](https://github.com/quickmsg/smqttx/graphs/contributors)
 
 
 
-Thank all the contributors who participated in the development of SMQTTX. [List of contributors]（ https://github.com/quickmsg/smqttx/graphs/contributors )
+## 🧩 Components
+
+- [Reactor-Netty](https://projectreactor.io/docs/netty/release/reference/index.html) - High performance network framework
+- [Reactor3](https://projectreactor.io/docs/core/release/reference/) - Reactive framework implementation based on Reactor3
+- [Ignite](https://ignite.apache.org/) - High performance distributed network service cache
+- [WebSite](https://www.smqtt.cc) - Project official website
+- [Wiki](https://wiki.smqtt.cc) - Project documentation
 
 
 
-## Components
+## 💼 Commercial Version
 
+[Commercial Demo](http://demo.fluxmq.com)  
+> Contact WeChat `18510240791` for commercial version integration!
 
-
-- [Reactor-Netty]( https://projectreactor.io/docs/netty/release/reference/index.html ）- High performance network framework
-
-- [Reactor3]( https://projectreactor.io/docs/core/release/reference/ ）- Reactive framework implementation based on Reactor3
-
-- [Ignite]( http://ignite-service.cn/ ）- High performance distributed network service cache
-
-- [WebSite]( https://www.smqtt.cc ）- Project official website
-
-- [Wiki]( https://wiki.smqtt.cc ）- Project documentation
-
-
-
-## License
+## 📄 License
 
 [License APACHE 2.0](LICENSE)
 
-## Contact We
-Add WeChat `17512575402` 
+## 📞 Contact Us
+Add WeChat `17512575402` to join the discussion group 

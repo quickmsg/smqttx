@@ -17,7 +17,12 @@ public class ClassPathLoader {
 
     public  static Mono<ByteBuf> readClassPathFile(String path) {
         try {
+            log.debug("ClassPathLoader: Attempting to load file from path: {}", path);
             InputStream inputStream = ClassPathLoader.class.getResourceAsStream(path);
+            if (inputStream == null) {
+                log.warn("ClassPathLoader: File not found at path: {}", path);
+                return Mono.empty();
+            }
             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] bytes = new byte[1024];
@@ -25,8 +30,10 @@ public class ClassPathLoader {
             while ((n = bufferedInputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, n);
             }
+            log.debug("ClassPathLoader: Successfully loaded file from path: {}, size: {} bytes", path, out.size());
             return Mono.just(PooledByteBufAllocator.DEFAULT.directBuffer(out.size()).writeBytes(out.toByteArray()));
         } catch (IOException e) {
+            log.error("ClassPathLoader: Error reading file from path: {}", path, e);
         }
         return Mono.empty();
     }

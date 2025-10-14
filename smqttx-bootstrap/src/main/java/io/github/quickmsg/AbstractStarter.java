@@ -72,7 +72,10 @@ public abstract class AbstractStarter {
         String start = "\n-------------------------------------------------------------\n\t";
         start += String.format("SMQTTX mqtt connect url %s:%s \n\t", ServerUtils.serverIp, bootstrap.getTcpConfig().getPort());
         if (bootstrap.getHttpConfig() != null) {
-            Integer port = 60000;
+            Integer port = bootstrap.getHttpConfig().getPort();
+            if (port == null) {
+                port = 60000; // 默认端口
+            }
             start += String.format("SMQTTX-Admin UI is running AccessURLs:\n\t" +
                     "Http Local url:    http://localhost:%s" + "\n\t" +
                     "Http External url: http://%s:%s" + "\n" +

@@ -1,70 +1,169 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
-import { useAuthStore } from '@/stores/auth'
+import Cookie from 'js-cookie'
 
-const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 10000
-})
+// 跨域认证信息 header 名
+const xsrfHeaderName = 'Authorization'
 
-// 请求拦截器
-service.interceptors.request.use(
-  config => {
-    const authStore = useAuthStore()
-    if (authStore.token) {
-      config.headers['Authorization'] = `Bearer ${authStore.token}`
-    }
-    return config
-  },
-  error => {
-    console.error('Request error:', error)
-    return Promise.reject(error)
+axios.defaults.timeout = 5000
+axios.defaults.withCredentials= true
+axios.defaults.xsrfHeaderName= xsrfHeaderName
+axios.defaults.xsrfCookieName= xsrfHeaderName
+// axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+
+// 认证类型
+const AUTH_TYPE = {
+  BEARER: 'Bearer',
+  BASIC: 'basic',
+  AUTH1: 'auth1',
+  AUTH2: 'auth2',
+}
+
+// http method
+const METHOD = {
+  GET: 'get',
+  POST: 'post'
+}
+
+/**
+ * axios请求
+ * @param url 请求地址
+ * @param method {METHOD} http method
+ * @param params 请求参数
+ * @returns {Promise<AxiosResponse<T>>}
+ */
+async function request(url, method, params, config) {
+  switch (method) {
+    case METHOD.GET:
+      return axios.get(url, {params, ...config})
+    case METHOD.POST:
+      return axios.post(url, params, config)
+    default:
+      return axios.get(url, {params, ...config})
   }
-)
+}
 
-// 响应拦截器
-service.interceptors.response.use(
-  response => {
-    const { data } = response
-    
-    if (data.code && data.code !== 200) {
-      ElMessage.error(data.message || '请求失败')
-      return Promise.reject(new Error(data.message || '请求失败'))
-    }
-    
-    return data
-  },
-  error => {
-    console.error('Response error:', error)
-    
-    if (error.response) {
-      const { status, data } = error.response
-      
-      switch (status) {
-        case 401:
-          ElMessage.error('登录已过期，请重新登录')
-          const authStore = useAuthStore()
-          authStore.logout()
-          window.location.href = '/login'
-          break
-        case 403:
-          ElMessage.error('没有权限访问')
-          break
-        case 404:
-          ElMessage.error('请求的资源不存在')
-          break
-        case 500:
-          ElMessage.error('服务器内部错误')
-          break
-        default:
-          ElMessage.error(data?.message || '请求失败')
+/**
+ * 设置认证信息
+ * @param auth {Object}
+ * @param authType {AUTH_TYPE} 认证类型，默认：{AUTH_TYPE.BEARER}
+ */
+function setAuthorization(auth, authType = AUTH_TYPE.BEARER) {
+  switch (authType) {
+    case AUTH_TYPE.BEARER:
+      Cookie.set(xsrfHeaderName, 'Bearer ' + auth.token, {expires: auth.expireAt})
+      break
+    case AUTH_TYPE.BASIC:
+    case AUTH_TYPE.AUTH1:
+    case AUTH_TYPE.AUTH2:
+    default:
+      break
+  }
+}
+
+/**
+ * 移出认证信息
+ * @param authType {AUTH_TYPE} 认证类型
+ */
+function removeAuthorization(authType = AUTH_TYPE.BEARER) {
+  switch (authType) {
+    case AUTH_TYPE.BEARER:
+      Cookie.remove(xsrfHeaderName)
+      break
+    case AUTH_TYPE.BASIC:
+    case AUTH_TYPE.AUTH1:
+    case AUTH_TYPE.AUTH2:
+    default:
+      break
+  }
+}
+
+/**
+ * 检查认证信息
+ * @param authType
+ * @returns {boolean}
+ */
+function checkAuthorization(authType = AUTH_TYPE.BEARER) {
+  switch (authType) {
+    case AUTH_TYPE.BEARER:
+      if (Cookie.get(xsrfHeaderName)) {
+        return true
       }
-    } else {
-      ElMessage.error('网络错误，请检查网络连接')
-    }
-    
-    return Promise.reject(error)
+      break
+    case AUTH_TYPE.BASIC:
+    case AUTH_TYPE.AUTH1:
+    case AUTH_TYPE.AUTH2:
+    default:
+      break
   }
-)
+  return false
+}
 
-export default service 
+/**
+ * 加载 axios 拦截器
+ * @param interceptors
+ * @param options
+ */
+function loadInterceptors(interceptors, options) {
+  const {request, response} = interceptors
+  // 加载请求拦截器
+  request.forEach(item => {
+    let {onFulfilled, onRejected} = item
+    if (!onFulfilled || typeof onFulfilled !== 'function') {
+      onFulfilled = config => config
+    }
+    if (!onRejected || typeof onRejected !== 'function') {
+      onRejected = error => Promise.reject(error)
+    }
+    axios.interceptors.request.use(
+      config => onFulfilled(config, options),
+      error => onRejected(error, options)
+    )
+  })
+  // 加载响应拦截器
+  response.forEach(item => {
+    let {onFulfilled, onRejected} = item
+    if (!onFulfilled || typeof onFulfilled !== 'function') {
+      onFulfilled = response => response
+    }
+    if (!onRejected || typeof onRejected !== 'function') {
+      onRejected = error => Promise.reject(error)
+    }
+    axios.interceptors.response.use(
+      response => onFulfilled(response, options),
+      error => onRejected(error, options)
+    )
+  })
+}
+
+/**
+ * 解析 url 中的参数
+ * @param url
+ * @returns {Object}
+ */
+function parseUrlParams(url) {
+  const params = {}
+  if (!url || url === '' || typeof url !== 'string') {
+    return params
+  }
+  const paramsStr = url.split('?')[1]
+  if (!paramsStr) {
+    return params
+  }
+  const paramsArr = paramsStr.replace(/&|=/g, ' ').split(' ')
+  for (let i = 0; i < paramsArr.length / 2; i++) {
+    const value = paramsArr[i * 2 + 1]
+    params[paramsArr[i * 2]] = value === 'true' ? true : (value === 'false' ? false : value)
+  }
+  return params
+}
+
+export {
+  METHOD,
+  AUTH_TYPE,
+  request,
+  setAuthorization,
+  removeAuthorization,
+  checkAuthorization,
+  loadInterceptors,
+  parseUrlParams
+}

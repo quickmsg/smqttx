@@ -20,7 +20,12 @@ public class StaticResourceActor implements HttpActor {
     @Override
     public Publisher<Void> doRequest(HttpServerRequest request, HttpServerResponse response, Configuration httpConfiguration) {
         String path = "/static/"+request.path();
-        if(path.endsWith(".css") || path.endsWith(".js") ){
+        if(path.endsWith(".css")){
+            response.header("Content-Type", "text/css; charset=utf-8");
+            return response.send(ClassPathLoader.readClassPathCompressFile(path,response)).then();
+        }
+        else if(path.endsWith(".js")){
+            response.header("Content-Type", "application/javascript; charset=utf-8");
             return response.send(ClassPathLoader.readClassPathCompressFile(path,response)).then();
         }
         else{

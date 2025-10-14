@@ -32,7 +32,11 @@ public class BootstrapConfig {
         bootstrapConfig.setSmqttConfig(smqttConfig);
         smqttConfig.setClusterConfig(ClusterConfig.builder()
                     .enable(false).build());
-        smqttConfig.setHttpConfig(HttpConfig.builder().host("0.0.0.0").build());
+        smqttConfig.setHttpConfig(HttpConfig.builder()
+                .host("0.0.0.0")
+                .port(60000)
+                .admin(HttpAdmin.builder().username("smqtt").password("smqtt").build())
+                .build());
         smqttConfig.setWebsocketConfig(WebsocketConfig.builder()
                     .enable(false).build());
         return bootstrapConfig;

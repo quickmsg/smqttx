@@ -1,25 +1,28 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-
+import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
-import './style.css'
+import {initRouter} from './router'
+import './theme/index.less'
+import Antd from 'ant-design-vue'
+import '@/mock'
+import store from './store'
+import 'animate.css/source/animate.css'
+import Plugins from '@/plugins'
+import {initI18n} from '@/utils/i18n'
+import bootstrap from '@/bootstrap'
+import 'moment/locale/zh-cn'
 
-const app = createApp(App)
+const router = initRouter(store.state.setting.asyncRoutes)
+const i18n = initI18n('CN', 'US')
 
-// 注册Element Plus图标
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
-}
+Vue.use(Antd)
+Vue.config.productionTip = false
+Vue.use(Plugins)
 
-app.use(createPinia())
-app.use(router)
-app.use(ElementPlus, {
-  locale: zhCn,
-})
+bootstrap({router, store, i18n, message: Vue.prototype.$message})
 
-app.mount('#app') 
+new Vue({
+  router,
+  store,
+  i18n,
+  render: h => h(App),
+}).$mount('#app')
