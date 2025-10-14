@@ -38,4 +38,4 @@ docker run -d \
   -Dio.netty.leakDetection.level=disabled \
   -Dio.netty.recycler.maxCapacity=32 \
   -Dio.netty.allocator.numDirectArenas=2 \
-  -jar /app/smqttx-bootstrap-2.0.12.jar 
+  -jar /app/smqttx-bootstrap-2.1.0.jar 
