@@ -315,7 +315,13 @@ export default {
                 this.nodeInfo = res.data.slice(0,1) || []
                 //如果单机nodeInfo不发生变化，watch不会调用接口请求
                 if(this.nodeInfo.length===0){
-                  this.getConsoleInfo(this.defaultNode)
+                  // 单机模式下使用当前服务器地址
+                  this.getConsoleInfo(window.location.host)
+                } else {
+                  // 集群模式下，如果有数据，直接调用 getConsoleInfo
+                  if (this.defaultNode) {
+                    this.getConsoleInfo(this.defaultNode)
+                  }
                 }
             })
         },
@@ -338,10 +344,16 @@ export default {
             }
         },
         getConsoleInfo(host){
+            // 如果 host 未定义，使用当前服务器地址
+            if (!host) {
+                host = window.location.host
+            }
+            console.log('getConsoleInfo called with host:', host)
             let jvm = `http://${host}/smqtt/monitor/jvm`
             let cpu = `http://${host}/smqtt/monitor/cpu`
             let counter = `http://${host}/smqtt/monitor/counter`
             let event = `http://${host}/smqtt/monitor/event`
+            console.log('Generated URLs:', {jvm, cpu, counter, event})
             let options = {
                 headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
             }
@@ -362,7 +374,8 @@ export default {
                 clearTimeout(this.timer)
             }
             this.timer = setTimeout(() => {
-                this.getConsoleInfo(host)
+                // 确保传递有效的 host 参数
+                this.getConsoleInfo(host || window.location.host)
             }, 3000)
         }
     }

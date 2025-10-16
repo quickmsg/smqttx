@@ -39,7 +39,7 @@ public class HttpTransport implements Transport<HttpConfiguration> {
                     .thenReturn(this)
                     .doOnSuccess(defaultTransport -> {
                         log.info("http server start success host {} port {}", disposableServer.host(), disposableServer.port());
-                        ContextHolder.setHttpUrl(disposableServer.host() + ":" + disposableServer.port());
+                        ContextHolder.setHttpUrl(configuration.getHost() + ":" + disposableServer.port());
                     })
                     .cast(Transport.class)
                     .contextWrite(context -> context.put(HttpConfiguration.class, getConfiguration()));
