@@ -43,7 +43,7 @@ public class SubscribeProtocol implements Protocol<SubscribeMessage> {
         IntegrateMessages messages = receiveContext.getIntegrate().getMessages();
         List<SubscribeTopic> subscribeTopics = message.getSubscribeTopics()
                     .stream()
-                    .filter(subscribeTopic -> aclManager.check(mqttChannel, subscribeTopic.getTopicFilter(), AclAction.SUBSCRIBE))
+//                    .filter(subscribeTopic -> aclManager.check(mqttChannel, subscribeTopic.getTopicFilter(), AclAction.SUBSCRIBE))
                     .peek(subscribeTopic -> this.loadRetainMessage(messages, subscribeTopic)).collect(Collectors.toList());
         topics.registryTopic(mqttChannel, subscribeTopics);
         logManager.printInfo(mqttChannel, LogEvent.SUBSCRIBE, LogStatus.SUCCESS, JacksonUtil.bean2Json(message));

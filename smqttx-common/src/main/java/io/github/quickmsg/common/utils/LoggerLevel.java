@@ -2,7 +2,6 @@ package io.github.quickmsg.common.utils;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import org.apache.ignite.internal.IgniteKernal;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -19,9 +18,9 @@ public class LoggerLevel {
         loggerContext.getLogger("reactor.netty").setLevel(ch.qos.logback.classic.Level.DEBUG);
     }
 
-    public static void  disableIgniteLog() {
+    public static void disableDistributedLog() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.getLogger("org.apache.ignite").setLevel(Level.ERROR);
+        loggerContext.getLogger("com.hazelcast").setLevel(Level.ERROR);
     }
 
 

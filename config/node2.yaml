@@ -1,0 +1,19 @@
+smqtt:
+  tcp:
+    port: 1884
+  cluster:
+    localAddress: 127.0.0.1
+    addresses: ["127.0.0.1:5701", "127.0.0.1:5702", "127.0.0.1:5703"]
+    workDirectory: ./data/node2
+  http:
+    enable: true
+    port: 8082
+  websocket:
+    enable: true
+    port: 8083
+  auth:
+    enable: false
+  acl:
+    enable: false
+  meter:
+    enable: false

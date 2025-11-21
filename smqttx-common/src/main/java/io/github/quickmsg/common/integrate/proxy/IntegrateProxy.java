@@ -3,7 +3,6 @@ package io.github.quickmsg.common.integrate.proxy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.apache.ignite.IgniteCompute;
 
 import java.lang.reflect.Method;
 
@@ -17,9 +16,9 @@ public class IntegrateProxy<T> implements MethodInterceptor {
 
     private final T source;
 
-    private final IgniteCompute compute;
+    private final Object compute;
 
-    public IntegrateProxy(T object, Class<T> tClass, IgniteCompute compute) {
+    public IntegrateProxy(T object, Class<T> tClass, Object compute) {
         this.compute = compute;
         this.enhancer = new Enhancer();
         this.source = object;

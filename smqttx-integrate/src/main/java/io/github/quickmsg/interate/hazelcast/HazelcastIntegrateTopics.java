@@ -1,5 +1,6 @@
-package io.github.quickmsg.interate;
+package io.github.quickmsg.interate.hazelcast;
 
+import com.hazelcast.collection.ISet;
 import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.integrate.Integrate;
@@ -9,44 +10,38 @@ import io.github.quickmsg.common.metric.CounterType;
 import io.github.quickmsg.common.utils.TopicRegexUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ignite.IgniteSet;
-import org.apache.ignite.cache.CacheAtomicityMode;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.configuration.CollectionConfiguration;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 /**
- * @author luxurong
+ * Hazelcast implementation of IntegrateTopics
+ *
+ * @author hxx
  */
 @Slf4j
-public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
+public class HazelcastIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
-    private final IgniteIntegrate integrate;
-
-    private final IgniteSet<String> shareCache;
+    private final HazelcastIntegrate integrate;
+    private final ISet<String> shareCache;
 
     @Getter
     private final Map<String, Set<SubscribeTopic>> topicSubscribers;
 
     protected static final String ONE_SYMBOL = "+";
-
     protected static final String MORE_SYMBOL = "#";
-
 
     public boolean checkFilter(String topicFilter) {
         return topicFilter.contains(ONE_SYMBOL);
     }
 
-    public IgniteIntegrateTopics(IgniteIntegrate integrate) {
+    public HazelcastIntegrateTopics(HazelcastIntegrate integrate) {
         this.integrate = integrate;
-        this.shareCache = integrate.getIgnite().set("wildcard",
-                    new CollectionConfiguration().setCacheMode(CacheMode.PARTITIONED)
-                                .setAtomicityMode(CacheAtomicityMode.ATOMIC)
-                                .setCollocated(true));
+        this.shareCache = integrate.getHazelcastInstance().getSet("wildcard");
         this.topicSubscribers = new ConcurrentHashMap<>();
     }
 
@@ -57,11 +52,16 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public void registryTopic(MqttChannel mqttChannel, SubscribeTopic subscribeTopic) {
-        Set<SubscribeTopic> subscribeTopicSet = topicSubscribers.computeIfAbsent(subscribeTopic.getTopicFilter(), topic -> new CopyOnWriteArraySet<>());
+        Set<SubscribeTopic> subscribeTopicSet = topicSubscribers.computeIfAbsent(
+            subscribeTopic.getTopicFilter(), 
+            topic -> new CopyOnWriteArraySet<>()
+        );
         String topic = subscribeTopic.getTopicFilter();
         if (subscribeTopicSet.add(subscribeTopic)) {
-            ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).increment();
-            ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
+            ContextHolder.getReceiveContext().getMetricManager()
+                .getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).increment();
+            ContextHolder.getReceiveContext().getMetricManager()
+                .getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE_EVENT).increment();
             integrate.getCluster().listenTopic(topic);
             mqttChannel.getTopics().add(subscribeTopic);
             if (isWildcard(topic)) {
@@ -70,7 +70,6 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
         }
     }
 
-
     @Override
     public void removeTopic(MqttChannel mqttChannel, SubscribeTopic subscribeTopic) {
         topicSubscribers.compute(subscribeTopic.getTopicFilter(), (topic, subscribeTopicSet) -> {
@@ -78,8 +77,10 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
                 this.clearCache(subscribeTopic.getTopicFilter());
             } else {
                 if (subscribeTopicSet.remove(subscribeTopic)) {
-                    ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).decrement();
-                    ContextHolder.getReceiveContext().getMetricManager().getMetricRegistry().getMetricCounter(CounterType.UN_SUBSCRIBE_EVENT).increment();
+                    ContextHolder.getReceiveContext().getMetricManager()
+                        .getMetricRegistry().getMetricCounter(CounterType.SUBSCRIBE).decrement();
+                    ContextHolder.getReceiveContext().getMetricManager()
+                        .getMetricRegistry().getMetricCounter(CounterType.UN_SUBSCRIBE_EVENT).increment();
                     if ((subscribeTopicSet.size() < 1)) {
                         this.clearCache(subscribeTopic.getTopicFilter());
                     }
@@ -88,7 +89,6 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
             mqttChannel.getTopics().remove(subscribeTopic);
             return subscribeTopicSet;
         });
-
     }
 
     private void clearCache(String topic) {
@@ -122,7 +122,9 @@ public class IgniteIntegrateTopics implements IntegrateTopics<SubscribeTopic> {
 
     @Override
     public Set<String> getWildcardTopics(String topic) {
-        return shareCache.stream().filter(tp->topic.matches(TopicRegexUtils.regexTopic(tp))).collect(Collectors.toSet());
+        return shareCache.stream()
+            .filter(tp -> topic.matches(TopicRegexUtils.regexTopic(tp)))
+            .collect(Collectors.toSet());
     }
 
     @Override

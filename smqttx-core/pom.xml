@@ -37,10 +37,7 @@
             <artifactId>smqttx-metric-prometheus</artifactId>
             <version>2.1.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-slf4j</artifactId>
-        </dependency>
+
     </dependencies>
     
     <build>

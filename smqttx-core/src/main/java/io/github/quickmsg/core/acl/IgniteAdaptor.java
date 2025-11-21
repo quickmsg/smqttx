@@ -1,8 +1,6 @@
 package io.github.quickmsg.core.acl;
 
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteSet;
 import org.casbin.jcasbin.model.Model;
 import org.casbin.jcasbin.persist.Adapter;
 import org.casbin.jcasbin.persist.Helper;
@@ -13,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author luxurong
+ * @author hxx
  */
 public class IgniteAdaptor implements Adapter {
     private IntegrateCache<String,Object> policyModels;

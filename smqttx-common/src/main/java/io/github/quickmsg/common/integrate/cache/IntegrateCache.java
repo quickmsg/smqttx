@@ -1,11 +1,8 @@
 package io.github.quickmsg.common.integrate.cache;
 
-import org.apache.ignite.IgniteCache;
-
-import javax.cache.Cache;
+import java.util.function.Consumer;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
-import java.util.function.Consumer;
 
 /**
  * cache
@@ -15,8 +12,7 @@ import java.util.function.Consumer;
 public interface IntegrateCache<K, V>  {
 
 
-    IgniteCache<K,V> getOriginCache();
-    void forEach(Consumer<Cache.Entry<K,V>> consumer);
+    void forEach(Consumer<Map.Entry<K,V>> consumer);
 
     void put(K k, V v);
 
@@ -37,10 +33,5 @@ public interface IntegrateCache<K, V>  {
     void clear();
 
     void close();
-
-
-
-
-
 
 }

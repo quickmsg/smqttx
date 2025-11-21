@@ -7,7 +7,6 @@ import io.github.quickmsg.common.context.ReceiveContext;
 import io.github.quickmsg.common.handler.CacheTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.LazyTrafficHandlerLoader;
 import io.github.quickmsg.common.handler.TrafficHandlerLoader;
-import io.github.quickmsg.common.integrate.IgniteCacheRegion;
 import io.github.quickmsg.common.integrate.Integrate;
 import io.github.quickmsg.common.integrate.IntegrateBuilder;
 import io.github.quickmsg.common.log.LogManager;
@@ -25,7 +24,7 @@ import io.github.quickmsg.core.acl.JCasBinAclManager;
 import io.github.quickmsg.core.auth.AuthManagerFactory;
 import io.github.quickmsg.dsl.RuleDslExecutor;
 import io.github.quickmsg.dsl.RuleDslParser;
-import io.github.quickmsg.interate.IgniteIntegrate;
+import io.github.quickmsg.interate.hazelcast.HazelcastIntegrateBuilder;
 import io.github.quickmsg.rule.source.SourceManager;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
@@ -33,10 +32,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ignite.configuration.*;
-import org.apache.ignite.logger.slf4j.Slf4jLogger;
-import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
 import reactor.netty.resources.LoopResources;
 
 import java.util.Optional;
@@ -89,7 +84,8 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
         this.ruleDslExecutor = ruleDslParser.executor();
         this.metricManager = metricManager(abstractConfiguration.getMeterConfig());
         this.retryManager = new TimeAckManager(100, TimeUnit.MILLISECONDS, 512, 5, 5);
-        this.aclManager = new JCasBinAclManager(integrate.getCache(IgniteCacheRegion.CONFIG));
+        // 使用字符串常量替代IgniteCacheRegion枚举
+        this.aclManager = new JCasBinAclManager(integrate.getCache("config"));
         this.authManager = authManagerFactory().provider(abstractConfiguration.getAuthConfig()).getAuthManager();
         Optional.ofNullable(abstractConfiguration.getSourceDefinitions())
                 .ifPresent(sourceDefinitions -> sourceDefinitions.forEach(SourceManager::loadSource));
@@ -141,55 +137,49 @@ public abstract class AbstractReceiveContext<T extends Configuration> implements
     }
 
     private IntegrateBuilder integrateBuilder() {
-        return configuration -> new IgniteIntegrate(configuration, protocolAdaptor);
+        return new HazelcastIntegrateBuilder(protocolAdaptor);
     }
 
-    private IgniteConfiguration initConfig(BootstrapConfig.ClusterConfig clusterConfig) {
-        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
-        dataStorageConfiguration.setDataRegionConfigurations(getDataRegionConfigurations(IgniteCacheRegion.values()));
-        IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
-        igniteConfiguration.setDataStorageConfiguration(dataStorageConfiguration);
-        String localAddress= Optional.ofNullable(clusterConfig.getLocalAddress()).orElse(ServerUtils.serverIp);
-        igniteConfiguration.setLocalHost(localAddress);
-        igniteConfiguration.setConnectorConfiguration(new ConnectorConfiguration().setHost(localAddress));
-        igniteConfiguration.setGridLogger(new Slf4jLogger());
-        if(StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())){
-            igniteConfiguration.setWorkDirectory(clusterConfig.getWorkDirectory());
+    private com.hazelcast.config.Config initConfig(BootstrapConfig.ClusterConfig clusterConfig) {
+        com.hazelcast.config.Config hazelcastConfig = new com.hazelcast.config.Config();
+        
+        // 设置本地地址
+        String localAddress = Optional.ofNullable(clusterConfig.getLocalAddress()).orElse(ServerUtils.serverIp);
+        // 设置端口
+        hazelcastConfig.getNetworkConfig().setPort(5701);
+        hazelcastConfig.getNetworkConfig().setPortAutoIncrement(true);
+        
+        // 配置网络设置
+        if (StringUtils.isNotEmpty(clusterConfig.getWorkDirectory())) {
+            hazelcastConfig.setProperty("hazelcast.logging.type", "slf4j");
         }
-        igniteConfiguration.setClientMode(false);
-        TcpDiscoveryMulticastIpFinder ipFinder = new TcpDiscoveryMulticastIpFinder();
-        if(clusterConfig.getAddresses()!=null){
-            // ip集群
-            ipFinder.setAddresses(clusterConfig.getAddresses());
-        }
-        else{
-            // 组播
+        
+        // 配置序列化 - 使用Java序列化作为默认序列化方式
+        hazelcastConfig.getSerializationConfig().setAllowUnsafe(true);
+        
+        // 配置集群发现
+        if (clusterConfig.getAddresses() != null && !clusterConfig.getAddresses().isEmpty()) {
+            // TCP/IP集群发现
+            com.hazelcast.config.JoinConfig joinConfig = hazelcastConfig.getNetworkConfig().getJoin();
+            joinConfig.getMulticastConfig().setEnabled(false);
+            joinConfig.getTcpIpConfig().setEnabled(true);
+            joinConfig.getTcpIpConfig().setMembers(clusterConfig.getAddresses());
+        } else {
+            // 组播发现
+            com.hazelcast.config.JoinConfig joinConfig = hazelcastConfig.getNetworkConfig().getJoin();
+            joinConfig.getMulticastConfig().setEnabled(true);
+            
             String multicastGroup = clusterConfig.getMulticastGroup();
-            if(multicastGroup!=null){
-                ipFinder.setMulticastGroup(multicastGroup);
+            if (multicastGroup != null) {
+                joinConfig.getMulticastConfig().setMulticastGroup(multicastGroup);
             }
+            
             Integer multicastPort = clusterConfig.getMulticastPort();
-            if(multicastPort!=null){
-                ipFinder.setMulticastPort(multicastPort);
+            if (multicastPort != null) {
+                joinConfig.getMulticastConfig().setMulticastPort(multicastPort);
             }
         }
-        TcpDiscoverySpi spi = new TcpDiscoverySpi();
-        spi.setIpFinder(ipFinder);
-        igniteConfiguration.setDiscoverySpi(spi);
-        return igniteConfiguration;
-
-
+        
+        return hazelcastConfig;
     }
-
-    private DataRegionConfiguration[] getDataRegionConfigurations(IgniteCacheRegion[] values) {
-        DataRegionConfiguration[] regionConfigurations = new DataRegionConfiguration[values.length];
-        for (int i = 0; i < values.length; i++) {
-            regionConfigurations[i] = new DataRegionConfiguration()
-                    .setName(values[i].getRegionName())
-                    .setPersistenceEnabled(values[i].persistence());
-        }
-        return regionConfigurations;
-    }
-
-
 }

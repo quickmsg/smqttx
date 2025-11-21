@@ -3,13 +3,16 @@ package io.github.quickmsg.common.message.mqtt;
 import io.github.quickmsg.common.channel.MqttChannel;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 /**
  * @author luxurong
  */
 @Data
-public class ClusterMessage{
+public class ClusterMessage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int qos;
 
@@ -27,6 +30,7 @@ public class ClusterMessage{
     private String originTopic;
 
     private int channelId;
+
 
 
 

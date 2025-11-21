@@ -1,5 +1,7 @@
 package io.github.quickmsg.common.integrate;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cp.IAtomicLong;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import io.github.quickmsg.common.integrate.channel.IntegrateChannels;
 import io.github.quickmsg.common.integrate.cluster.IntegrateCluster;
@@ -7,8 +9,6 @@ import io.github.quickmsg.common.integrate.job.JobExecutor;
 import io.github.quickmsg.common.integrate.msg.IntegrateMessages;
 import io.github.quickmsg.common.integrate.topic.IntegrateTopics;
 import io.github.quickmsg.common.protocol.ProtocolAdaptor;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteAtomicLong;
 
 /**
  * @author luxurong
@@ -36,7 +36,6 @@ public interface Integrate {
     <K, V> IntegrateCache<K, V> getCache(String cacheName);
 
 
-
     /**
      * @param cacheName cache name
      * @param <K>  key
@@ -53,16 +52,6 @@ public interface Integrate {
      * @return {@link IntegrateCache support memory or Persistence }
      */
     <K, V> IntegrateCache<K, V> getLocalCache(String cacheName,boolean local);
-
-
-    /**
-     * @param <K>  key
-     * @param <V>  value
-     * @param igniteCacheRegion  {@link IntegrateCache support memory or Persistence }
-     * @return {@link IntegrateCache support memory or Persistence }
-     */
-    <K, V> IntegrateCache<K, V> getCache(IgniteCacheRegion igniteCacheRegion);
-
 
 
     /**
@@ -90,19 +79,19 @@ public interface Integrate {
 
 
     /**
-     * get  Ignite
+     * get distributed system instance
      *
-     * @return {@link Ignite Ignite  }
+     * @return Object representing the distributed system instance
      */
-    Ignite getIgnite();
+    HazelcastInstance getDistributedSystem();
 
 
     /**
-     * get  getGlobalCounter
+     * get global counter
      *
-     * @return {@link IgniteAtomicLong }
+     * @return Object representing the global counter
      */
-    IgniteAtomicLong getGlobalCounter(String name);
+    IAtomicLong getGlobalCounter(String name);
 
 
 }

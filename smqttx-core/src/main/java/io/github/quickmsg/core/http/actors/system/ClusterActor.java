@@ -1,5 +1,6 @@
 package io.github.quickmsg.core.http.actors.system;
 
+import com.hazelcast.core.HazelcastInstance;
 import io.github.quickmsg.common.config.Configuration;
 import io.github.quickmsg.common.context.ContextHolder;
 import io.github.quickmsg.common.http.HttpActor;
@@ -45,11 +46,11 @@ public class ClusterActor implements HttpActor {
                     .callBroadcast(new JobCaller<ClusterInfo>() {
                         @Override
                         public ClusterInfo call() throws Exception {
-                            ClusterNode clusterNode = ContextHolder.getReceiveContext()
-                                        .getIntegrate().getIgnite().cluster().localNode();
+                            HazelcastInstance hazelcastInstance = ContextHolder.getReceiveContext()
+                                        .getIntegrate().getDistributedSystem();
                             ClusterInfo clusterInfo = new ClusterInfo();
-                            clusterInfo.setClusterId(clusterNode.consistentId().toString());
-                            clusterInfo.setNodeIp(clusterNode.addresses().stream().findAny().orElse(null));
+                            clusterInfo.setClusterId(hazelcastInstance.getCluster().getLocalMember().getUuid().toString());
+                            clusterInfo.setNodeIp(hazelcastInstance.getCluster().getLocalMember().getAddress().toString());
                             clusterInfo.setHttpUrl(ContextHolder.getHttpUrl());
                             return clusterInfo;
                         }

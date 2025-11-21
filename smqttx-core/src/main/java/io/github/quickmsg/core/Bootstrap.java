@@ -94,7 +94,7 @@ public class Bootstrap {
         if (tcpConfig.getWiretap() != null && tcpConfig.getWiretap()) {
             LoggerLevel.wiretap();
         }
-        LoggerLevel.disableIgniteLog();
+        LoggerLevel.disableDistributedLog();
         mqttConfiguration.setOptions(tcpConfig.getOptions());
         mqttConfiguration.setChildOptions(tcpConfig.getChildOptions());
         mqttConfiguration.setRuleChainDefinitions(ruleChainDefinitions);
@@ -134,7 +134,15 @@ public class Bootstrap {
         MqttConfiguration mqttConfiguration = initMqttConfiguration();
         MqttTransportFactory mqttTransportFactory = new MqttTransportFactory();
         LoggerLevel.root(rootLevel);
-        return mqttTransportFactory.createTransport(mqttConfiguration).start().doOnError(Throwable::printStackTrace).doOnSuccess(transports::add).then(startWs(mqttConfiguration)).then(startHttp()).thenReturn(this).doOnSuccess(started);
+        return mqttTransportFactory.
+                createTransport(mqttConfiguration).
+                start().
+                doOnError(Throwable::printStackTrace).
+                doOnSuccess(transports::add).
+                then(startWs(mqttConfiguration)).
+                then(startHttp()).
+                thenReturn(this).
+                doOnSuccess(started);
     }
 
 

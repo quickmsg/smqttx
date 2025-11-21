@@ -10,7 +10,6 @@ import io.github.quickmsg.common.channel.MqttChannel;
 import io.github.quickmsg.common.config.AclConfig;
 import io.github.quickmsg.common.integrate.cache.IntegrateCache;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ignite.IgniteSet;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
 import org.casbin.jcasbin.model.Model;

@@ -246,22 +246,26 @@ public class BootstrapConfig {
         /**
          * 集群ip集合
          */
+        @JsonProperty("addresses")
         private List<String> addresses;
 
         /**
          * 组播ip
          */
+        @JsonProperty("multicastGroup")
         private String multicastGroup;
 
 
         /**
          * 组播端口
          */
+        @JsonProperty("multicastPort")
         private Integer multicastPort;
 
         /**
          * 集群持久化文件
          */
+        @JsonProperty("workDirectory")
         private String workDirectory;
     }
 
