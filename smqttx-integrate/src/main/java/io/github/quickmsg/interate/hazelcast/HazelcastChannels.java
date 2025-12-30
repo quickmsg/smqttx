@@ -67,9 +67,10 @@ public class HazelcastChannels implements IntegrateChannels {
     }
 
     @Override
-    public void remove(MqttChannel mqttChannel) {
+    public MqttChannel remove(MqttChannel mqttChannel) {
         localChannelCache.remove(mqttChannel.getClientId(), mqttChannel);
         shareChannelCache.remove(mqttChannel.getId());
+        return mqttChannel;
     }
 
     @Override
