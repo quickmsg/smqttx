@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>smqttx-metric-influxdb</artifactId>
-
+    <name>smqttx-metric-influxdb</name>
     <dependencies>
         <dependency>
             <groupId>io.github.quickmsg</groupId>

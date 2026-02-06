@@ -12,7 +12,7 @@
     <groupId>io.github.quickmsg</groupId>
     <artifactId>smqttx-rule-source-mqtt</artifactId>
     <version>2.1.0</version>
-
+    <name>smqttx-rule-source-mqtt</name>
     <dependencies>
         <dependency>
             <groupId>com.hivemq</groupId>

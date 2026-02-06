@@ -36,6 +36,10 @@
         <disruptor.version>3.4.4</disruptor.version>
         <cglib.version>3.3.0</cglib.version>
         <skip.frontend.build>false</skip.frontend.build>
+        <!-- release 时 GPG 签名：默认不跳过；未配置密钥时可 -Dgpg.skip=true 跳过 -->
+        <gpg.skip>false</gpg.skip>
+        <!-- 指定 GPG 密钥 ID，发布时无需再传 -Dgpg.keyname -->
+        <gpg.keyname>19857AFC2F1E26445804301BA82C573A0F4E2FA1</gpg.keyname>
     </properties>
 
     <licenses>
@@ -207,6 +211,7 @@
         </profile>
 
         
+        <!-- 使用 Central Portal 新发布方式：https://central.sonatype.org/publish/publish-portal-maven/ -->
         <profile>
             <id>release</id>
             <activation>
@@ -214,15 +219,16 @@
             </activation>
             <build>
                 <plugins>
+                    <!-- 新方案：上传到 central.sonatype.com，需在 settings.xml 配置 server id=central 的 Token -->
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.10.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -240,11 +246,6 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <version>3.1.1</version>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.6.3</version>
                         <executions>
@@ -256,10 +257,23 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Central 仍要求 GPG 签名；密码从 settings.xml 的 server id=gpg 读取，避免 IDE/非 TTY 下 Inappropriate ioctl for device -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>3.1.0</version>
+                        <configuration>
+                            <skip>${gpg.skip}</skip>
+                            <!-- 密码优先用属性 gpg.passphrase（可在 settings.xml 的 profile 里配置），否则用 server id=gpg -->
+                            <passphrase>${gpg.passphrase}</passphrase>
+                            <passphraseServerId>gpg</passphraseServerId>
+                            <useAgent>false</useAgent>
+                            <gpgArguments>
+                                <arg>--batch</arg>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -272,16 +286,27 @@
                     </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
+        </profile>
+        <!-- 指定密钥时激活：mvn -P release -Dgpg.keyname=你的KEY_ID -->
+        <profile>
+            <id>release-gpg-key</id>
+            <activation>
+                <property>
+                    <name>gpg.keyname</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <configuration>
+                            <keyname>${gpg.keyname}</keyname>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

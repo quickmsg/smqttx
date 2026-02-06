@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>smqttx-metric-prometheus</artifactId>
-
+    <name>smqttx-metric-prometheus</name>
     <dependencies>
         <dependency>
             <groupId>io.micrometer</groupId>

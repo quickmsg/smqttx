@@ -12,7 +12,7 @@
     <groupId>io.github.quickmsg</groupId>
     <artifactId>smqttx-rule-source-rabbitmq</artifactId>
     <version>2.1.0</version>
-
+    <name>smqttx-rule-source-rabbitmq</name>
     <dependencies>
         <dependency>
             <groupId>com.rabbitmq</groupId>

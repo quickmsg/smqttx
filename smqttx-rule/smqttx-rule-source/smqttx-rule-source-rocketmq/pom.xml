@@ -12,7 +12,7 @@
     <groupId>io.github.quickmsg</groupId>
     <artifactId>smqttx-rule-source-rocketmq</artifactId>
     <version>2.1.0</version>
-
+    <name>smqttx-rule-source-rocketmq</name>
     <dependencies>
         <dependency>
             <groupId>org.apache.rocketmq</groupId>

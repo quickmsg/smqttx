@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>smqttx-metric</artifactId>
-
+    <name>smqttx-metric</name>
     <packaging>pom</packaging>
 
     <modules>
